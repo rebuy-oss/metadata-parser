@@ -117,17 +117,12 @@ final class JMSTypeParser
 
     private function getTraversableClass(string $name): ?string
     {
-        switch ($name) {
-            case self::TYPE_ARRAY_COLLECTION:
-                return ArrayCollection::class;
-            case self::TYPE_GENERATOR:
-                return \Generator::class;
-            case self::TYPE_ARRAY_ITERATOR:
-            case self::TYPE_ITERATOR:
-                return \ArrayIterator::class;
-            default:
-                return is_a($name, \Traversable::class, true) ? $name : null;
-        }
+        return match ($name) {
+            self::TYPE_ARRAY_COLLECTION => ArrayCollection::class,
+            self::TYPE_GENERATOR => \Generator::class,
+            self::TYPE_ARRAY_ITERATOR, self::TYPE_ITERATOR => \ArrayIterator::class,
+            default => is_a($name, \Traversable::class, true) ? $name : null,
+        };
     }
 
     private function getEnumSerializationMode(string $enumType, array $typeParams): ?SerializationMode

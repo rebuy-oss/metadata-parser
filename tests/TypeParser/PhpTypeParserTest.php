@@ -9,9 +9,8 @@ use Liip\MetadataParser\Metadata\PropertyTypeEnum;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\TypeParser\PhpTypeParser;
 use PHPUnit\Framework\TestCase;
-use Tests\Liip\MetadataParser\ModelParser\Fixtures\DirectionEnum;
+use Tests\Liip\MetadataParser\ModelParser\Fixtures\ClassWithPhpDocs;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\EnumModel;
-use Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum;
 use Tests\Liip\MetadataParser\ModelParser\Model\BaseModel;
 use Tests\Liip\MetadataParser\ModelParser\Model\ReflectionAbstractModel;
 use Tests\Liip\MetadataParser\ModelParser\Model\WithImports;
@@ -22,10 +21,7 @@ use Tests\Liip\MetadataParser\RecursionContextTest;
  */
 class PhpTypeParserTest extends TestCase
 {
-    /**
-     * @var PhpTypeParser
-     */
-    private $parser;
+    private PhpTypeParser $parser;
 
     protected function setUp(): void
     {
@@ -34,143 +30,46 @@ class PhpTypeParserTest extends TestCase
 
     public static function providePropertyTypeCases(): iterable
     {
-        yield [
-            '',
-            'mixed',
-            true,
-        ];
+        $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);
 
-        yield [
-            'mixed',
-            'mixed',
-            true,
-        ];
-
-        yield [
-            'object',
-            'mixed',
-            false,
-        ];
-
-        yield [
-            'array',
-            'array',
-            false,
-        ];
-
-        yield [
-            'string',
-            'string',
-        ];
-
-        yield [
-            'boolean',
-            'bool',
-        ];
-
-        yield [
-            'integer',
-            'int',
-        ];
-
-        yield [
-            'double',
-            'float',
-        ];
-
-        yield [
-            'int|null',
-            'int|null',
-        ];
-
-        yield [
-            '\stdClass|null',
-            'stdClass|null',
-        ];
-
-        yield [
-            '\DateTime',
-            'DateTime',
-        ];
-
-        yield [
-            '\DateTimeImmutable',
-            'DateTimeImmutable',
-        ];
-
-        yield [
-            'string[]',
-            'string[]',
-        ];
-
-        yield [
-            'string[][][]',
-            'string[][][]',
-        ];
-
-        yield [
-            'array<string, string>',
-            'array<string, string>',
-        ];
-
-        yield [
-            'array<string, array<string, array<string, string>>>',
-            'array<string, array<string, array<string, string>>>',
-        ];
-
-        yield [
-            'array<array<string, string[]>>',
-            'array<string, string[]>[]',
-        ];
-
-        yield [
-            '\stdClass[]|null',
-            'stdClass[]|null',
-        ];
-
-        yield [
-            'string[]|\Doctrine\Common\Collections\Collection|null',
-            'string[]|\Doctrine\Common\Collections\Collection<string>|null',
-        ];
-
-        yield [
-            'array<string, \stdClass[]>',
-            'array<string, stdClass[]>',
-        ];
-
-        yield [
-            'list<string>',
-            'string[]',
-        ];
-
-        yield [
-            'array<string, string>',
-            'array<string, string>',
-        ];
-
-        yield [
-            'array<string, int>',
-            'array<string, int>',
-        ];
+        yield [$reflClass->getProperty('mixed'), 'mixed', true];
+        yield [$reflClass->getProperty('object'), 'mixed', false];
+        yield [$reflClass->getProperty('array'), 'array', false];
+        yield [$reflClass->getProperty('string'), 'string'];
+        yield [$reflClass->getProperty('boolean'), 'bool'];
+        yield [$reflClass->getProperty('integer'), 'int'];
+        yield [$reflClass->getProperty('double'), 'float'];
+        yield [$reflClass->getProperty('intOrNull'), 'int|null'];
+        yield [$reflClass->getProperty('stdClassOrNull'), 'stdClass|null'];
+        yield [$reflClass->getProperty('dateTime'), 'DateTime'];
+        yield [$reflClass->getProperty('dateTimeImmutable'), 'DateTimeImmutable'];
+        yield [$reflClass->getProperty('stringArray'), 'string[]'];
+        yield [$reflClass->getProperty('stringTripleArray'), 'string[][][]'];
+        yield [$reflClass->getProperty('stringMap'), 'array<string, string>'];
+        yield [$reflClass->getProperty('deepStringMap'), 'array<string, array<string, array<string, string>>>'];
+        yield [$reflClass->getProperty('nestedStringArray'), 'array<string, string[]>[]'];
+        yield [$reflClass->getProperty('stdClassArrayOrNull'), 'stdClass[]|null'];
+        yield [$reflClass->getProperty('stringCollectionOrNull'), 'string[]|\Doctrine\Common\Collections\Collection<string>|null'];
+        yield [$reflClass->getProperty('stdClassMap'), 'array<string, stdClass[]>'];
+        yield [$reflClass->getProperty('stringList'), 'string[]'];
+        yield [$reflClass->getProperty('stringMap'), 'array<string, string>'];
+        yield [$reflClass->getProperty('intMap'), 'array<string, int>'];
     }
 
     public static function providePropertyTypeArrayIsCollectionCases(): iterable
     {
-        yield [
-            'string[]|\Doctrine\Common\Collections\Collection',
-        ];
+        $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);
 
-        yield [
-            'string[]|\Doctrine\Common\Collections\ArrayCollection',
-        ];
+        yield [$reflClass->getProperty('stringCollection')];
+        yield [$reflClass->getProperty('stringArrayCollection')];
     }
 
     /**
      * @dataProvider providePropertyTypeCases
      */
-    public function testPropertyType(string $rawType, string $expectedType, ?bool $expectedNullable = null): void
+    public function testPropertyType(\ReflectionProperty $subject, string $expectedType, ?bool $expectedNullable = null): void
     {
-        $type = $this->parser->parseAnnotationType($rawType, new \ReflectionClass($this));
+        $type = $this->parser->parseAnnotationType($subject);
 
         $this->assertSame($expectedType, (string) $type, 'Type should match');
         if (null !== $expectedNullable) {
@@ -181,9 +80,9 @@ class PhpTypeParserTest extends TestCase
     /**
      * @dataProvider providePropertyTypeArrayIsCollectionCases
      */
-    public function testPropertyTypeArrayIsCollection(string $rawType): void
+    public function testPropertyTypeArrayIsCollection(\ReflectionProperty $subject): void
     {
-        $type = $this->parser->parseAnnotationType($rawType, new \ReflectionClass($this));
+        $type = $this->parser->parseAnnotationType($subject);
         self::assertInstanceOf(PropertyTypeIterable::class, $type);
         self::assertTrue($type->isTraversable());
     }
@@ -192,54 +91,35 @@ class PhpTypeParserTest extends TestCase
     {
         $this->expectException(InvalidTypeException::class);
         $this->expectExceptionMessage('Multiple types are not supported');
-        $this->parser->parseAnnotationType('string|int', new \ReflectionClass($this));
+        $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);
+        $this->parser->parseAnnotationType($reflClass->getProperty('multiType'));
     }
 
     public function testResourceType(): void
     {
         $this->expectException(InvalidTypeException::class);
-        $this->parser->parseAnnotationType('resource', new \ReflectionClass($this));
+        $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);
+        $this->parser->parseAnnotationType($reflClass->getProperty('resource'));
     }
 
     public static function provideNamespaceResolutionCases(): iterable
     {
-        yield [
-            'ReflectionAbstractModel',
-            ReflectionAbstractModel::class,
-        ];
+        $reflClass = new \ReflectionClass(WithImports::class);
 
-        yield [
-            'ReflectionBaseModel',
-            RecursionContextTest::class,
-        ];
-
-        yield [
-            'Nested',
-            BaseModel::class,
-        ];
-
-        yield [
-            'array<Nested>',
-            BaseModel::class.'[]',
-        ];
-
-        yield [
-            'array<string, Nested>',
-            'array<string, '.BaseModel::class.'>',
-        ];
-
-        yield [
-            'Nested[]|Collection',
-            BaseModel::class.'[]|\Doctrine\Common\Collections\Collection<'.BaseModel::class.'>',
-        ];
+        yield [$reflClass->getProperty('sameNamespace'), ReflectionAbstractModel::class];
+        yield [$reflClass->getProperty('aliasDifferentNamespace'), RecursionContextTest::class];
+        yield [$reflClass->getProperty('aliasSameNamespace'), BaseModel::class];
+        yield [$reflClass->getProperty('arrayNested'), BaseModel::class.'[]'];
+        yield [$reflClass->getProperty('stringNestedMap'), 'array<string, '.BaseModel::class.'>'];
+        yield [$reflClass->getProperty('nestedCollection'), BaseModel::class.'[]|\Doctrine\Common\Collections\Collection<'.BaseModel::class.'>'];
     }
 
     /**
      * @dataProvider provideNamespaceResolutionCases
      */
-    public function testNamespaceResolution(string $rawType, string $expectedType): void
+    public function testNamespaceResolution(\ReflectionProperty $subject, string $expectedType): void
     {
-        $type = $this->parser->parseAnnotationType($rawType, new \ReflectionClass(WithImports::class));
+        $type = $this->parser->parseAnnotationType($subject);
 
         $this->assertSame($expectedType, (string) $type, 'Type should match');
     }
@@ -322,7 +202,8 @@ class PhpTypeParserTest extends TestCase
 
     public function testEnumAnnotationType(): void
     {
-        $type = $this->parser->parseAnnotationType('\\'.SuitEnum::class, new \ReflectionClass($this));
+        $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);
+        $type = $this->parser->parseAnnotationType($reflClass->getProperty('suitEnum'));
 
         $this->assertInstanceOf(PropertyTypeEnum::class, $type);
         $this->assertSame('string', $type->getBackingType());
@@ -333,7 +214,8 @@ class PhpTypeParserTest extends TestCase
 
     public function testNullableUnitEnumAnnotationType(): void
     {
-        $type = $this->parser->parseAnnotationType('\\'.DirectionEnum::class.'|null', new \ReflectionClass($this));
+        $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);
+        $type = $this->parser->parseAnnotationType($reflClass->getProperty('directionEnumOrNull'));
 
         $this->assertInstanceOf(PropertyTypeEnum::class, $type);
         $this->assertNull($type->getBackingType());

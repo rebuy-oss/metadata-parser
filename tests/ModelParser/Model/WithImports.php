@@ -29,4 +29,19 @@ class WithImports
      * @var Collection<Nested>
      */
     private $collectionNamespace;
+
+    /**
+     * @var array<Nested>
+     */
+    private $arrayNested;
+
+    /**
+     * @var array<string, Nested>
+     */
+    private $stringNestedMap;
+
+    /**
+     * @var Nested[]|Collection
+     */
+    private $nestedCollection;
 }

@@ -27,10 +27,7 @@ final class ReflectionParser implements ModelParserInterface
         'array',
     ];
 
-    /**
-     * @var PhpTypeParser
-     */
-    private $typeParser;
+    private PhpTypeParser $typeParser;
 
     /**
      * Whether the PHP reflections support property type declarations.

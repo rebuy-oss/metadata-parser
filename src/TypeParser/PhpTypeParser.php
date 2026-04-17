@@ -18,36 +18,30 @@ use Symfony\Component\TypeInfo\Type\CollectionType;
 use Symfony\Component\TypeInfo\Type\NullableType;
 use Symfony\Component\TypeInfo\Type\ObjectType;
 use Symfony\Component\TypeInfo\Type\UnionType;
-use Symfony\Component\TypeInfo\TypeContext\TypeContextFactory;
 use Symfony\Component\TypeInfo\TypeIdentifier;
 use Symfony\Component\TypeInfo\TypeResolver\TypeResolver;
 
+/**
+ * @internal
+ */
 final class PhpTypeParser
 {
     private TypeResolver $stringTypeResolver;
-    private TypeContextFactory $typeContextFactory;
 
-    public function __construct(?TypeResolver $typeResolver = null, ?TypeContextFactory $typeContextFactory = null)
+    public function __construct(?TypeResolver $typeResolver = null)
     {
         $this->stringTypeResolver = $typeResolver ?? TypeResolver::create();
-        $this->typeContextFactory = $typeContextFactory ?? new TypeContextFactory();
     }
 
     /**
      * @throws InvalidTypeException if an invalid type or multiple types were defined
      */
-    public function parseAnnotationType(string $rawType, \ReflectionClass $declaringClass): PropertyType
+    public function parseAnnotationType(\ReflectionProperty|\ReflectionMethod $subject): PropertyType
     {
-        if ('' === $rawType) {
-            return new PropertyTypeUnknown(true);
-        }
-
-        $typeContext = $this->typeContextFactory->createFromReflection($declaringClass);
-
         try {
-            $type = $this->stringTypeResolver->resolve($rawType, $typeContext);
+            $type = $this->stringTypeResolver->resolve($subject);
         } catch (\Throwable $e) {
-            throw new InvalidTypeException(\sprintf('Could not parse type "%s": %s', $rawType, $e->getMessage()), 0, $e);
+            throw new InvalidTypeException(\sprintf('Could not parse type for "%s"', $subject->getName()), 0, $e);
         }
 
         return $this->convertSymfonyType($type);

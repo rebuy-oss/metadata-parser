@@ -42,6 +42,7 @@ use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 use Liip\MetadataParser\TypeParser\JMSTypeParser;
 use Liip\MetadataParser\TypeParser\PhpTypeParser;
+use Symfony\Component\TypeInfo\Exception\UnsupportedException;
 
 /**
  * Parse JMSSerializer attributes/annotations.
@@ -379,13 +380,15 @@ final class JMSParser implements ModelParserInterface
             return null;
         }
 
-        foreach (explode("\n", $docComment) as $line) {
-            if (1 === preg_match('/@return ([^ ]+)/', $line, $matches)) {
-                return $this->phpTypeParser->parseAnnotationType($matches[1], $reflMethod->getDeclaringClass());
+        try {
+            return $this->phpTypeParser->parseAnnotationType($reflMethod);
+        } catch (InvalidTypeException $e) {
+            if ($e->getPrevious() instanceof UnsupportedException) {
+                return null;
             }
-        }
 
-        return null;
+            throw $e;
+        }
     }
 
     private function getSerializedName(array $attributes): ?string
@@ -431,7 +434,7 @@ final class JMSParser implements ModelParserInterface
             }
         }
 
-        if (0 === strpos($name, 'get')) {
+        if (str_starts_with($name, 'get')) {
             $name = lcfirst(substr($name, 3));
         }
 

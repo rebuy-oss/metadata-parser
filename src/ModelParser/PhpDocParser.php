@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\ModelParser;
 
+use Liip\MetadataParser\Exception\InvalidTypeException;
 use Liip\MetadataParser\Exception\ParseException;
 use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
@@ -12,13 +13,11 @@ use Liip\MetadataParser\ModelParser\RawMetadata\PropertyCollection;
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 use Liip\MetadataParser\TypeParser\PhpTypeParser;
+use Symfony\Component\TypeInfo\Exception\UnsupportedException;
 
 final class PhpDocParser implements ModelParserInterface
 {
-    /**
-     * @var PhpTypeParser
-     */
-    private $typeParser;
+    private PhpTypeParser $typeParser;
 
     public function __construct()
     {
@@ -64,7 +63,7 @@ final class PhpDocParser implements ModelParserInterface
             $docComment = $reflProperty->getDocComment();
             if (false !== $docComment) {
                 try {
-                    $type = $this->getPropertyTypeFromDocComment($docComment, $reflProperty);
+                    $type = $this->getPropertyTypeFromDocComment($reflProperty);
                 } catch (ParseException $e) {
                     throw ParseException::propertyTypeError((string) $classMetadata, (string) $property, $e);
                 }
@@ -88,14 +87,16 @@ final class PhpDocParser implements ModelParserInterface
         return array_values(array_diff(array_unique(array_merge($parentProperties, $addedProperties)), $existingProperties));
     }
 
-    private function getPropertyTypeFromDocComment(string $docComment, \ReflectionProperty $reflProperty): ?PropertyType
+    private function getPropertyTypeFromDocComment(\ReflectionProperty $reflProperty): ?PropertyType
     {
-        foreach (explode("\n", $docComment) as $line) {
-            if (1 === preg_match('/@var ([^ ]+)/', $line, $matches)) {
-                return $this->typeParser->parseAnnotationType($matches[1], $reflProperty->getDeclaringClass());
+        try {
+            return $this->typeParser->parseAnnotationType($reflProperty);
+        } catch (InvalidTypeException $e) {
+            if ($e->getPrevious() instanceof UnsupportedException) {
+                return null;
             }
-        }
 
-        return null;
+            throw $e;
+        }
     }
 }
