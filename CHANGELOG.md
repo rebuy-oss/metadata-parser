@@ -2,6 +2,10 @@
 
 # Version 2.x
 
+# 2.3.0 (unreleased)
+
+* Drop support for PHP 8.1
+
 # 2.2.1
 
 * `SnakeCasePropertyNamingStrategy` now allows grouping uppercase letters (i.e. acronyms/abbreviations) instead of

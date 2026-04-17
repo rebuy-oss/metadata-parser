@@ -20,7 +20,7 @@
         "issues": "https://github.com/rebuy-oss/metadata-parser/issues"
     },
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "ext-json": "*",
         "doctrine/annotations": "^2.0.2",
         "psr/log": "^1|^2|^3"
