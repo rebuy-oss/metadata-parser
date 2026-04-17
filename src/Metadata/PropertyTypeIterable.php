@@ -45,13 +45,19 @@ final class PropertyTypeIterable extends AbstractPropertyType
             return 'array'.($this->isTraversable() ? '|\\'.$this->traversableClass : '');
         }
 
-        $array = $this->isHashmap() ? '[string]' : '[]';
-        if ($this->isTraversable()) {
-            $collectionType = $this->isHashmap() ? ', string' : '';
-            $array .= \sprintf('|\%s<%s%s>', $this->traversableClass, $this->subType, $collectionType);
+        if ($this->isHashmap()) {
+            $result = \sprintf('array<string, %s>', $this->subType);
+            if ($this->isTraversable()) {
+                $result .= \sprintf('|\%s<%s, string>', $this->traversableClass, $this->subType);
+            }
+        } else {
+            $result = ((string) $this->subType).'[]';
+            if ($this->isTraversable()) {
+                $result .= \sprintf('|\%s<%s>', $this->traversableClass, $this->subType);
+            }
         }
 
-        return ((string) $this->subType).$array.parent::__toString();
+        return $result.parent::__toString();
     }
 
     public function isHashmap(): bool

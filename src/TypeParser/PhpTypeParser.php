@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\TypeParser;
 
-use Doctrine\Common\Annotations\PhpParser;
 use Liip\MetadataParser\Exception\InvalidTypeException;
 use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
@@ -13,26 +12,25 @@ use Liip\MetadataParser\Metadata\PropertyTypeEnum;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
+use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\Type\BuiltinType;
+use Symfony\Component\TypeInfo\Type\CollectionType;
+use Symfony\Component\TypeInfo\Type\NullableType;
+use Symfony\Component\TypeInfo\Type\ObjectType;
+use Symfony\Component\TypeInfo\Type\UnionType;
+use Symfony\Component\TypeInfo\TypeContext\TypeContextFactory;
+use Symfony\Component\TypeInfo\TypeIdentifier;
+use Symfony\Component\TypeInfo\TypeResolver\TypeResolver;
 
 final class PhpTypeParser
 {
-    private const TYPE_SEPARATOR = '|';
-    private const TYPE_NULL = 'null';
-    private const TYPE_MIXED = 'mixed';
-    private const TYPE_RESOURCE = 'resource';
-    private const TYPE_ARRAY = 'array';
-    private const TYPE_ARRAY_SUFFIX = '[]';
-    private const TYPE_HASHMAP_SUFFIX = '[string]';
-    private const TYPES_GENERIC = [
-        'object',
-        'mixed',
-    ];
+    private TypeResolver $stringTypeResolver;
+    private TypeContextFactory $typeContextFactory;
 
-    private PhpParser $useStatementsParser;
-
-    public function __construct()
+    public function __construct(?TypeResolver $typeResolver = null, ?TypeContextFactory $typeContextFactory = null)
     {
-        $this->useStatementsParser = new PhpParser();
+        $this->stringTypeResolver = $typeResolver ?? TypeResolver::create();
+        $this->typeContextFactory = $typeContextFactory ?? new TypeContextFactory();
     }
 
     /**
@@ -44,35 +42,15 @@ final class PhpTypeParser
             return new PropertyTypeUnknown(true);
         }
 
-        $types = [];
-        $nullable = false;
-        foreach (explode(self::TYPE_SEPARATOR, $rawType) as $part) {
-            if (self::TYPE_NULL === $part || self::TYPE_MIXED === $part) {
-                $nullable = true;
-            } elseif (!\in_array($part, self::TYPES_GENERIC, true)) {
-                $types[] = $part;
-            }
+        $typeContext = $this->typeContextFactory->createFromReflection($declaringClass);
+
+        try {
+            $type = $this->stringTypeResolver->resolve($rawType, $typeContext);
+        } catch (\Throwable $e) {
+            throw new InvalidTypeException(\sprintf('Could not parse type "%s": %s', $rawType, $e->getMessage()), 0, $e);
         }
 
-        $traversableClass = null;
-        $filteredTypes = [];
-        foreach ($types as $type) {
-            $resolvedClass = $this->resolveClass($type, $declaringClass);
-            if (is_a($resolvedClass, \Traversable::class, true)) {
-                $traversableClass = $resolvedClass;
-            } else {
-                $filteredTypes[] = $type;
-            }
-        }
-
-        if (0 === \count($filteredTypes)) {
-            return new PropertyTypeUnknown($nullable);
-        }
-        if (\count($filteredTypes) > 1) {
-            throw new InvalidTypeException(\sprintf('Multiple types are not supported (%s)', $rawType));
-        }
-
-        return $this->createType($filteredTypes[0], $nullable, $declaringClass, $traversableClass);
+        return $this->convertSymfonyType($type);
     }
 
     /**
@@ -81,84 +59,136 @@ final class PhpTypeParser
     public function parseReflectionType(\ReflectionType $reflType): PropertyType
     {
         if ($reflType instanceof \ReflectionNamedType) {
-            return $this->createType($reflType->getName(), $reflType->allowsNull());
+            return $this->createTypeFromReflectionName($reflType->getName(), $reflType->allowsNull());
         }
 
         throw new InvalidTypeException(\sprintf('No type information found, got %s but expected %s', \ReflectionType::class, \ReflectionNamedType::class));
     }
 
-    private function createType(string $rawType, bool $nullable, ?\ReflectionClass $reflClass = null, ?string $traversableClass = null): PropertyType
+    private function createTypeFromReflectionName(string $rawType, bool $nullable): PropertyType
     {
-        if (self::TYPE_ARRAY === $rawType) {
-            return new PropertyTypeIterable(new PropertyTypeUnknown(false), false, $nullable);
-        }
-
-        if (self::TYPE_ARRAY_SUFFIX === substr($rawType, -\strlen(self::TYPE_ARRAY_SUFFIX))) {
-            $rawSubType = substr($rawType, 0, \strlen($rawType) - \strlen(self::TYPE_ARRAY_SUFFIX));
-
-            return new PropertyTypeIterable($this->createType($rawSubType, false, $reflClass), false, $nullable, $traversableClass);
-        }
-        if (self::TYPE_HASHMAP_SUFFIX === substr($rawType, -\strlen(self::TYPE_HASHMAP_SUFFIX))) {
-            $rawSubType = substr($rawType, 0, \strlen($rawType) - \strlen(self::TYPE_HASHMAP_SUFFIX));
-
-            return new PropertyTypeIterable($this->createType($rawSubType, false, $reflClass), true, $nullable, $traversableClass);
-        }
-
-        if (self::TYPE_RESOURCE === $rawType) {
+        if ('resource' === $rawType) {
             throw new InvalidTypeException('Type "resource" is not supported');
+        }
+
+        if ('array' === $rawType) {
+            return new PropertyTypeIterable(new PropertyTypeUnknown(false), false, $nullable);
         }
 
         if (PropertyTypePrimitive::isTypePrimitive($rawType)) {
             return new PropertyTypePrimitive($rawType, $nullable);
         }
 
-        $resolvedClass = $this->resolveClass($rawType, $reflClass);
-
-        if (PropertyTypeDateTime::isTypeDateTime($resolvedClass)) {
-            return PropertyTypeDateTime::fromDateTimeClass($resolvedClass, $nullable);
+        if (PropertyTypeDateTime::isTypeDateTime($rawType)) {
+            return PropertyTypeDateTime::fromDateTimeClass($rawType, $nullable);
         }
 
-        if (enum_exists($resolvedClass)) {
-            return new PropertyTypeEnum($resolvedClass, $nullable);
+        if (enum_exists($rawType)) {
+            return new PropertyTypeEnum($rawType, $nullable);
         }
 
-        return new PropertyTypeClass($resolvedClass, $nullable);
+        return new PropertyTypeClass($rawType, $nullable);
     }
 
-    private function resolveClass(string $className, ?\ReflectionClass $reflClass = null): string
+    private function convertSymfonyType(Type $type, bool $nullable = false): PropertyType
     {
-        // leading backslash means absolute class name
-        if (0 === strpos($className, '\\')) {
-            return substr($className, 1);
+        return match (true) {
+            $type instanceof NullableType => $this->convertNullableType($type),
+            $type instanceof UnionType => $this->convertUnionType($type, $nullable),
+            $type instanceof CollectionType => $this->convertCollectionType($type, $nullable),
+            $type instanceof BuiltinType => $this->convertBuiltinType($type, $nullable),
+            $type instanceof ObjectType => $this->convertObjectType($type, $nullable),
+            default => new PropertyTypeUnknown($nullable),
+        };
+    }
+
+    private function convertNullableType(NullableType $type): PropertyType
+    {
+        return $this->convertSymfonyType($type->getWrappedType(), true);
+    }
+
+    private function convertUnionType(UnionType $type, bool $nullable): PropertyType
+    {
+        $traversableClass = null;
+        $mainTypes = [];
+
+        foreach ($type->getTypes() as $memberType) {
+            if ($memberType instanceof BuiltinType && \in_array($memberType->getTypeIdentifier(), [TypeIdentifier::NULL, TypeIdentifier::MIXED], true)) {
+                $nullable = true;
+            } elseif ($memberType instanceof CollectionType && $memberType->getWrappedType() instanceof ObjectType) {
+                $traversableClass = $memberType->getWrappedType()->getClassName();
+            } else {
+                $mainTypes[] = $memberType;
+            }
         }
 
-        if (null !== $reflClass) {
-            // resolve use statements of the class with the type information
-            $lowerClassName = strtolower($className);
-
-            $reflCurrentClass = $reflClass;
-            do {
-                $imports = $this->useStatementsParser->parseUseStatements($reflCurrentClass);
-                if (isset($imports[$lowerClassName])) {
-                    return $imports[$lowerClassName];
-                }
-            } while (false !== ($reflCurrentClass = $reflCurrentClass->getParentClass()));
-
-            foreach ($reflClass->getTraits() as $reflTrait) {
-                $imports = $this->useStatementsParser->parseUseStatements($reflTrait);
-                if (isset($imports[$lowerClassName])) {
-                    return $imports[$lowerClassName];
-                }
-            }
-
-            // the referenced class is expected to be in the same namespace
-            $namespace = $reflClass->getNamespaceName();
-            if ('' !== $namespace) {
-                return $namespace.'\\'.$className;
-            }
+        if (0 === \count($mainTypes)) {
+            return new PropertyTypeUnknown($nullable);
+        }
+        if (\count($mainTypes) > 1) {
+            throw new InvalidTypeException(\sprintf('Multiple types are not supported (%s)', $type));
         }
 
-        // edge case of models defined in the global namespace
-        return $className;
+        $converted = $this->convertSymfonyType($mainTypes[0], $nullable);
+
+        if (null !== $traversableClass && $converted instanceof PropertyTypeIterable) {
+            return new PropertyTypeIterable(
+                $converted->getSubType(),
+                $converted->isHashmap(),
+                $converted->isNullable(),
+                $traversableClass,
+            );
+        }
+
+        return $converted;
+    }
+
+    private function convertCollectionType(CollectionType $type, bool $nullable): PropertyType
+    {
+        $subType = $this->convertSymfonyType($type->getCollectionValueType());
+        $keyType = $type->getCollectionKeyType();
+        $hashmap = !$type->isList()
+            && $keyType instanceof BuiltinType
+            && TypeIdentifier::STRING === $keyType->getTypeIdentifier();
+
+        return new PropertyTypeIterable($subType, $hashmap, $nullable);
+    }
+
+    private function convertBuiltinType(BuiltinType $type, bool $nullable): PropertyType
+    {
+        $id = $type->getTypeIdentifier();
+
+        if (TypeIdentifier::RESOURCE === $id) {
+            throw new InvalidTypeException('Type "resource" is not supported');
+        }
+
+        if (PropertyTypePrimitive::isTypePrimitive($id->value)) {
+            return new PropertyTypePrimitive($id->value, $nullable);
+        }
+
+        if (\in_array($id, [TypeIdentifier::ARRAY, TypeIdentifier::ITERABLE], true)) {
+            return new PropertyTypeIterable(new PropertyTypeUnknown(false), false, $nullable);
+        }
+
+        if (\in_array($id, [TypeIdentifier::MIXED, TypeIdentifier::NULL], true)) {
+            return new PropertyTypeUnknown(true);
+        }
+
+        return new PropertyTypeUnknown($nullable);
+    }
+
+    private function convertObjectType(ObjectType $type, bool $nullable): PropertyType
+    {
+        $className = $type->getClassName();
+
+        if (PropertyTypeDateTime::isTypeDateTime($className)) {
+            return PropertyTypeDateTime::fromDateTimeClass($className, $nullable);
+        }
+
+        if (enum_exists($className)) {
+            return new PropertyTypeEnum($className, $nullable);
+        }
+
+        return new PropertyTypeClass($className, $nullable);
     }
 }

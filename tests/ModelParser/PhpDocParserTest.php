@@ -238,6 +238,27 @@ class PhpDocParserTest extends TestCase
         $this->assertPropertyType(PropertyTypePrimitive::class, 'string', false, $property->getType());
     }
 
+    public function testExtendedDocblock(): void
+    {
+        $c = new class {
+            /**
+             * @var list<string>
+             */
+            private array $property1;
+        };
+
+        $classMetadata = new RawClassMetadata(\get_class($c));
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $props = $classMetadata->getPropertyCollections();
+        $this->assertCount(1, $props, 'Number of properties should match');
+
+        $this->assertPropertyCollection('property1', 1, $props[0]);
+        $property = $props[0]->getVariations()[0];
+        $this->assertProperty('property1', false, false, $property);
+        $this->assertPropertyType(PropertyTypeIterable::class, 'string[]', false, $property->getType());
+    }
+
     public function testNestedProperty(): void
     {
         $c = new class {

@@ -109,18 +109,18 @@ class PhpTypeParserTest extends TestCase
         ];
 
         yield [
-            'string[string]',
-            'string[string]',
+            'array<string, string>',
+            'array<string, string>',
         ];
 
         yield [
-            'string[string][string][string]',
-            'string[string][string][string]',
+            'array<string, array<string, array<string, string>>>',
+            'array<string, array<string, array<string, string>>>',
         ];
 
         yield [
-            'string[][string][]',
-            'string[][string][]',
+            'array<array<string, string[]>>',
+            'array<string, string[]>[]',
         ];
 
         yield [
@@ -134,8 +134,23 @@ class PhpTypeParserTest extends TestCase
         ];
 
         yield [
-            '\stdClass[][string]',
-            'stdClass[][string]',
+            'array<string, \stdClass[]>',
+            'array<string, stdClass[]>',
+        ];
+
+        yield [
+            'list<string>',
+            'string[]',
+        ];
+
+        yield [
+            'array<string, string>',
+            'array<string, string>',
+        ];
+
+        yield [
+            'array<string, int>',
+            'array<string, int>',
         ];
     }
 
@@ -176,6 +191,7 @@ class PhpTypeParserTest extends TestCase
     public function testMultiType(): void
     {
         $this->expectException(InvalidTypeException::class);
+        $this->expectExceptionMessage('Multiple types are not supported');
         $this->parser->parseAnnotationType('string|int', new \ReflectionClass($this));
     }
 
@@ -203,8 +219,13 @@ class PhpTypeParserTest extends TestCase
         ];
 
         yield [
-            'Nested[string][]',
-            BaseModel::class.'[string][]',
+            'array<Nested>',
+            BaseModel::class.'[]',
+        ];
+
+        yield [
+            'array<string, Nested>',
+            'array<string, '.BaseModel::class.'>',
         ];
 
         yield [
