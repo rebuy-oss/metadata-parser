@@ -1,5 +1,5 @@
 {
-    "name": "liip/metadata-parser",
+    "name": "rebuy/metadata-parser",
     "description": "Parser for metadata",
     "type": "library",
     "license": "MIT",
@@ -7,6 +7,10 @@
         {
             "name": "Liip AG",
             "homepage": "http://www.liip.ch"
+        },
+        {
+            "name": "rebuy recommerce GmbH",
+            "homepage": "https://www.rebuy.com"
         }
     ],
     "support": {
@@ -43,6 +47,9 @@
         "psr-4": {
             "Tests\\Liip\\MetadataParser\\": "tests/"
         }
+    },
+    "replace": {
+        "liip/metadata-parser": "*"
     },
     "scripts": {
         "fix-cs": "vendor/bin/php-cs-fixer fix -v",
