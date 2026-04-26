@@ -22,8 +22,8 @@ You could write your own parsers, but this library comes with support for:
 ## Contributing
 
 If you want to contribute to the project (awesome!!), please read the
-[Contributing Guidelines](https://github.com/liip/metadata-parser/blob/master/CONTRIBUTING.md)
-and adhere to our [Code Of Conduct](https://github.com/liip/metadata-parser/blob/master/CODE_OF_CONDUCT.md)
+[Contributing Guidelines](https://github.com/rebuy-oss/metadata-parser/blob/2.x/CONTRIBUTING.md)
+and adhere to our [Code Of Conduct](https://github.com/rebuy-oss/metadata-parser/blob/2.x/CODE_OF_CONDUCT.md)
 
 ## Where do I go for help?
 If you need, open an issue.

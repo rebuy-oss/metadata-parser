@@ -6,16 +6,18 @@
     "authors": [
         {
             "name": "Liip AG",
-            "homepage": "http://www.liip.ch"
+            "homepage": "http://www.liip.ch",
+            "role": "Original Development (discontinued)"
         },
         {
             "name": "rebuy recommerce GmbH",
-            "homepage": "https://www.rebuy.com"
+            "homepage": "https://www.rebuy.com",
+            "role": "Maintainer"
         }
     ],
     "support": {
-        "source": "https://github.com/liip/metadata-parser",
-        "issues": "https://github.com/liip/metadata-parser/issues"
+        "source": "https://github.com/rebuy-oss/metadata-parser",
+        "issues": "https://github.com/rebuy-oss/metadata-parser/issues"
     },
     "require": {
         "php": "^8.1",
