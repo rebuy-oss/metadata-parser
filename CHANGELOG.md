@@ -2,6 +2,14 @@
 
 # Version 2.x
 
+# 2.2.0 (unreleased)
+
+* Maintenance of this library has been taken over by rebuy. The package has been  renamed from  `liip/metadata-parser` 
+  to `rebuy/metadata-parser`. The PHP namespace `Liip\MetadataParser` is kept unchanged for now to allow a smooth transition.
+
+  All entries below this version were released under the original `liip/metadata-parser` package name and are kept here 
+  for historical reference.
+
 # 2.1.2
 
 * Improved phpdoc in additional places
