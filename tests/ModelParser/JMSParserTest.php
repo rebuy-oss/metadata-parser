@@ -210,7 +210,7 @@ class JMSParserTest extends TestCase
             },
             PropertyTypeIterable::class,
             true,
-            'array<string, int>|\Doctrine\Common\Collections\ArrayCollection<int, string>|null',
+            'array<string, int>|\Doctrine\Common\Collections\ArrayCollection<string, int>|null',
         ];
     }
 

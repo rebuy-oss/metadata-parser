@@ -77,6 +77,9 @@ class ClassWithPhpDocs
     /** @var string[]|ArrayCollection */
     private $stringArrayCollection;
 
+    /** @var ArrayCollection<string, int> */
+    private $hashmapCollection;
+
     /** @var string|int */
     private $multiType;
 

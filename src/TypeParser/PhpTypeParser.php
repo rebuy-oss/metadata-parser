@@ -18,6 +18,7 @@ use Symfony\Component\TypeInfo\Type\CollectionType;
 use Symfony\Component\TypeInfo\Type\NullableType;
 use Symfony\Component\TypeInfo\Type\ObjectType;
 use Symfony\Component\TypeInfo\Type\UnionType;
+use Symfony\Component\TypeInfo\Type\WrappingTypeInterface;
 use Symfony\Component\TypeInfo\TypeIdentifier;
 use Symfony\Component\TypeInfo\TypeResolver\TypeResolver;
 
@@ -143,9 +144,9 @@ final class PhpTypeParser
         $keyType = $type->getCollectionKeyType();
         $hashmap = !$type->isList()
             && $keyType instanceof BuiltinType
-            && TypeIdentifier::STRING === $keyType->getTypeIdentifier();
+            && \in_array($keyType->getTypeIdentifier(), [TypeIdentifier::STRING, TypeIdentifier::INT], true);
 
-        return new PropertyTypeIterable($subType, $hashmap, $nullable);
+        return new PropertyTypeIterable($subType, $hashmap, $nullable, $this->getTraversableClassFrommCollectionType($type));
     }
 
     private function convertBuiltinType(BuiltinType $type, bool $nullable): PropertyType
@@ -184,5 +185,21 @@ final class PhpTypeParser
         }
 
         return new PropertyTypeClass($className, $nullable);
+    }
+
+    /**
+     * @return class-string|null
+     */
+    private function getTraversableClassFrommCollectionType(Type $type): ?string
+    {
+        if ($type instanceof WrappingTypeInterface) {
+            return $this->getTraversableClassFrommCollectionType($type->getWrappedType());
+        }
+
+        if ($type instanceof ObjectType) {
+            return $type->getClassName();
+        }
+
+        return null;
     }
 }

@@ -60,8 +60,9 @@ class PhpTypeParserTest extends TestCase
     {
         $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);
 
-        yield [$reflClass->getProperty('stringCollection')];
-        yield [$reflClass->getProperty('stringArrayCollection')];
+        yield [$reflClass->getProperty('stringCollection'), 'string[]|\Doctrine\Common\Collections\Collection<string>'];
+        yield [$reflClass->getProperty('stringArrayCollection'), 'string[]|\Doctrine\Common\Collections\ArrayCollection<string>'];
+        yield [$reflClass->getProperty('hashmapCollection'), 'array<string, int>|\Doctrine\Common\Collections\ArrayCollection<string, int>'];
     }
 
     /**
@@ -80,11 +81,12 @@ class PhpTypeParserTest extends TestCase
     /**
      * @dataProvider providePropertyTypeArrayIsCollectionCases
      */
-    public function testPropertyTypeArrayIsCollection(\ReflectionProperty $subject): void
+    public function testPropertyTypeArrayIsCollection(\ReflectionProperty $subject, string $expectedType): void
     {
         $type = $this->parser->parseAnnotationType($subject);
-        self::assertInstanceOf(PropertyTypeIterable::class, $type);
-        self::assertTrue($type->isTraversable());
+        $this->assertInstanceOf(PropertyTypeIterable::class, $type);
+        $this->assertTrue($type->isTraversable());
+        $this->assertSame($expectedType, (string) $type, 'Type should match');
     }
 
     public function testMultiType(): void

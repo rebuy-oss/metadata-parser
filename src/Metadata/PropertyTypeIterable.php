@@ -48,7 +48,7 @@ final class PropertyTypeIterable extends AbstractPropertyType
         if ($this->isHashmap()) {
             $result = \sprintf('array<string, %s>', $this->subType);
             if ($this->isTraversable()) {
-                $result .= \sprintf('|\%s<%s, string>', $this->traversableClass, $this->subType);
+                $result .= \sprintf('|\%s<string, %s>', $this->traversableClass, $this->subType);
             }
         } else {
             $result = ((string) $this->subType).'[]';
