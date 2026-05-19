@@ -12,19 +12,13 @@ use PHPUnit\Framework\TestCase;
  */
 class SnakeCasePropertyNamingStrategyTest extends TestCase
 {
-    private SnakeCasePropertyNamingStrategy $strategy;
-
-    protected function setUp(): void
-    {
-        $this->strategy = new SnakeCasePropertyNamingStrategy();
-    }
-
     /**
      * @dataProvider provideGetSerializedNameCases
      */
     public function testGetSerializedName(string $input, string $expected): void
     {
-        $result = $this->strategy->getSerializedName($input);
+        $strategy = new SnakeCasePropertyNamingStrategy();
+        $result = $strategy->getSerializedName($input);
 
         $this->assertSame($expected, $result);
     }
@@ -36,6 +30,31 @@ class SnakeCasePropertyNamingStrategyTest extends TestCase
             ['foo', 'foo'],
             ['word', 'word'],
             ['wORD', 'w_o_r_d'],
+            ['', ''],
+            ['field1Name', 'field1_name'],
+            ['longerCamelCaseName', 'longer_camel_case_name'],
+        ];
+    }
+
+    /**
+     * @dataProvider provideJmsCompatibleSerializedNameCases
+     */
+    public function testJmsCompatibleSerializedName(string $input, string $expected): void
+    {
+        $strategy = SnakeCasePropertyNamingStrategy::jmsSnakeCase();
+        $result = $strategy->getSerializedName($input);
+
+        $this->assertSame($expected, $result);
+    }
+
+    public static function provideJmsCompatibleSerializedNameCases(): iterable
+    {
+        return [
+            ['camelCase', 'camel_case'],
+            ['foo', 'foo'],
+            ['word', 'word'],
+            ['wORD', 'w_ord'],
+            ['totalVAT', 'total_vat'],
             ['', ''],
             ['field1Name', 'field1_name'],
             ['longerCamelCaseName', 'longer_camel_case_name'],
