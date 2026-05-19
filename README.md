@@ -114,6 +114,9 @@ $parser = new Parser(
 $builder = new Builder($parser)
 ```
 
+*Note*: The default `IdenticalPropertyNamingStrategy` strategy converts `myWORD` to `my_w_o_r_d` which is different from
+what JMS does (`my_word`). If you need the same behavior as in JMS, you can use the static method `IdenticalPropertyNamingStrategy::jmsSnakeCase()`.
+
 You can also create your own naming strategy by implementing the `Liip\MetadataParser\ModelParser\NamingStrategy\PropertyNamingStrategyInterface`
 
 ### Handling Edge Cases with @Preferred
