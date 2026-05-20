@@ -15,6 +15,9 @@ use Liip\MetadataParser\Metadata\ParameterMetadata;
  */
 final class RawClassMetadata implements \JsonSerializable
 {
+    /**
+     * @var class-string
+     */
     private string $className;
 
     /**
@@ -26,17 +29,17 @@ final class RawClassMetadata implements \JsonSerializable
      *
      * @var PropertyCollection[]
      */
-    private $properties = [];
+    private array $properties = [];
 
     /**
      * @var string[]
      */
-    private $postDeserializeMethods = [];
+    private array $postDeserializeMethods = [];
 
     /**
      * @var ParameterMetadata[]
      */
-    private $constructorParameters = [];
+    private array $constructorParameters = [];
 
     private ?ClassDiscriminatorMetadata $discriminatorMetadata = null;
 

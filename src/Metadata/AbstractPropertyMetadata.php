@@ -10,55 +10,28 @@ namespace Liip\MetadataParser\Metadata;
 abstract class AbstractPropertyMetadata implements \JsonSerializable
 {
     /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var bool
-     */
-    private $readOnly;
-
-    /**
-     * @var bool
-     */
-    private $public;
-
-    /**
      * @var string[]
      */
-    private $groups = [];
+    private array $groups = [];
 
-    /**
-     * @var PropertyAccessor
-     */
-    private $accessor;
+    private PropertyAccessor $accessor;
 
-    /**
-     * @var VersionRange
-     */
-    private $versionRange;
+    private VersionRange $versionRange;
 
-    /**
-     * @var int|null
-     */
-    private $maxDepth;
+    private ?int $maxDepth = null;
 
     /**
      * Hashmap of custom information about this property.
      *
      * @var mixed[]
      */
-    private $customInformation = [];
+    private array $customInformation = [];
 
     /**
      * @param string $name Name of the property in PHP or the method name for a virtual property
      */
-    public function __construct(string $name, bool $readOnly, bool $public)
+    public function __construct(private readonly string $name, public bool $readOnly, public bool $public)
     {
-        $this->name = $name;
-        $this->setReadOnly($readOnly);
-        $this->setPublic($public);
         $this->accessor = PropertyAccessor::none();
         $this->versionRange = VersionRange::all();
     }
@@ -196,7 +169,7 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable
         $this->public = $public;
     }
 
-    protected function setCustomInformation(string $key, $value): void
+    protected function setCustomInformation(string $key, mixed $value): void
     {
         $this->customInformation[$key] = $value;
     }
