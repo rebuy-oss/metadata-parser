@@ -6,11 +6,10 @@ namespace Tests\Liip\MetadataParser\Reducer;
 
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\Reducer\GroupReducer;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @small
- */
+#[Small]
 class GroupReducerTest extends TestCase
 {
     public function testReduce(): void

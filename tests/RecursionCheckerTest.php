@@ -10,14 +10,13 @@ use Liip\MetadataParser\Metadata\PropertyMetadata;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\RecursionChecker;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 use Tests\Liip\MetadataParser\ModelParser\Model\Recursion;
 
-/**
- * @small
- */
+#[Small]
 class RecursionCheckerTest extends TestCase
 {
     public function testNoRecursion(): void
@@ -223,6 +222,6 @@ class RecursionCheckerTest extends TestCase
 
     private function createChecker(array $expectedRecursions = []): RecursionChecker
     {
-        return new RecursionChecker($this->createMock(LoggerInterface::class), $expectedRecursions);
+        return new RecursionChecker($this->createStub(LoggerInterface::class), $expectedRecursions);
     }
 }

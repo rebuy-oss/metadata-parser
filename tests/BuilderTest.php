@@ -19,6 +19,7 @@ use Liip\MetadataParser\ModelParser\PhpDocParser;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\MetadataParser\Parser;
 use Liip\MetadataParser\RecursionChecker;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Tests\Liip\MetadataParser\ModelParser\Model\Car;
@@ -28,9 +29,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\ClassWithEnums;
 use Tests\Liip\MetadataParser\ModelParser\Model\Moped;
 use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 
-/**
- * @small
- */
+#[Small]
 class BuilderTest extends TestCase
 {
     private Builder $builder;
@@ -47,7 +46,7 @@ class BuilderTest extends TestCase
 
         $this->builder = new Builder(
             $parser,
-            new RecursionChecker($this->createMock(LoggerInterface::class))
+            new RecursionChecker($this->createStub(LoggerInterface::class))
         );
     }
 

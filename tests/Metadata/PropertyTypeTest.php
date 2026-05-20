@@ -11,12 +11,12 @@ use Liip\MetadataParser\Metadata\PropertyTypeEnum;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum;
 
-/**
- * @small
- */
+#[Small]
 class PropertyTypeTest extends TestCase
 {
     public static function provideMergeCases(): iterable
@@ -106,9 +106,7 @@ class PropertyTypeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideMergeCases
-     */
+    #[DataProvider('provideMergeCases')]
     public function testMerge(PropertyType $typeA, PropertyType $typeB, string $expectedType, bool $expectedNullable): void
     {
         $result = $typeA->merge($typeB);

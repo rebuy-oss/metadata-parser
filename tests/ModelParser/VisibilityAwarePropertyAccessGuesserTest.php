@@ -9,13 +9,12 @@ use Liip\MetadataParser\ModelParser\NamingStrategy\SnakeCasePropertyNamingStrate
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\MetadataParser\ModelParser\VisibilityAwarePropertyAccessGuesser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class VisibilityAwarePropertyAccessGuesserTest extends TestCase
 {
-    /**
-     * @dataProvider provideSimpleClassesCases
-     */
+    #[DataProvider('provideSimpleClassesCases')]
     public function testSimpleClasses($class, array $parsers, int $expectedPropertyCount, ?array $accessType): void
     {
         $classMetadata = $this->parseClass($class, $parsers);
@@ -56,16 +55,7 @@ class VisibilityAwarePropertyAccessGuesserTest extends TestCase
     }
 
     /**
-     * @return \Generator<array{
-     *  'class': object,
-     *  'parsers': ModelParserInterface[],
-     *  'expectedPropertyCount': int,
-     *  'accessType': array{
-     *     'public': bool,
-     *     'hasGetter': bool|null,
-     *     'hasSetter': bool|null,
-     *  }|null,
-     * }>
+     * @return \Generator<array{'class': object, 'parsers': ModelParserInterface[], 'expectedPropertyCount': int, 'accessType': array{'public': bool, 'hasGetter': bool|null, 'hasSetter': bool|null}|null}>
      */
     public static function provideSimpleClassesCases(): iterable
     {

@@ -17,6 +17,7 @@ use Liip\MetadataParser\ModelParser\RawMetadata\PropertyCollection;
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\DirectionEnum;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\EnumModel;
@@ -26,9 +27,7 @@ use Tests\Liip\MetadataParser\ModelParser\Fixtures\TypeDeclarationModel;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\UnionTypeDeclarationModel;
 use Tests\Liip\MetadataParser\ModelParser\Model\ReflectionBaseModel;
 
-/**
- * @small
- */
+#[Small]
 class ReflectionParserTest extends TestCase
 {
     /**

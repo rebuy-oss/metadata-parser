@@ -33,7 +33,7 @@
         "jms/serializer": "^2.3 || ^3",
         "phpstan/phpstan": "^2.1.44",
         "phpstan/phpstan-phpunit": "^2.0.16",
-        "phpunit/phpunit": "^8.5.15 || ^9.5"
+        "phpunit/phpunit": "^13.1.10"
     },
     "suggest": {
         "jms/serializer": "^2.3 || ^3"

@@ -6,11 +6,10 @@ namespace Tests\Liip\MetadataParser;
 
 use Liip\MetadataParser\Metadata\PropertyMetadata;
 use Liip\MetadataParser\RecursionContext;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @small
- */
+#[Small]
 class RecursionContextTest extends TestCase
 {
     public function testEmpty(): void

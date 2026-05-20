@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Liip\MetadataParser\ModelParser;
 
+use DateTime;
 use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 use Doctrine\Common\Annotations\AnnotationReader;
 use JMS\Serializer\Annotation as JMS;
@@ -23,6 +24,8 @@ use Liip\MetadataParser\ModelParser\NamingStrategy\SnakeCasePropertyNamingStrate
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyCollection;
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Tests\Liip\MetadataParser\ModelParser\Model\BaseModel;
 use Tests\Liip\MetadataParser\ModelParser\Model\Boat;
@@ -38,9 +41,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\Moped;
 use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 use Tests\Liip\MetadataParser\ModelParser\Model\Vehicle;
 
-/**
- * @small
- */
+#[Small]
 class JMSParserTest extends TestCase
 {
     protected JMSParser $parser;
@@ -214,9 +215,7 @@ class JMSParserTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider providePropertyTypeCases
-     */
+    #[DataProvider('providePropertyTypeCases')]
     public function testPropertyType($c, string $propertyTypeClass, bool $nullable, string $type): void
     {
         $classMetadata = new RawClassMetadata(\get_class($c));

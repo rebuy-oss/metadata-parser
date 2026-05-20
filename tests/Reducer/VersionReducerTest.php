@@ -7,11 +7,10 @@ namespace Tests\Liip\MetadataParser\Reducer;
 use Liip\MetadataParser\Metadata\VersionRange;
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\Reducer\VersionReducer;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @small
- */
+#[Small]
 class VersionReducerTest extends TestCase
 {
     public function testReduce(): void

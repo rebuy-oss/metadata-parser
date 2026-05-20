@@ -12,11 +12,10 @@ use Liip\MetadataParser\PropertyReducer;
 use Liip\MetadataParser\Reducer\GroupReducer;
 use Liip\MetadataParser\Reducer\TakeBestReducer;
 use Liip\MetadataParser\Reducer\VersionReducer;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @small
- */
+#[Small]
 class PropertyReducerTest extends TestCase
 {
     public function testReduceEmpty(): void

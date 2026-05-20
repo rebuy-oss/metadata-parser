@@ -16,13 +16,13 @@ use Liip\MetadataParser\ModelParser\PhpDocParser;
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyCollection;
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Tests\Liip\MetadataParser\ModelParser\Model\BaseModel;
 use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 
-/**
- * @small
- */
+#[Small]
 class PhpDocParserTest extends TestCase
 {
     /**
@@ -129,9 +129,7 @@ class PhpDocParserTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider providePropertyCases
-     */
+    #[DataProvider('providePropertyCases')]
     public function testProperty($c, string $propertyTypeClass, bool $nullable, string $type): void
     {
         $classMetadata = new RawClassMetadata(\get_class($c));

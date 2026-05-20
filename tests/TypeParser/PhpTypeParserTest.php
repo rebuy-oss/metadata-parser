@@ -8,6 +8,8 @@ use Liip\MetadataParser\Exception\InvalidTypeException;
 use Liip\MetadataParser\Metadata\PropertyTypeEnum;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\TypeParser\PhpTypeParser;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\ClassWithPhpDocs;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\EnumModel;
@@ -16,9 +18,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\ReflectionAbstractModel;
 use Tests\Liip\MetadataParser\ModelParser\Model\WithImports;
 use Tests\Liip\MetadataParser\RecursionContextTest;
 
-/**
- * @small
- */
+#[Small]
 class PhpTypeParserTest extends TestCase
 {
     private PhpTypeParser $parser;
@@ -65,9 +65,7 @@ class PhpTypeParserTest extends TestCase
         yield [$reflClass->getProperty('hashmapCollection'), 'array<string, int>|\Doctrine\Common\Collections\ArrayCollection<string, int>'];
     }
 
-    /**
-     * @dataProvider providePropertyTypeCases
-     */
+    #[DataProvider('providePropertyTypeCases')]
     public function testPropertyType(\ReflectionProperty $subject, string $expectedType, ?bool $expectedNullable = null): void
     {
         $type = $this->parser->parseAnnotationType($subject);
@@ -78,9 +76,7 @@ class PhpTypeParserTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider providePropertyTypeArrayIsCollectionCases
-     */
+    #[DataProvider('providePropertyTypeArrayIsCollectionCases')]
     public function testPropertyTypeArrayIsCollection(\ReflectionProperty $subject, string $expectedType): void
     {
         $type = $this->parser->parseAnnotationType($subject);
@@ -116,9 +112,7 @@ class PhpTypeParserTest extends TestCase
         yield [$reflClass->getProperty('nestedCollection'), BaseModel::class.'[]|\Doctrine\Common\Collections\Collection<'.BaseModel::class.'>'];
     }
 
-    /**
-     * @dataProvider provideNamespaceResolutionCases
-     */
+    #[DataProvider('provideNamespaceResolutionCases')]
     public function testNamespaceResolution(\ReflectionProperty $subject, string $expectedType): void
     {
         $type = $this->parser->parseAnnotationType($subject);
@@ -163,9 +157,7 @@ class PhpTypeParserTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideReflectionTypeCases
-     */
+    #[DataProvider('provideReflectionTypeCases')]
     public function testReflectionType(\ReflectionType $reflType, string $expectedType, ?bool $expectedNullable = null): void
     {
         $type = $this->parser->parseReflectionType($reflType);

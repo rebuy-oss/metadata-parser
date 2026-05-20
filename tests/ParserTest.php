@@ -17,6 +17,7 @@ use Liip\MetadataParser\ModelParser\RawMetadata\PropertyCollection;
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\MetadataParser\Parser;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Tests\Liip\MetadataParser\ModelParser\Model\Car;
 use Tests\Liip\MetadataParser\ModelParser\Model\ClassWithVehicleProperty;
@@ -24,9 +25,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\Moped;
 use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 use Tests\Liip\MetadataParser\ModelParser\Model\Vehicle;
 
-/**
- * @small
- */
+#[Small]
 class ParserTest extends TestCase
 {
     /**

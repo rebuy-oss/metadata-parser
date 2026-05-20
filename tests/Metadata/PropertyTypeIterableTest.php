@@ -9,11 +9,10 @@ use Doctrine\Common\Collections\Collection;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @small
- */
+#[Small]
 class PropertyTypeIterableTest extends TestCase
 {
     public function testNestedArrayLeaf(): void
