@@ -14,18 +14,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code into the workspace
-        uses: actions/checkout@v3
-      - name: Setup PHP 8.2
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.2
+          php-version: 8.4
+
       - name: Composer cache
         uses: actions/cache@v3
         with:
           path: ${{ env.HOME }}/.composer/cache
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+
       - name: Install dependencies
         run: composer update --prefer-dist --no-interaction
+
       - name: PHPStan
         run: composer phpstan-all
 
@@ -34,19 +38,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code into the workspace
-        uses: actions/checkout@v3
-      - name: Setup PHP 8.2
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.2
+          php-version: 8.4
+
       - name: Validate composer.json
         run: composer validate --strict --no-check-lock
+
       - name: Composer cache
         uses: actions/cache@v3
         with:
           path: ${{ env.HOME }}/.composer/cache
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+
       - name: Install dependencies
         run: composer update --prefer-dist --no-interaction
+
       - name: CS Fixer
         run: composer cs-fixer
