@@ -6,9 +6,7 @@ namespace Tests\Liip\MetadataParser\ModelParser\Model;
 
 use JMS\Serializer\Annotation as JMS;
 
-/**
- * @JMS\Discriminator(field = "type", map = {"type1": "Tests\Liip\MetadataParser\ModelParser\Model\DiscriminatorWithFieldProperty"})
- */
+#[JMS\Discriminator(field: 'type', map: ['type1' => DiscriminatorWithFieldProperty::class])]
 abstract class BaseDiscriminator
 {
 }

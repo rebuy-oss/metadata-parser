@@ -9,12 +9,12 @@ use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 /**
  * Select the property based on whether it is in any of the specified groups.
  */
-final class GroupReducer implements PropertyReducerInterface
+final readonly class GroupReducer implements PropertyReducerInterface
 {
     /**
      * @param string[] $groups
      */
-    public function __construct(private readonly array $groups)
+    public function __construct(private array $groups)
     {
     }
 

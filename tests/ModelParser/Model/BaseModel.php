@@ -10,8 +10,7 @@ abstract class BaseModel extends AbstractModel
 {
     /**
      * @var bool
-     *
-     * @JMS\Type("bool")
      */
+    #[JMS\Type('bool')]
     protected $parentProperty2;
 }
