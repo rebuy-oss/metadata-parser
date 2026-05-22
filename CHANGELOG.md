@@ -10,6 +10,9 @@
 * Increase phpstan level to `6`
 * Use better php(stan) typings.
 * Update to PHPUnit `13.x`
+* Remove hard dependency on `doctrine/annotations`
+  Attributes are out for a while now, so we drop the hard dependency on the annotation library. In case it is still
+  required, it can still be installed and used by passing the `Reader` to the `JMSParser`.
 
 # Version 2.x
 

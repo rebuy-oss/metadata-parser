@@ -16,6 +16,7 @@ use JMS\Serializer\Annotation\MaxDepth;
 use JMS\Serializer\Annotation\PostDeserialize;
 use JMS\Serializer\Annotation\ReadOnlyProperty;
 use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\SerializerAttribute;
 use JMS\Serializer\Annotation\Since;
 use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\UnionDiscriminator;
@@ -27,7 +28,6 @@ use JMS\Serializer\Annotation\XmlList;
 use JMS\Serializer\Annotation\XmlMap;
 use JMS\Serializer\Annotation\XmlRoot;
 use JMS\Serializer\Annotation\XmlValue;
-use JMS\Serializer\Metadata\Driver\AttributeDriver\AttributeReader;
 use JMS\Serializer\Type\Exception\SyntaxError;
 use Liip\MetadataParser\Exception\InvalidTypeException;
 use Liip\MetadataParser\Exception\ParseException;
@@ -59,12 +59,8 @@ final class JMSParser implements ModelParserInterface
 
     private JMSTypeParser $jmsTypeParser;
 
-    private Reader $annotationOrAttributeReader;
-
-    public function __construct(Reader $reader)
+    public function __construct(private readonly ?Reader $annotationReader = null)
     {
-        $this->annotationOrAttributeReader = new AttributeReader($reader);
-
         $this->phpTypeParser = new PhpTypeParser();
         $this->jmsTypeParser = new JMSTypeParser();
     }
@@ -97,7 +93,7 @@ final class JMSParser implements ModelParserInterface
 
         foreach ($reflClass->getProperties() as $reflProperty) {
             try {
-                $attributes = $this->annotationOrAttributeReader->getPropertyAnnotations($reflProperty);
+                $attributes = $this->getPropertyAnnotations($reflProperty);
             } catch (AnnotationException $e) {
                 throw ParseException::propertyError((string) $classMetadata, $reflProperty->getName(), $e);
             }
@@ -118,7 +114,7 @@ final class JMSParser implements ModelParserInterface
 
         foreach ($reflClass->getMethods() as $reflMethod) {
             try {
-                $attributes = $this->annotationOrAttributeReader->getMethodAnnotations($reflMethod);
+                $attributes = $this->getMethodAnnotations($reflMethod);
             } catch (AnnotationException $e) {
                 throw ParseException::propertyError((string) $classMetadata, $reflMethod->getName(), $e);
             }
@@ -218,7 +214,7 @@ final class JMSParser implements ModelParserInterface
             $map = $this->gatherClassAttributes($parent);
         }
 
-        $attributes = $this->annotationOrAttributeReader->getClassAnnotations($reflectionClass);
+        $attributes = $this->getClassAnnotations($reflectionClass);
         foreach ($attributes as $attribute) {
             $map[$attribute::class] = [
                 'attribute' => $attribute,
@@ -469,5 +465,83 @@ final class JMSParser implements ModelParserInterface
         }
 
         return $reflection->getType()->allowsNull();
+    }
+
+    /**
+     * @param \ReflectionClass<*> $class
+     *
+     * @return list<object>
+     */
+    public function getClassAnnotations(\ReflectionClass $class): array
+    {
+        return $this->getSerializerAttributes($class);
+    }
+
+    /**
+     * @return list<object>
+     */
+    public function getMethodAnnotations(\ReflectionMethod $method): array
+    {
+        return $this->getSerializerAttributes($method);
+    }
+
+    /**
+     * @return list<object>
+     */
+    public function getPropertyAnnotations(\ReflectionProperty $property): array
+    {
+        return $this->getSerializerAttributes($property);
+    }
+
+    /**
+     * @param \ReflectionClass<*>|\ReflectionMethod|\ReflectionProperty $reflection
+     *
+     * @return list<object>
+     */
+    private function getSerializerAttributes(\ReflectionClass|\ReflectionMethod|\ReflectionProperty $reflection): array
+    {
+        /*
+         * The marker interface `SerializerAttribute` was only introduced in version 3.29.1 of the jms/serializer,
+         * so we have to fallback to fetching all in case an older verison is used.
+         */
+        if (class_exists(SerializerAttribute::class)) {
+            $attributes = $reflection->getAttributes(SerializerAttribute::class, \ReflectionAttribute::IS_INSTANCEOF);
+        } else {
+            $attributes = $reflection->getAttributes();
+        }
+
+        $attributes = $this->buildAttributes($attributes);
+
+        if (null !== $this->annotationReader) {
+            $annotations = match (true) {
+                $reflection instanceof \ReflectionClass => $this->annotationReader->getClassAnnotations($reflection),
+                $reflection instanceof \ReflectionMethod => $this->annotationReader->getMethodAnnotations($reflection),
+                $reflection instanceof \ReflectionProperty => $this->annotationReader->getPropertyAnnotations($reflection),
+            };
+
+            $attributes = array_merge($attributes, $annotations);
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * @param \ReflectionAttribute<SerializerAttribute>[] $attributes
+     *
+     * @return list<SerializerAttribute>
+     */
+    private function buildAttributes(array $attributes): array
+    {
+        if (!class_exists(SerializerAttribute::class)) {
+            $attributes = array_filter(
+                $attributes,
+                static fn (\ReflectionAttribute $attribute) => str_starts_with($attribute->name, 'JMS\Serializer\Annotation')
+            );
+        }
+
+        return array_map(
+            static fn (\ReflectionAttribute $attribute): object => $attribute->newInstance(),
+            $attributes,
+        );
     }
 }
