@@ -36,6 +36,8 @@ final class PhpDocParser implements ModelParserInterface
     }
 
     /**
+     * @param \ReflectionClass<object> $reflClass
+     *
      * @return string[] the property names that have been added
      */
     private function parseProperties(\ReflectionClass $reflClass, RawClassMetadata $classMetadata, PropertyNamingStrategyInterface $propertyNamingStrategy): array

@@ -37,6 +37,9 @@ final class DateTimeOptions implements \JsonSerializable
         return $this->deserializeFormats;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return array_filter([

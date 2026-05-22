@@ -8,11 +8,11 @@ final class ParameterMetadata implements \JsonSerializable, \Stringable
 {
     public function __construct(
         private string $name,
-        private bool $required,
+        private readonly bool $required,
         /**
          * @var mixed The default value can be of any type
          */
-        private $defaultValue = null,
+        private readonly mixed $defaultValue = null,
     ) {
     }
 
@@ -43,7 +43,7 @@ final class ParameterMetadata implements \JsonSerializable, \Stringable
     /**
      * @throws \BadMethodCallException if the parameter is required and therefore has no default value
      */
-    public function getDefaultValue()
+    public function getDefaultValue(): mixed
     {
         if ($this->required) {
             throw new \BadMethodCallException(\sprintf('Parameter %s is required and therefore has no default value', (string) $this));
@@ -52,6 +52,9 @@ final class ParameterMetadata implements \JsonSerializable, \Stringable
         return $this->defaultValue;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return [

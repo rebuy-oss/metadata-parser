@@ -41,7 +41,7 @@ final class Builder
     {
         $rawClassMetadataList = $this->parser->parse($className);
 
-        /** @var ClassMetadata[] $classMetadataList */
+        /** @var array<string, ClassMetadata> $classMetadataList */
         $classMetadataList = [];
         foreach ($rawClassMetadataList as $rawClassMetadata) {
             $classMetadataList[$rawClassMetadata->getClassName()] = PropertyReducer::reduce($rawClassMetadata, $reducers);
@@ -89,6 +89,9 @@ final class Builder
         }
     }
 
+    /**
+     * @param array<class-string, ClassMetadata> $classMetadataList
+     */
     private function setDiscriminatorClassMetadata(ClassMetadata $classMetadata, array $classMetadataList): void
     {
         if (null === $classMetadata->getDiscriminatorMetadata()) {

@@ -105,6 +105,9 @@ final class PropertyCollection implements \JsonSerializable, \Stringable
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return [

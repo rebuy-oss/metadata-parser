@@ -105,6 +105,9 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable, \Stringabl
         return $this->customInformation;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         $data = [

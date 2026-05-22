@@ -42,6 +42,9 @@ final class PropertyAccessor implements \JsonSerializable
         return $this->setterMethod;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return array_filter([

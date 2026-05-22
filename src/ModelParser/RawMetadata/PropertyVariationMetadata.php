@@ -103,7 +103,7 @@ final class PropertyVariationMetadata extends AbstractPropertyMetadata
      * However, if it is an object, it should implement JsonSerializable to not
      * break debugging.
      */
-    public function setCustomInformation(string $key, $value): void
+    public function setCustomInformation(string $key, mixed $value): void
     {
         parent::setCustomInformation($key, $value);
     }

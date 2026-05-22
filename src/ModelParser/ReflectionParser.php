@@ -53,6 +53,9 @@ final class ReflectionParser implements ModelParserInterface
         $this->parseConstructor($reflClass, $classMetadata);
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     private function parseProperties(\ReflectionClass $reflClass, RawClassMetadata $classMetadata, PropertyNamingStrategyInterface $propertyNamingStrategy): void
     {
         if ($reflParentClass = $reflClass->getParentClass()) {
@@ -92,6 +95,9 @@ final class ReflectionParser implements ModelParserInterface
         }
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     private function parseConstructor(\ReflectionClass $reflClass, RawClassMetadata $classMetadata): void
     {
         $constructor = $reflClass->getConstructor();

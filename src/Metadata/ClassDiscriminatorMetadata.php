@@ -43,6 +43,9 @@ class ClassDiscriminatorMetadata
         }
     }
 
+    /**
+     * @return array<class-string, ClassMetadata>
+     */
     public function getClassMetadataList(): array
     {
         return $this->classMetadataList;

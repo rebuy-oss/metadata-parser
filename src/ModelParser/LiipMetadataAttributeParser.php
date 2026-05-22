@@ -32,6 +32,9 @@ final class LiipMetadataAttributeParser implements ModelParserInterface
         $this->parseMethods($reflClass, $classMetadata);
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     private function parseProperties(\ReflectionClass $reflClass, RawClassMetadata $classMetadata): void
     {
         if ($reflParentClass = $reflClass->getParentClass()) {
@@ -50,6 +53,9 @@ final class LiipMetadataAttributeParser implements ModelParserInterface
         }
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     private function parseMethods(\ReflectionClass $reflClass, RawClassMetadata $classMetadata): void
     {
         if ($reflParentClass = $reflClass->getParentClass()) {
@@ -71,6 +77,9 @@ final class LiipMetadataAttributeParser implements ModelParserInterface
         }
     }
 
+    /**
+     * @param object[] $attributes
+     */
     private function parsePropertyAttributes(RawClassMetadata $classMetadata, PropertyVariationMetadata $property, array $attributes): void
     {
         foreach ($attributes as $attribute) {
@@ -100,6 +109,8 @@ final class LiipMetadataAttributeParser implements ModelParserInterface
     }
 
     /**
+     * @param \ReflectionProperty|\ReflectionMethod|\ReflectionClass<object> $reflection
+     *
      * @return object[]
      */
     private function getAttributes(\ReflectionProperty|\ReflectionMethod|\ReflectionClass $reflection): array

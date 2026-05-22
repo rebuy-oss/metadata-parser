@@ -47,7 +47,7 @@ final class VersionRange implements \JsonSerializable
      *
      * Returns false if both have the same upper bound.
      */
-    public function allowsHigherThan(self $other)
+    public function allowsHigherThan(self $other): bool
     {
         if (null === $this->until) {
             return false;
@@ -103,6 +103,9 @@ final class VersionRange implements \JsonSerializable
         return true;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return array_filter([

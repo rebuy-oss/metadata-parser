@@ -248,6 +248,9 @@ final class RawClassMetadata implements \JsonSerializable, \Stringable
         return $this->constructorParameters;
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     public function setDiscriminator(\ReflectionClass $reflClass, string $baseClass, Discriminator $discriminatorAttribute): void
     {
         $classMap = $discriminatorAttribute->map;
@@ -295,6 +298,9 @@ final class RawClassMetadata implements \JsonSerializable, \Stringable
         return $this->discriminatorMetadata;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return array_filter([

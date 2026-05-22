@@ -86,6 +86,9 @@ final class JMSParser implements ModelParserInterface
         }
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     private function parseProperties(\ReflectionClass $reflClass, RawClassMetadata $classMetadata, PropertyNamingStrategyInterface $propertyNamingStrategy): void
     {
         if ($reflParentClass = $reflClass->getParentClass()) {
@@ -104,6 +107,9 @@ final class JMSParser implements ModelParserInterface
         }
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     private function parseMethods(\ReflectionClass $reflClass, RawClassMetadata $classMetadata): void
     {
         if ($reflParentClass = $reflClass->getParentClass()) {
@@ -143,6 +149,9 @@ final class JMSParser implements ModelParserInterface
         }
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     private function parseClass(\ReflectionClass $reflClass, RawClassMetadata $classMetadata): void
     {
         try {
@@ -198,6 +207,8 @@ final class JMSParser implements ModelParserInterface
     /**
      * Find the attributes we care about by looking through all ancestors of $reflectionClass.
      *
+     * @param \ReflectionClass<object> $reflectionClass
+     *
      * @return object[] Hashmap of attribute class => attribute object
      */
     private function gatherClassAttributes(\ReflectionClass $reflectionClass): array
@@ -218,6 +229,9 @@ final class JMSParser implements ModelParserInterface
         return $map;
     }
 
+    /**
+     * @param object[] $attributes
+     */
     private function parsePropertyAttributes(RawClassMetadata $classMetadata, \ReflectionProperty|\ReflectionMethod $reflection, PropertyVariationMetadata $property, array $attributes): void
     {
         foreach ($attributes as $attribute) {
@@ -327,6 +341,8 @@ final class JMSParser implements ModelParserInterface
      *
      * If the property already exists on the class metadata this is returned.
      * If the property has a serialized name that overrides the name of an existing property, it will be renamed and merged.
+     *
+     * @param object[] $attributes
      */
     private function getProperty(RawClassMetadata $classMetadata, \ReflectionProperty $reflProperty, array $attributes, PropertyNamingStrategyInterface $propertyNamingStrategy): PropertyVariationMetadata
     {
@@ -345,6 +361,9 @@ final class JMSParser implements ModelParserInterface
         return $property;
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     private function getReturnType(PropertyVariationMetadata $property, \ReflectionMethod $reflMethod, \ReflectionClass $reflClass): PropertyType
     {
         $type = new PropertyTypeUnknown(true);
@@ -389,6 +408,9 @@ final class JMSParser implements ModelParserInterface
         }
     }
 
+    /**
+     * @param object[] $attributes
+     */
     private function getSerializedName(array $attributes): ?string
     {
         foreach ($attributes as $attribute) {
@@ -400,16 +422,25 @@ final class JMSParser implements ModelParserInterface
         return null;
     }
 
+    /**
+     * @param object[] $attributes
+     */
     private function isVirtualProperty(array $attributes): bool
     {
         return array_any($attributes, static fn ($attribute) => $attribute instanceof VirtualProperty);
     }
 
+    /**
+     * @param object[] $attributes
+     */
     private function isPostDeserializeMethod(array $attributes): bool
     {
         return array_any($attributes, static fn ($attribute) => $attribute instanceof PostDeserialize);
     }
 
+    /**
+     * @param object[] $attributes
+     */
     private function getMethodName(array $attributes, \ReflectionMethod $reflMethod): string
     {
         $name = $reflMethod->getName();

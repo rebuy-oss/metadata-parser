@@ -9,17 +9,19 @@ namespace Liip\MetadataParser\Metadata;
  * This property type can be merged with PropertyTypeIterable, if :
  *  - we're not merging a plain array PropertyTypeIterable into a hashmap one,
  *  - and the traversable classes of each are either not present on either sides, or are the same, or parent-child of one another
+ *
+ * @template T of \Traversable
  */
 final class PropertyTypeIterable extends AbstractPropertyType
 {
     /**
-     * @param class-string<\Traversable>|null $traversableClass
+     * @param class-string<T>|null $traversableClass
      */
     public function __construct(
-        private PropertyType $subType,
-        private bool $hashmap,
+        private readonly PropertyType $subType,
+        private readonly bool $hashmap,
         bool $nullable,
-        private ?string $traversableClass = null,
+        private readonly ?string $traversableClass = null,
     ) {
         parent::__construct($nullable);
     }
@@ -59,7 +61,7 @@ final class PropertyTypeIterable extends AbstractPropertyType
     }
 
     /**
-     * @return class-string<\Traversable>
+     * @return class-string<T>
      */
     public function getTraversableClass(): string
     {

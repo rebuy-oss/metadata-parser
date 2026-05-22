@@ -61,11 +61,17 @@ final class PropertyTypeUnion extends AbstractPropertyType
         return null;
     }
 
+    /**
+     * @param array<string, string> $typeMap
+     */
     public function setTypeMap(array $typeMap): void
     {
         $this->typeMap = $typeMap;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getTypeMap(): array
     {
         return $this->typeMap;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\TypeParser;
 
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Type\Parser;
 use Liip\MetadataParser\Exception\InvalidTypeException;
@@ -44,6 +43,9 @@ final class JMSTypeParser
         return $this->parseType($this->jmsTypeParser->parse($rawType), $reflection, $isSubType);
     }
 
+    /**
+     * @param array<int|string, mixed> $typeInfo
+     */
     private function parseType(array $typeInfo, \ReflectionProperty|\ReflectionMethod|null $reflection, bool $isSubType = false): PropertyType
     {
         $typeInfo = array_merge(
@@ -126,6 +128,9 @@ final class JMSTypeParser
         };
     }
 
+    /**
+     * @param array<int|string, mixed> $typeParams
+     */
     private function getEnumSerializationMode(string $enumType, array $typeParams): ?SerializationMode
     {
         $mode = $typeParams[1] ?? null;
@@ -141,6 +146,9 @@ final class JMSTypeParser
         return $serializationMode;
     }
 
+    /**
+     * @param array<int|string, mixed> $typeInfo
+     */
     private function getEnumType(array $typeInfo, \ReflectionProperty|\ReflectionMethod|null $reflection): string
     {
         $enumType = $typeInfo['params'][0] ?? null;
