@@ -30,17 +30,16 @@
     "require-dev": {
         "doctrine/collections": "^1.6|^2.6.0|^3.1.0",
         "friendsofphp/php-cs-fixer": "^v3.94.2",
-        "jms/serializer": "^2.3 || ^3",
+        "jms/serializer": "^3",
         "phpstan/phpstan": "^2.1.44",
         "phpstan/phpstan-phpunit": "^2.0.16",
         "phpunit/phpunit": "^13.1.10"
     },
     "suggest": {
-        "jms/serializer": "^2.3 || ^3"
+        "jms/serializer": "^3"
     },
     "conflict": {
-        "doctrine/annotations": "< 1.11",
-        "jms/serializer": "< 2.3"
+        "doctrine/annotations": "< 1.11"
     },
     "autoload": {
         "psr-4": {
