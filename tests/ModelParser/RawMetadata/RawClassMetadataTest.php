@@ -6,11 +6,10 @@ namespace Tests\Liip\MetadataParser\ModelParser\RawMetadata;
 
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @small
- */
+#[Small]
 class RawClassMetadataTest extends TestCase
 {
     public function testRename(): void

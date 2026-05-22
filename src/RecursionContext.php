@@ -8,23 +8,17 @@ use Liip\MetadataParser\Metadata\PropertyMetadata;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 
-final class RecursionContext
+final class RecursionContext implements \Stringable
 {
-    private const MATCH_EVERYTHING = '*';
-
-    /**
-     * @var string
-     */
-    private $root;
+    private const string MATCH_EVERYTHING = '*';
 
     /**
      * @var PropertyMetadata[]
      */
     private $stack = [];
 
-    public function __construct(string $root)
+    public function __construct(private readonly string $root)
     {
-        $this->root = $root;
     }
 
     public function __toString(): string
@@ -33,9 +27,7 @@ final class RecursionContext
             return $this->root;
         }
 
-        $stack = array_map(static function (PropertyMetadata $propertyMetadata) {
-            return $propertyMetadata->getSerializedName();
-        }, $this->stack);
+        $stack = array_map(static fn (PropertyMetadata $propertyMetadata) => $propertyMetadata->getSerializedName(), $this->stack);
 
         return \sprintf('%s->%s', $this->root, implode('->', $stack));
     }
@@ -68,14 +60,7 @@ final class RecursionContext
 
         foreach ($current as $i => $name) {
             if ($stackToCheck[0] === $name) {
-                $valid = true;
-                foreach ($stackToCheck as $j => $nameToCheck) {
-                    if (self::MATCH_EVERYTHING !== $nameToCheck && ($current[$i + (int) $j] ?? null) !== $nameToCheck) {
-                        $valid = false;
-                        break;
-                    }
-                }
-
+                $valid = array_all($stackToCheck, static fn ($nameToCheck, $j) => !(self::MATCH_EVERYTHING !== $nameToCheck && ($current[$i + (int) $j] ?? null) !== $nameToCheck));
                 if ($valid) {
                     return true;
                 }

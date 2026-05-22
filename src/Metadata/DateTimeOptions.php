@@ -10,32 +10,13 @@ namespace Liip\MetadataParser\Metadata;
 final class DateTimeOptions implements \JsonSerializable
 {
     /**
-     * @var string|null
+     * @param list<string>|null $deserializeFormats Use if different formats should be used for parsing dates than for generating dates.
      */
-    private $format;
-
-    /**
-     * @var string|null
-     */
-    private $zone;
-
-    /**
-     * Use if different formats should be used for parsing dates than for generating dates.
-     *
-     * @var list<string>|null
-     */
-    private $deserializeFormats;
-
-    /**
-     * @note Passing a string for $deserializeFormats is deprecated, please pass an array instead
-     *
-     * @param list<string>|null $deserializeFormats
-     */
-    public function __construct(?string $format, ?string $zone, ?array $deserializeFormats)
-    {
-        $this->format = $format;
-        $this->zone = $zone;
-        $this->deserializeFormats = $deserializeFormats;
+    public function __construct(
+        private ?string $format,
+        private ?string $zone,
+        private ?array $deserializeFormats,
+    ) {
     }
 
     public function getFormat(): ?string
@@ -56,6 +37,9 @@ final class DateTimeOptions implements \JsonSerializable
         return $this->deserializeFormats;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return array_filter([

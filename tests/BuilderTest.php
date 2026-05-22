@@ -19,8 +19,11 @@ use Liip\MetadataParser\ModelParser\PhpDocParser;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\MetadataParser\Parser;
 use Liip\MetadataParser\RecursionChecker;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Tests\Liip\MetadataParser\ModelParser\Fixtures\DirectionEnum;
+use Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum;
 use Tests\Liip\MetadataParser\ModelParser\Model\Car;
 use Tests\Liip\MetadataParser\ModelParser\Model\ClassUsingUnionDiscriminator;
 use Tests\Liip\MetadataParser\ModelParser\Model\ClassUsingUnionTyping;
@@ -28,9 +31,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\ClassWithEnums;
 use Tests\Liip\MetadataParser\ModelParser\Model\Moped;
 use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 
-/**
- * @small
- */
+#[Small]
 class BuilderTest extends TestCase
 {
     private Builder $builder;
@@ -47,7 +48,7 @@ class BuilderTest extends TestCase
 
         $this->builder = new Builder(
             $parser,
-            new RecursionChecker($this->createMock(LoggerInterface::class))
+            new RecursionChecker($this->createStub(LoggerInterface::class))
         );
     }
 
@@ -60,7 +61,7 @@ class BuilderTest extends TestCase
             private $property;
         };
 
-        $classMetadata = $this->builder->build(\get_class($c));
+        $classMetadata = $this->builder->build($c::class);
 
         $props = $classMetadata->getProperties();
         $this->assertCount(1, $props, 'Number of properties should match');
@@ -86,7 +87,7 @@ class BuilderTest extends TestCase
             public string $myProperty;
         };
 
-        $classMetadata = $this->builder->build(\get_class($c));
+        $classMetadata = $this->builder->build($c::class);
 
         $props = $classMetadata->getProperties();
         $this->assertCount(1, $props, 'Number of properties should match');
@@ -150,16 +151,16 @@ class BuilderTest extends TestCase
         $this->assertCount(4, $props, 'Number of properties should match');
 
         $this->assertProperty('suit', 'suit', true, false, $props[0]);
-        $this->assertPropertyType($props[0]->getType(), PropertyTypeEnum::class, 'Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum', false);
+        $this->assertPropertyType($props[0]->getType(), PropertyTypeEnum::class, SuitEnum::class, false);
 
         $this->assertProperty('suitWithName', 'suit_with_name', true, false, $props[1]);
-        $this->assertPropertyType($props[1]->getType(), PropertyTypeEnum::class, 'Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum', false);
+        $this->assertPropertyType($props[1]->getType(), PropertyTypeEnum::class, SuitEnum::class, false);
 
         $this->assertProperty('suitWithoutType', 'suit_without_type', true, false, $props[2]);
-        $this->assertPropertyType($props[2]->getType(), PropertyTypeEnum::class, 'Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum', false);
+        $this->assertPropertyType($props[2]->getType(), PropertyTypeEnum::class, SuitEnum::class, false);
 
         $this->assertProperty('direction', 'direction', true, false, $props[3]);
-        $this->assertPropertyType($props[3]->getType(), PropertyTypeEnum::class, 'Tests\Liip\MetadataParser\ModelParser\Fixtures\DirectionEnum', false);
+        $this->assertPropertyType($props[3]->getType(), PropertyTypeEnum::class, DirectionEnum::class, false);
     }
 
     private function assertProperty(string $name, string $serializedName, bool $public, bool $readOnly, PropertyMetadata $property): void

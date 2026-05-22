@@ -9,20 +9,10 @@ namespace Liip\MetadataParser\Metadata;
  */
 final class VersionRange implements \JsonSerializable
 {
-    /**
-     * @var string|null
-     */
-    private $since;
-
-    /**
-     * @var string|null
-     */
-    private $until;
-
-    public function __construct(?string $since, ?string $until)
-    {
-        $this->since = $since;
-        $this->until = $until;
+    public function __construct(
+        private ?string $since,
+        private ?string $until,
+    ) {
     }
 
     public static function all(): self
@@ -57,7 +47,7 @@ final class VersionRange implements \JsonSerializable
      *
      * Returns false if both have the same upper bound.
      */
-    public function allowsHigherThan(self $other)
+    public function allowsHigherThan(self $other): bool
     {
         if (null === $this->until) {
             return false;
@@ -113,6 +103,9 @@ final class VersionRange implements \JsonSerializable
         return true;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return array_filter([

@@ -10,14 +10,14 @@ use Liip\MetadataParser\Metadata\PropertyTypeEnum;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\SerializationMode;
 use Liip\MetadataParser\TypeParser\JMSTypeParser;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\DirectionEnum;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum;
 use Tests\Liip\MetadataParser\ModelParser\Model\ClassWithEnums;
 
-/**
- * @small
- */
+#[Small]
 class JMSTypeParserTest extends TestCase
 {
     /**
@@ -100,9 +100,7 @@ class JMSTypeParserTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideTypeCases
-     */
+    #[DataProvider('provideTypeCases')]
     public function testType(string $rawType, string $expectedType, ?bool $expectedNullable = null): void
     {
         $type = $this->parser->parse($rawType);
@@ -196,9 +194,7 @@ class JMSTypeParserTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideDateTimeTypeCases
-     */
+    #[DataProvider('provideDateTimeTypeCases')]
     public function testDateTimeType(string $rawType, string $expectedType, ?string $expectedFormat, ?string $expectedZone, ?array $expectedDeserializeFormats): void
     {
         /** @var PropertyTypeDateTime $type */

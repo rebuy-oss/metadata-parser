@@ -6,11 +6,10 @@ namespace Tests\Liip\MetadataParser\Reducer;
 
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\Reducer\GroupReducer;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @small
- */
+#[Small]
 class GroupReducerTest extends TestCase
 {
     public function testReduce(): void
@@ -27,19 +26,19 @@ class GroupReducerTest extends TestCase
             $property3,
         ];
 
-        $reducedProperties = (new GroupReducer(['group1']))->reduce('property', $properties);
+        $reducedProperties = new GroupReducer(['group1'])->reduce('property', $properties);
         $this->assertProperties(['property2'], $reducedProperties);
 
-        $reducedProperties = (new GroupReducer(['group2']))->reduce('property', $properties);
+        $reducedProperties = new GroupReducer(['group2'])->reduce('property', $properties);
         $this->assertProperties(['property2'], $reducedProperties);
 
-        $reducedProperties = (new GroupReducer(['group3']))->reduce('property', $properties);
+        $reducedProperties = new GroupReducer(['group3'])->reduce('property', $properties);
         $this->assertProperties(['property3'], $reducedProperties);
 
-        $reducedProperties = (new GroupReducer(['group1', 'group2', 'group3']))->reduce('property', $properties);
+        $reducedProperties = new GroupReducer(['group1', 'group2', 'group3'])->reduce('property', $properties);
         $this->assertProperties(['property2', 'property3'], $reducedProperties);
 
-        $reducedProperties = (new GroupReducer([]))->reduce('property', $properties);
+        $reducedProperties = new GroupReducer([])->reduce('property', $properties);
         $this->assertProperties(['property1', 'property2', 'property3'], $reducedProperties);
     }
 

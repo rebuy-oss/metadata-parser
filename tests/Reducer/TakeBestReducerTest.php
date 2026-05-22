@@ -6,11 +6,10 @@ namespace Tests\Liip\MetadataParser\Reducer;
 
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\Reducer\TakeBestReducer;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @small
- */
+#[Small]
 class TakeBestReducerTest extends TestCase
 {
     public function testReduce(): void
@@ -20,7 +19,7 @@ class TakeBestReducerTest extends TestCase
             new PropertyVariationMetadata('property', false, true),
         ];
 
-        $reducedProperties = (new TakeBestReducer())->reduce('property', $properties);
+        $reducedProperties = new TakeBestReducer()->reduce('property', $properties);
         $this->assertProperties(['property', 'other'], $reducedProperties);
     }
 
@@ -31,7 +30,7 @@ class TakeBestReducerTest extends TestCase
             new PropertyVariationMetadata('other2', false, true),
         ];
 
-        $reducedProperties = (new TakeBestReducer())->reduce('property', $properties);
+        $reducedProperties = new TakeBestReducer()->reduce('property', $properties);
         $this->assertProperties(['other', 'other2'], $reducedProperties);
     }
 

@@ -7,13 +7,12 @@ namespace Tests\Liip\MetadataParser\Metadata;
 use Liip\MetadataParser\Exception\InvalidTypeException;
 use Liip\MetadataParser\Metadata\PropertyTypeEnum;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\DirectionEnum;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum;
 
-/**
- * @small
- */
+#[Small]
 class PropertyTypeEnumTest extends TestCase
 {
     public function testToStringBackedEnum(): void

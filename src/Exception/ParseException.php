@@ -6,18 +6,18 @@ namespace Liip\MetadataParser\Exception;
 
 final class ParseException extends SchemaException
 {
-    private const CLASS_NOT_FOUND = 'Class or interface "%s" could not be found, maybe it\'s not autoloadable?';
-    private const CLASS_ERROR = 'Class "%s" couldn\'t be parsed because of an error: %s';
-    private const PROPERTY_ERROR = 'Property "%s::%s" couldn\'t be parsed because of an error: %s';
-    private const PROPERTY_TYPE_ERROR = 'Property "%s::%s" has an invalid type which results in: %s';
-    private const PROPERTY_TYPE_NAME_NULL = 'Property "%s::%s" has an invalid type attribute. [Type Error] Attribute "name" of #[JMS\Type] may not be null.';
-    private const PROPERTY_TYPE_CONFLICT = 'Property "%s::%s" has different type definitions which conflict: %s != %s';
-    private const UNSUPPORTED_CLASS_ATTRIBUTE = 'Class "%s" has an unsupported attribute "%s"';
-    private const UNSUPPORTED_PROPERTY_ATTRIBUTE = 'Property "%s::%s" has an unsupported attribute "%s"';
-    private const NON_PUBLIC_METHOD = 'Method "%s::%s" is not public and therefore cannot be included';
+    private const string CLASS_NOT_FOUND = 'Class or interface "%s" could not be found, maybe it\'s not autoloadable?';
+    private const string CLASS_ERROR = 'Class "%s" couldn\'t be parsed because of an error: %s';
+    private const string PROPERTY_ERROR = 'Property "%s::%s" couldn\'t be parsed because of an error: %s';
+    private const string PROPERTY_TYPE_ERROR = 'Property "%s::%s" has an invalid type which results in: %s';
+    private const string PROPERTY_TYPE_NAME_NULL = 'Property "%s::%s" has an invalid type attribute. [Type Error] Attribute "name" of #[JMS\Type] may not be null.';
+    private const string PROPERTY_TYPE_CONFLICT = 'Property "%s::%s" has different type definitions which conflict: %s != %s';
+    private const string UNSUPPORTED_CLASS_ATTRIBUTE = 'Class "%s" has an unsupported attribute "%s"';
+    private const string UNSUPPORTED_PROPERTY_ATTRIBUTE = 'Property "%s::%s" has an unsupported attribute "%s"';
+    private const string NON_PUBLIC_METHOD = 'Method "%s::%s" is not public and therefore cannot be included';
 
-    private const PROPERTY_ALREADY_EXISTS = 'Property "%s" is already defined for "%s", cannot add it twice';
-    private const CLASS_NOT_PARSED = 'Class "%s" of property "%s::%s" was not parsed, something went wrong';
+    private const string PROPERTY_ALREADY_EXISTS = 'Property "%s" is already defined for "%s", cannot add it twice';
+    private const string CLASS_NOT_PARSED = 'Class "%s" of property "%s::%s" was not parsed, something went wrong';
 
     public static function classNotFound(string $className, \Exception $previousException): self
     {

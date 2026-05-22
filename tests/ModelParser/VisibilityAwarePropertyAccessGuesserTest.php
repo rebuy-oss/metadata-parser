@@ -9,18 +9,17 @@ use Liip\MetadataParser\ModelParser\NamingStrategy\SnakeCasePropertyNamingStrate
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\MetadataParser\ModelParser\VisibilityAwarePropertyAccessGuesser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class VisibilityAwarePropertyAccessGuesserTest extends TestCase
 {
-    /**
-     * @dataProvider provideSimpleClassesCases
-     */
+    #[DataProvider('provideSimpleClassesCases')]
     public function testSimpleClasses($class, array $parsers, int $expectedPropertyCount, ?array $accessType): void
     {
         $classMetadata = $this->parseClass($class, $parsers);
 
-        $this->assertSame(\get_class($class), $classMetadata->getClassName());
+        $this->assertSame($class::class, $classMetadata->getClassName());
         $this->assertCount($expectedPropertyCount, $classMetadata->getPropertyCollections(), 'Number of properties should match');
 
         if (null !== $accessType) {
@@ -45,7 +44,7 @@ class VisibilityAwarePropertyAccessGuesserTest extends TestCase
      */
     public function parseClass($class, array $parsers): RawClassMetadata
     {
-        $class = \is_object($class) ? \get_class($class) : $class;
+        $class = \is_object($class) ? $class::class : $class;
         $classMetadata = new RawClassMetadata($class);
 
         foreach ($parsers as $parser) {
@@ -56,16 +55,7 @@ class VisibilityAwarePropertyAccessGuesserTest extends TestCase
     }
 
     /**
-     * @return \Generator<array{
-     *  'class': object,
-     *  'parsers': ModelParserInterface[],
-     *  'expectedPropertyCount': int,
-     *  'accessType': array{
-     *     'public': bool,
-     *     'hasGetter': bool|null,
-     *     'hasSetter': bool|null,
-     *  }|null,
-     * }>
+     * @return \Generator<array{'class': object, 'parsers': ModelParserInterface[], 'expectedPropertyCount': int, 'accessType': array{'public': bool, 'hasGetter': bool|null, 'hasSetter': bool|null}|null}>
      */
     public static function provideSimpleClassesCases(): iterable
     {
@@ -131,7 +121,7 @@ class VisibilityAwarePropertyAccessGuesserTest extends TestCase
         ];
         yield 'MissingGetter' => [
             'class' => new class {
-                private ?string $name;
+                private ?string $name = null;
 
                 public function setName(?string $name): void
                 {

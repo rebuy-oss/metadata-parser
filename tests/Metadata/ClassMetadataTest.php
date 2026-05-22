@@ -8,11 +8,10 @@ use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\ParameterMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @small
- */
+#[Small]
 class ClassMetadataTest extends TestCase
 {
     public function testFromRaw(): void

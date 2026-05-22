@@ -6,7 +6,6 @@ namespace Liip\MetadataParser\ModelParser;
 
 use Liip\MetadataParser\Exception\ParseException;
 use Liip\MetadataParser\Metadata\ParameterMetadata;
-use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypeUnion;
 use Liip\MetadataParser\ModelParser\NamingStrategy\PropertyNamingStrategyInterface;
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
@@ -15,7 +14,7 @@ use Liip\MetadataParser\TypeParser\PhpTypeParser;
 
 final class ReflectionParser implements ModelParserInterface
 {
-    private const SUPPORTED_UNION_TYPES = [
+    private const array SUPPORTED_UNION_TYPES = [
         'int',
         'float',
         'double',
@@ -54,6 +53,9 @@ final class ReflectionParser implements ModelParserInterface
         $this->parseConstructor($reflClass, $classMetadata);
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     private function parseProperties(\ReflectionClass $reflClass, RawClassMetadata $classMetadata, PropertyNamingStrategyInterface $propertyNamingStrategy): void
     {
         if ($reflParentClass = $reflClass->getParentClass()) {
@@ -70,7 +72,7 @@ final class ReflectionParser implements ModelParserInterface
                 case $reflectionType instanceof \ReflectionUnionType:
                     $types = $this->getSupportedUnionTypes($reflectionType);
                     if (\count($types) > 1) {
-                        $types = array_map(fn (\ReflectionType $namedType): PropertyType => $this->typeParser->parseReflectionType($namedType), $types);
+                        $types = array_map($this->typeParser->parseReflectionType(...), $types);
                         $type = new PropertyTypeUnion($types, $reflectionType->allowsNull());
                     }
 
@@ -93,6 +95,9 @@ final class ReflectionParser implements ModelParserInterface
         }
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     private function parseConstructor(\ReflectionClass $reflClass, RawClassMetadata $classMetadata): void
     {
         $constructor = $reflClass->getConstructor();

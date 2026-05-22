@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace Tests\Liip\MetadataParser\ModelParser\NamingStrategy;
 
 use Liip\MetadataParser\ModelParser\NamingStrategy\IdenticalPropertyNamingStrategy;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @small
- */
+#[Small]
 class IdenticalPropertyNamingStrategyTest extends TestCase
 {
-    /**
-     * @dataProvider provideGetSerializedNameCases
-     */
+    #[DataProvider('provideGetSerializedNameCases')]
     public function testGetSerializedName(string $input): void
     {
         $strategy = new IdenticalPropertyNamingStrategy();

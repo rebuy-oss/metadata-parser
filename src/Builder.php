@@ -22,14 +22,10 @@ use Liip\MetadataParser\Reducer\PropertyReducerInterface;
  */
 final class Builder
 {
-    private Parser $parser;
-
-    private RecursionChecker $recursionChecker;
-
-    public function __construct(Parser $parser, RecursionChecker $recursionChecker)
-    {
-        $this->parser = $parser;
-        $this->recursionChecker = $recursionChecker;
+    public function __construct(
+        private readonly Parser $parser,
+        private readonly RecursionChecker $recursionChecker,
+    ) {
     }
 
     /**
@@ -45,7 +41,7 @@ final class Builder
     {
         $rawClassMetadataList = $this->parser->parse($className);
 
-        /** @var ClassMetadata[] $classMetadataList */
+        /** @var array<string, ClassMetadata> $classMetadataList */
         $classMetadataList = [];
         foreach ($rawClassMetadataList as $rawClassMetadata) {
             $classMetadataList[$rawClassMetadata->getClassName()] = PropertyReducer::reduce($rawClassMetadata, $reducers);
@@ -93,6 +89,9 @@ final class Builder
         }
     }
 
+    /**
+     * @param array<class-string, ClassMetadata> $classMetadataList
+     */
     private function setDiscriminatorClassMetadata(ClassMetadata $classMetadata, array $classMetadataList): void
     {
         if (null === $classMetadata->getDiscriminatorMetadata()) {

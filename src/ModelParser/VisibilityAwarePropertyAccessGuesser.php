@@ -33,6 +33,9 @@ class VisibilityAwarePropertyAccessGuesser implements ModelParserInterface
         $this->parseProperties($reflClass, $classMetadata);
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     public function parseProperties(\ReflectionClass $reflClass, RawClassMetadata $classMetadata): void
     {
         if ($reflParentClass = $reflClass->getParentClass()) {
@@ -58,6 +61,8 @@ class VisibilityAwarePropertyAccessGuesser implements ModelParserInterface
 
     /**
      * Find a getter method for property, using prefixes `get`, `is`, or simply no prefix
+     *
+     * @param \ReflectionClass<object> $reflClass
      */
     private function guessGetter(\ReflectionClass $reflClass, PropertyVariationMetadata $variation): ?string
     {
@@ -80,6 +85,8 @@ class VisibilityAwarePropertyAccessGuesser implements ModelParserInterface
 
     /**
      * Find a setter method for property, using prefix `set`, or simply no prefix
+     *
+     * @param \ReflectionClass<object> $reflClass
      */
     private function guessSetter(\ReflectionClass $reflClass, PropertyVariationMetadata $variation): ?string
     {

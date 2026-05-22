@@ -39,6 +39,7 @@ $config
             'static_lambda' => true,
             'ternary_to_null_coalescing' => true,
             'void_return' => true,
+            'class_attributes_separation' => ['elements' => ['method' => 'one', 'property' => 'one']],
 
             // Don't mark tests as @internal
             'php_unit_internal_class' => false,

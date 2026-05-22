@@ -6,14 +6,10 @@ namespace Liip\MetadataParser\Metadata;
 
 final class PropertyAccessor implements \JsonSerializable
 {
-    private ?string $getterMethod;
-
-    private ?string $setterMethod;
-
-    public function __construct(?string $getterMethod, ?string $setterMethod)
-    {
-        $this->getterMethod = $getterMethod;
-        $this->setterMethod = $setterMethod;
+    public function __construct(
+        private readonly ?string $getterMethod,
+        private readonly ?string $setterMethod,
+    ) {
     }
 
     public static function none(): self
@@ -46,6 +42,9 @@ final class PropertyAccessor implements \JsonSerializable
         return $this->setterMethod;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return array_filter([

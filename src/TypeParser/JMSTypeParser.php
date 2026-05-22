@@ -19,13 +19,13 @@ use Liip\MetadataParser\Metadata\SerializationMode;
 
 final class JMSTypeParser
 {
-    private const TYPE_ARRAY = 'array';
-    private const TYPE_ENUM = 'enum';
-    private const TYPE_ARRAY_COLLECTION = 'ArrayCollection';
-    private const TYPE_GENERATOR = 'Generator';
-    private const TYPE_ARRAY_ITERATOR = 'ArrayIterator';
-    private const TYPE_ITERATOR = 'Iterator';
-    private const TYPE_DATETIME_INTERFACE = 'DateTimeInterface';
+    private const string TYPE_ARRAY = 'array';
+    private const string TYPE_ENUM = 'enum';
+    private const string TYPE_ARRAY_COLLECTION = 'ArrayCollection';
+    private const string TYPE_GENERATOR = 'Generator';
+    private const string TYPE_ARRAY_ITERATOR = 'ArrayIterator';
+    private const string TYPE_ITERATOR = 'Iterator';
+    private const string TYPE_DATETIME_INTERFACE = 'DateTimeInterface';
 
     private Parser $jmsTypeParser;
 
@@ -43,6 +43,9 @@ final class JMSTypeParser
         return $this->parseType($this->jmsTypeParser->parse($rawType), $reflection, $isSubType);
     }
 
+    /**
+     * @param array<int|string, mixed> $typeInfo
+     */
     private function parseType(array $typeInfo, \ReflectionProperty|\ReflectionMethod|null $reflection, bool $isSubType = false): PropertyType
     {
         $typeInfo = array_merge(
@@ -125,6 +128,9 @@ final class JMSTypeParser
         };
     }
 
+    /**
+     * @param array<int|string, mixed> $typeParams
+     */
     private function getEnumSerializationMode(string $enumType, array $typeParams): ?SerializationMode
     {
         $mode = $typeParams[1] ?? null;
@@ -140,6 +146,9 @@ final class JMSTypeParser
         return $serializationMode;
     }
 
+    /**
+     * @param array<int|string, mixed> $typeInfo
+     */
     private function getEnumType(array $typeInfo, \ReflectionProperty|\ReflectionMethod|null $reflection): string
     {
         $enumType = $typeInfo['params'][0] ?? null;

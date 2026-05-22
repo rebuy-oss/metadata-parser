@@ -17,6 +17,7 @@ use Liip\MetadataParser\ModelParser\RawMetadata\PropertyCollection;
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\MetadataParser\Parser;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Tests\Liip\MetadataParser\ModelParser\Model\Car;
 use Tests\Liip\MetadataParser\ModelParser\Model\ClassWithVehicleProperty;
@@ -24,9 +25,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\Moped;
 use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 use Tests\Liip\MetadataParser\ModelParser\Model\Vehicle;
 
-/**
- * @small
- */
+#[Small]
 class ParserTest extends TestCase
 {
     /**
@@ -53,6 +52,7 @@ class ParserTest extends TestCase
     {
         $c = new class {
             private $property1;
+
             protected $property2;
 
             /**
@@ -61,7 +61,7 @@ class ParserTest extends TestCase
             public $property3;
         };
 
-        $classMetadataList = $this->parser->parse(\get_class($c));
+        $classMetadataList = $this->parser->parse($c::class);
 
         $this->assertCount(1, $classMetadataList, 'Number of class metadata should match');
 
@@ -93,7 +93,7 @@ class ParserTest extends TestCase
             private $property;
         };
 
-        $classMetadataList = $this->parser->parse(\get_class($c));
+        $classMetadataList = $this->parser->parse($c::class);
 
         $this->assertCount(2, $classMetadataList, 'Number of class metadata should match');
 
@@ -127,7 +127,7 @@ class ParserTest extends TestCase
             private $property;
         };
 
-        $classMetadataList = $this->parser->parse(\get_class($c));
+        $classMetadataList = $this->parser->parse($c::class);
 
         $this->assertCount(2, $classMetadataList, 'Number of class metadata should match');
 

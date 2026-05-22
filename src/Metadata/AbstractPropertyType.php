@@ -11,14 +11,8 @@ namespace Liip\MetadataParser\Metadata;
  */
 abstract class AbstractPropertyType implements PropertyType
 {
-    /**
-     * @var bool
-     */
-    private $nullable;
-
-    protected function __construct(bool $nullable)
+    protected function __construct(private bool $nullable)
     {
-        $this->nullable = $nullable;
     }
 
     public function __toString(): string

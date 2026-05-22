@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\ModelParser\RawMetadata;
 
-final class PropertyCollection implements \JsonSerializable
+final class PropertyCollection implements \JsonSerializable, \Stringable
 {
-    /**
-     * @var string
-     */
-    private $serializedName;
+    private string $serializedName;
 
     /**
      * @var PropertyVariationMetadata[]
@@ -108,6 +105,9 @@ final class PropertyCollection implements \JsonSerializable
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return [

@@ -7,13 +7,8 @@ namespace Liip\MetadataParser\Metadata;
 use Liip\MetadataParser\Exception\ParseException;
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 
-final class ClassMetadata implements \JsonSerializable
+final class ClassMetadata implements \JsonSerializable, \Stringable
 {
-    /**
-     * @var class-string
-     */
-    private $className;
-
     /**
      * This list contains all properties of the data model of this class, including virtual properties
      * (e.g. from JMS serializer).
@@ -22,41 +17,33 @@ final class ClassMetadata implements \JsonSerializable
      *
      * @var PropertyMetadata[]
      */
-    private $properties = [];
-
-    /**
-     * Method names to call on the class after it has been deserialized.
-     *
-     * This is rather specific, but for now is good enough.
-     *
-     * @var string[]
-     */
-    private $postDeserializeMethods = [];
+    private array $properties = [];
 
     /**
      * @var ParameterMetadata[]
      */
-    private $constructorParameters = [];
-
-    private ?ClassDiscriminatorMetadata $discriminatorMetadata = null;
+    private array $constructorParameters = [];
 
     /**
      * @param class-string        $className
      * @param PropertyMetadata[]  $properties
      * @param ParameterMetadata[] $constructorParameters
-     * @param string[]            $postDeserializeMethods
+     * @param string[]            $postDeserializeMethods Method names to call on the class after it has been deserialized.
      */
-    public function __construct(string $className, array $properties, array $constructorParameters = [], array $postDeserializeMethods = [], ?ClassDiscriminatorMetadata $discriminatorMetadata = null)
-    {
-        \assert(array_reduce($constructorParameters, static function (bool $carry, $parameter): bool {
+    public function __construct(
+        private string $className,
+        array $properties,
+        array $constructorParameters = [],
+        private array $postDeserializeMethods = [],
+        private ?ClassDiscriminatorMetadata $discriminatorMetadata = null,
+    ) {
+        \assert(array_reduce(
+            $constructorParameters,
             /* @phpstan-ignore instanceof.alwaysTrue */
-            return $carry && $parameter instanceof ParameterMetadata;
-        }, true));
-
-        $this->className = $className;
+            static fn (bool $carry, $parameter): bool => $carry && $parameter instanceof ParameterMetadata,
+            true
+        ));
         $this->constructorParameters = $constructorParameters;
-        $this->postDeserializeMethods = $postDeserializeMethods;
-        $this->discriminatorMetadata = $discriminatorMetadata;
 
         foreach ($properties as $property) {
             $this->addProperty($property);
@@ -152,9 +139,7 @@ final class ClassMetadata implements \JsonSerializable
     {
         $properties = array_values(array_filter(
             $this->properties,
-            static function (PropertyMetadata $property) use ($propertyNames): bool {
-                return !\in_array($property->getName(), $propertyNames, true);
-            }
+            static fn (PropertyMetadata $property): bool => !\in_array($property->getName(), $propertyNames, true)
         ));
 
         return new self(
@@ -165,6 +150,9 @@ final class ClassMetadata implements \JsonSerializable
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return array_filter([

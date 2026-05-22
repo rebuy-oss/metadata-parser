@@ -9,14 +9,8 @@ namespace Liip\MetadataParser\Reducer;
  */
 final class VersionReducer implements PropertyReducerInterface
 {
-    /**
-     * @var string
-     */
-    private $version;
-
-    public function __construct(string $version)
+    public function __construct(private string $version)
     {
-        $this->version = $version;
     }
 
     public function reduce(string $serializedName, array $properties): array

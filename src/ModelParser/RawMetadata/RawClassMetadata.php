@@ -13,10 +13,8 @@ use Liip\MetadataParser\Metadata\ParameterMetadata;
  *
  * The parser will then reduce this to a ClassMetadata for consumers of the schema parser.
  */
-final class RawClassMetadata implements \JsonSerializable
+final class RawClassMetadata implements \JsonSerializable, \Stringable
 {
-    private string $className;
-
     /**
      * This list contains the property collections for each property.
      *
@@ -26,23 +24,26 @@ final class RawClassMetadata implements \JsonSerializable
      *
      * @var PropertyCollection[]
      */
-    private $properties = [];
+    private array $properties = [];
 
     /**
      * @var string[]
      */
-    private $postDeserializeMethods = [];
+    private array $postDeserializeMethods = [];
 
     /**
      * @var ParameterMetadata[]
      */
-    private $constructorParameters = [];
+    private array $constructorParameters = [];
 
     private ?ClassDiscriminatorMetadata $discriminatorMetadata = null;
 
-    public function __construct(string $className)
-    {
-        $this->className = $className;
+    public function __construct(
+        /**
+         * @var class-string
+         */
+        private string $className,
+    ) {
     }
 
     public function __toString(): string
@@ -247,6 +248,9 @@ final class RawClassMetadata implements \JsonSerializable
         return $this->constructorParameters;
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflClass
+     */
     public function setDiscriminator(\ReflectionClass $reflClass, string $baseClass, Discriminator $discriminatorAttribute): void
     {
         $classMap = $discriminatorAttribute->map;
@@ -294,6 +298,9 @@ final class RawClassMetadata implements \JsonSerializable
         return $this->discriminatorMetadata;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return array_filter([

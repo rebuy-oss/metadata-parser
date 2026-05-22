@@ -6,7 +6,7 @@ namespace Liip\MetadataParser\Exception;
 
 final class InvalidTypeException extends SchemaException
 {
-    private const CLASS_NOT_FOUND = 'Class or interface "%s" could not be found, maybe it\'s not autoloadable?';
+    private const string CLASS_NOT_FOUND = 'Class or interface "%s" could not be found, maybe it\'s not autoloadable?';
 
     public static function classNotFound(string $className, ?\Exception $previousException = null): self
     {

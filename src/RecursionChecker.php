@@ -25,16 +25,6 @@ use Psr\Log\LoggerInterface;
 final class RecursionChecker
 {
     /**
-     * @var LoggerInterface|null
-     */
-    private $logger;
-
-    /**
-     * @var string[][]
-     */
-    private $expectedRecursions;
-
-    /**
      * The expected recursions can be absolute, starting with the root class.
      * Or you can specify only a sub path. Both will be detected.
      *
@@ -45,10 +35,10 @@ final class RecursionChecker
      *
      * @param string[][] $expectedRecursions List of expected recursions
      */
-    public function __construct(?LoggerInterface $logger = null, array $expectedRecursions = [])
-    {
-        $this->logger = $logger;
-        $this->expectedRecursions = $expectedRecursions;
+    public function __construct(
+        private ?LoggerInterface $logger = null,
+        private array $expectedRecursions = [],
+    ) {
     }
 
     /**

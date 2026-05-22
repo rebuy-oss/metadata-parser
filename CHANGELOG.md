@@ -1,5 +1,16 @@
 # Changelog
 
+# Version 3.x
+
+# 3.0.0 (unreleased)
+
+* Raise minimum supported PHP version to `8.4.1`
+* Support version `1.x` of `phpstan/phpdoc-parser`
+* Allow newer versions of `doctrine/collections` to be used
+* Increase phpstan level to `6`
+* Use better php(stan) typings.
+* Update to PHPUnit `13.x`
+
 # Version 2.x
 
 # 2.3.0

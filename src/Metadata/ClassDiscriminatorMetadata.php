@@ -10,8 +10,11 @@ class ClassDiscriminatorMetadata
      * @var class-string
      */
     public string $baseClass;
+
     public string $propertyName;
+
     public string $value;
+
     public bool $disabled = false;
 
     /**
@@ -40,6 +43,9 @@ class ClassDiscriminatorMetadata
         }
     }
 
+    /**
+     * @return array<class-string, ClassMetadata>
+     */
     public function getClassMetadataList(): array
     {
         return $this->classMetadataList;

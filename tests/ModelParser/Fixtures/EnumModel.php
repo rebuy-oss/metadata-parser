@@ -7,5 +7,6 @@ namespace Tests\Liip\MetadataParser\ModelParser\Fixtures;
 class EnumModel
 {
     public SuitEnum $suit;
-    public ?DirectionEnum $direction;
+
+    public ?DirectionEnum $direction = null;
 }

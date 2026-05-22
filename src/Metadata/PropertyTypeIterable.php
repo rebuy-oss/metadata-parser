@@ -9,34 +9,21 @@ namespace Liip\MetadataParser\Metadata;
  * This property type can be merged with PropertyTypeIterable, if :
  *  - we're not merging a plain array PropertyTypeIterable into a hashmap one,
  *  - and the traversable classes of each are either not present on either sides, or are the same, or parent-child of one another
+ *
+ * @template T of \Traversable
  */
 final class PropertyTypeIterable extends AbstractPropertyType
 {
     /**
-     * @var PropertyType
+     * @param class-string<T>|null $traversableClass
      */
-    private $subType;
-
-    /**
-     * @var bool
-     */
-    private $hashmap;
-
-    /**
-     * @var string
-     */
-    private $traversableClass;
-
-    /**
-     * @param class-string<\Traversable>|null $traversableClass
-     */
-    public function __construct(PropertyType $subType, bool $hashmap, bool $nullable, ?string $traversableClass = null)
-    {
+    public function __construct(
+        private readonly PropertyType $subType,
+        private readonly bool $hashmap,
+        bool $nullable,
+        private readonly ?string $traversableClass = null,
+    ) {
         parent::__construct($nullable);
-
-        $this->subType = $subType;
-        $this->hashmap = $hashmap;
-        $this->traversableClass = $traversableClass;
     }
 
     public function __toString(): string
@@ -74,7 +61,7 @@ final class PropertyTypeIterable extends AbstractPropertyType
     }
 
     /**
-     * @return class-string<\Traversable>
+     * @return class-string<T>
      */
     public function getTraversableClass(): string
     {
@@ -115,7 +102,7 @@ final class PropertyTypeIterable extends AbstractPropertyType
             return new self($this->getSubType(), $this->isHashmap(), $nullable, $this->findCommonTraversableClass($thisTraversableClass, $other->getClassName()));
         }
         if (!$other instanceof self) {
-            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same or unknown', self::class, \get_class($other)));
+            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same or unknown', self::class, $other::class));
         }
 
         /*
@@ -124,7 +111,7 @@ final class PropertyTypeIterable extends AbstractPropertyType
          * PHPDoc has no clear definition for hashmaps with string indexes, but JMS Serializer attributes do.
          */
         if ($this->isHashmap() && !$other->isHashmap()) {
-            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, can\'t change hashmap into plain array', self::class, \get_class($other)));
+            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, can\'t change hashmap into plain array', self::class, $other::class));
         }
 
         $otherTraversableClass = $other->isTraversable() ? $other->getTraversableClass() : null;

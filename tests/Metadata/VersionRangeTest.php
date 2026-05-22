@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tests\Liip\MetadataParser\Metadata;
 
 use Liip\MetadataParser\Metadata\VersionRange;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @small
- */
+#[Small]
 class VersionRangeTest extends TestCase
 {
     public function testFactoryMethod(): void
@@ -85,9 +85,7 @@ class VersionRangeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideIsIncludedCases
-     */
+    #[DataProvider('provideIsIncludedCases')]
     public function testIsIncluded(VersionRange $versionRange, string $version, bool $expected): void
     {
         $this->assertSame($expected, $versionRange->isIncluded($version));
@@ -129,9 +127,7 @@ class VersionRangeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideAllowsLowerThanCases
-     */
+    #[DataProvider('provideAllowsLowerThanCases')]
     public function testAllowsLowerThan(VersionRange $versionRange, VersionRange $other, bool $lower): void
     {
         $this->assertSame($lower, $versionRange->allowsLowerThan($other));
@@ -173,9 +169,7 @@ class VersionRangeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideAllowsHigherThanCases
-     */
+    #[DataProvider('provideAllowsHigherThanCases')]
     public function testAllowsHigherThan(VersionRange $versionRange, VersionRange $other, bool $higher): void
     {
         $this->assertSame($higher, $versionRange->allowsHigherThan($other));

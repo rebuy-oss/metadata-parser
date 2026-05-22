@@ -97,11 +97,17 @@ final class PhpTypeParser
         };
     }
 
+    /**
+     * @param NullableType<*> $type
+     */
     private function convertNullableType(NullableType $type): PropertyType
     {
         return $this->convertSymfonyType($type->getWrappedType(), true);
     }
 
+    /**
+     * @param UnionType<*> $type
+     */
     private function convertUnionType(UnionType $type, bool $nullable): PropertyType
     {
         $traversableClass = null;
@@ -138,6 +144,9 @@ final class PhpTypeParser
         return $converted;
     }
 
+    /**
+     * @param CollectionType<*> $type
+     */
     private function convertCollectionType(CollectionType $type, bool $nullable): PropertyType
     {
         $subType = $this->convertSymfonyType($type->getCollectionValueType());
@@ -149,6 +158,9 @@ final class PhpTypeParser
         return new PropertyTypeIterable($subType, $hashmap, $nullable, $this->getTraversableClassFrommCollectionType($type));
     }
 
+    /**
+     * @param BuiltinType<*> $type
+     */
     private function convertBuiltinType(BuiltinType $type, bool $nullable): PropertyType
     {
         $id = $type->getTypeIdentifier();
@@ -172,6 +184,9 @@ final class PhpTypeParser
         return new PropertyTypeUnknown($nullable);
     }
 
+    /**
+     * @param ObjectType<*> $type
+     */
     private function convertObjectType(ObjectType $type, bool $nullable): PropertyType
     {
         $className = $type->getClassName();

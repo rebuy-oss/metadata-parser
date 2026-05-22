@@ -16,19 +16,13 @@ use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 
 final class Parser
 {
-    /**
-     * @var ModelParserInterface[]
-     */
-    private array $parsers;
-
     private PropertyNamingStrategyInterface $propertyNamingStrategy;
 
     /**
      * @param ModelParserInterface[] $parsers
      */
-    public function __construct(array $parsers, ?PropertyNamingStrategyInterface $propertyNamingStrategy = null)
+    public function __construct(private array $parsers, ?PropertyNamingStrategyInterface $propertyNamingStrategy = null)
     {
-        $this->parsers = $parsers;
         $this->propertyNamingStrategy = $propertyNamingStrategy ?? new SnakeCasePropertyNamingStrategy();
     }
 
