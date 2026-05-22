@@ -28,22 +28,22 @@ class VersionReducerTest extends TestCase
             $property3,
         ];
 
-        $reducedProperties = (new VersionReducer('0.3'))->reduce('property', $properties);
+        $reducedProperties = new VersionReducer('0.3')->reduce('property', $properties);
         $this->assertProperties(['property1'], $reducedProperties);
 
-        $reducedProperties = (new VersionReducer('1.0'))->reduce('property', $properties);
+        $reducedProperties = new VersionReducer('1.0')->reduce('property', $properties);
         $this->assertProperties(['property1'], $reducedProperties);
 
-        $reducedProperties = (new VersionReducer('2.0'))->reduce('property', $properties);
+        $reducedProperties = new VersionReducer('2.0')->reduce('property', $properties);
         $this->assertProperties(['property2'], $reducedProperties);
 
-        $reducedProperties = (new VersionReducer('3.0'))->reduce('property', $properties);
+        $reducedProperties = new VersionReducer('3.0')->reduce('property', $properties);
         $this->assertProperties(['property3'], $reducedProperties);
 
-        $reducedProperties = (new VersionReducer('4.0'))->reduce('property', $properties);
+        $reducedProperties = new VersionReducer('4.0')->reduce('property', $properties);
         $this->assertProperties(['property3'], $reducedProperties);
 
-        $reducedProperties = (new VersionReducer('1.9'))->reduce('property', $properties);
+        $reducedProperties = new VersionReducer('1.9')->reduce('property', $properties);
         $this->assertProperties([], $reducedProperties);
     }
 

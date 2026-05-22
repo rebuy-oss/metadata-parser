@@ -9,11 +9,10 @@ use Liip\MetadataParser\Exception\InvalidTypeException;
 final class PropertyTypeEnum extends AbstractPropertyType
 {
     private string $className;
+
     private ?string $backingType;
 
-    private ?SerializationMode $serializationMode;
-
-    public function __construct(string $className, bool $nullable, ?SerializationMode $serializationMode = null)
+    public function __construct(string $className, bool $nullable, private ?SerializationMode $serializationMode = null)
     {
         parent::__construct($nullable);
         if (!enum_exists($className)) {
@@ -22,7 +21,6 @@ final class PropertyTypeEnum extends AbstractPropertyType
 
         $this->className = $className;
         $this->backingType = null;
-        $this->serializationMode = $serializationMode;
 
         $reflEnum = new \ReflectionEnum($className);
         $backingType = $reflEnum->getBackingType();
@@ -70,11 +68,11 @@ final class PropertyTypeEnum extends AbstractPropertyType
         }
 
         if (!$other instanceof self) {
-            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same or unknown', self::class, \get_class($other)));
+            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same or unknown', self::class, $other::class));
         }
 
         if ($this->getClassName() !== $other->getClassName()) {
-            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be equal', self::class, \get_class($other)));
+            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be equal', self::class, $other::class));
         }
 
         if (null !== $this->serializationMode && null !== $other->getSerializationMode() && $this->serializationMode !== $other->getSerializationMode()) {

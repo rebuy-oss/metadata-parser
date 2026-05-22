@@ -9,20 +9,10 @@ namespace Liip\MetadataParser\Metadata;
  */
 final class VersionRange implements \JsonSerializable
 {
-    /**
-     * @var string|null
-     */
-    private $since;
-
-    /**
-     * @var string|null
-     */
-    private $until;
-
-    public function __construct(?string $since, ?string $until)
-    {
-        $this->since = $since;
-        $this->until = $until;
+    public function __construct(
+        private ?string $since,
+        private ?string $until,
+    ) {
     }
 
     public static function all(): self

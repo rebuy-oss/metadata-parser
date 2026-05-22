@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\TypeParser;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Type\Parser;
 use Liip\MetadataParser\Exception\InvalidTypeException;
@@ -19,13 +20,13 @@ use Liip\MetadataParser\Metadata\SerializationMode;
 
 final class JMSTypeParser
 {
-    private const TYPE_ARRAY = 'array';
-    private const TYPE_ENUM = 'enum';
-    private const TYPE_ARRAY_COLLECTION = 'ArrayCollection';
-    private const TYPE_GENERATOR = 'Generator';
-    private const TYPE_ARRAY_ITERATOR = 'ArrayIterator';
-    private const TYPE_ITERATOR = 'Iterator';
-    private const TYPE_DATETIME_INTERFACE = 'DateTimeInterface';
+    private const string TYPE_ARRAY = 'array';
+    private const string TYPE_ENUM = 'enum';
+    private const string TYPE_ARRAY_COLLECTION = 'ArrayCollection';
+    private const string TYPE_GENERATOR = 'Generator';
+    private const string TYPE_ARRAY_ITERATOR = 'ArrayIterator';
+    private const string TYPE_ITERATOR = 'Iterator';
+    private const string TYPE_DATETIME_INTERFACE = 'DateTimeInterface';
 
     private Parser $jmsTypeParser;
 

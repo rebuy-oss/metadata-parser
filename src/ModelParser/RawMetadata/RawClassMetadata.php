@@ -13,13 +13,8 @@ use Liip\MetadataParser\Metadata\ParameterMetadata;
  *
  * The parser will then reduce this to a ClassMetadata for consumers of the schema parser.
  */
-final class RawClassMetadata implements \JsonSerializable
+final class RawClassMetadata implements \JsonSerializable, \Stringable
 {
-    /**
-     * @var class-string
-     */
-    private string $className;
-
     /**
      * This list contains the property collections for each property.
      *
@@ -43,9 +38,12 @@ final class RawClassMetadata implements \JsonSerializable
 
     private ?ClassDiscriminatorMetadata $discriminatorMetadata = null;
 
-    public function __construct(string $className)
-    {
-        $this->className = $className;
+    public function __construct(
+        /**
+         * @var class-string
+         */
+        private string $className,
+    ) {
     }
 
     public function __toString(): string

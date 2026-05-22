@@ -13,30 +13,15 @@ namespace Liip\MetadataParser\Metadata;
 final class PropertyTypeIterable extends AbstractPropertyType
 {
     /**
-     * @var PropertyType
-     */
-    private $subType;
-
-    /**
-     * @var bool
-     */
-    private $hashmap;
-
-    /**
-     * @var string
-     */
-    private $traversableClass;
-
-    /**
      * @param class-string<\Traversable>|null $traversableClass
      */
-    public function __construct(PropertyType $subType, bool $hashmap, bool $nullable, ?string $traversableClass = null)
-    {
+    public function __construct(
+        private PropertyType $subType,
+        private bool $hashmap,
+        bool $nullable,
+        private ?string $traversableClass = null,
+    ) {
         parent::__construct($nullable);
-
-        $this->subType = $subType;
-        $this->hashmap = $hashmap;
-        $this->traversableClass = $traversableClass;
     }
 
     public function __toString(): string
@@ -115,7 +100,7 @@ final class PropertyTypeIterable extends AbstractPropertyType
             return new self($this->getSubType(), $this->isHashmap(), $nullable, $this->findCommonTraversableClass($thisTraversableClass, $other->getClassName()));
         }
         if (!$other instanceof self) {
-            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same or unknown', self::class, \get_class($other)));
+            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same or unknown', self::class, $other::class));
         }
 
         /*
@@ -124,7 +109,7 @@ final class PropertyTypeIterable extends AbstractPropertyType
          * PHPDoc has no clear definition for hashmaps with string indexes, but JMS Serializer attributes do.
          */
         if ($this->isHashmap() && !$other->isHashmap()) {
-            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, can\'t change hashmap into plain array', self::class, \get_class($other)));
+            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, can\'t change hashmap into plain array', self::class, $other::class));
         }
 
         $otherTraversableClass = $other->isTraversable() ? $other->getTraversableClass() : null;

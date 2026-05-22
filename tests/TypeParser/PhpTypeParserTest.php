@@ -138,7 +138,7 @@ class PhpTypeParserTest extends TestCase
                 return [1];
             }
         };
-        $reflClass = new \ReflectionClass(\get_class($c));
+        $reflClass = new \ReflectionClass($c::class);
 
         yield [
             $reflClass->getMethod('method1')->getReturnType(),

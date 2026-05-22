@@ -6,26 +6,17 @@ namespace Liip\MetadataParser\Metadata;
 
 final class PropertyTypeDateTime extends AbstractPropertyType
 {
-    private const DATE_TIME_TYPES = [
+    private const array DATE_TIME_TYPES = [
         \DateTime::class,
         \DateTimeImmutable::class,
     ];
 
-    /**
-     * @var bool
-     */
-    private $immutable;
-
-    /**
-     * @var DateTimeOptions|null
-     */
-    private $dateTimeOptions;
-
-    public function __construct(bool $immutable, bool $nullable, ?DateTimeOptions $dateTimeOptions = null)
-    {
+    public function __construct(
+        private bool $immutable,
+        bool $nullable,
+        private ?DateTimeOptions $dateTimeOptions = null,
+    ) {
         parent::__construct($nullable);
-        $this->immutable = $immutable;
-        $this->dateTimeOptions = $dateTimeOptions;
     }
 
     public function __toString(): string

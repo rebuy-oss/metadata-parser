@@ -6,14 +6,14 @@ namespace Liip\MetadataParser\Metadata;
 
 final class PropertyTypePrimitive extends AbstractPropertyType
 {
-    private const TYPE_MAP = [
+    private const array TYPE_MAP = [
         'boolean' => 'bool',
         'integer' => 'int',
         'double' => 'float',
         'real' => 'float',
     ];
 
-    private const PRIMITIVE_TYPES = [
+    private const array PRIMITIVE_TYPES = [
         'string',
         'int',
         'float',
@@ -62,10 +62,10 @@ final class PropertyTypePrimitive extends AbstractPropertyType
             return new self($this->typeName, $nullable);
         }
         if (!$other instanceof self) {
-            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same or unknown', self::class, \get_class($other)));
+            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same or unknown', self::class, $other::class));
         }
         if ($this->getTypeName() !== $other->getTypeName()) {
-            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be equal', self::class, \get_class($other)));
+            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be equal', self::class, $other::class));
         }
 
         return new self($this->typeName, $nullable);

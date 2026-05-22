@@ -19,7 +19,7 @@ class TakeBestReducerTest extends TestCase
             new PropertyVariationMetadata('property', false, true),
         ];
 
-        $reducedProperties = (new TakeBestReducer())->reduce('property', $properties);
+        $reducedProperties = new TakeBestReducer()->reduce('property', $properties);
         $this->assertProperties(['property', 'other'], $reducedProperties);
     }
 
@@ -30,7 +30,7 @@ class TakeBestReducerTest extends TestCase
             new PropertyVariationMetadata('other2', false, true),
         ];
 
-        $reducedProperties = (new TakeBestReducer())->reduce('property', $properties);
+        $reducedProperties = new TakeBestReducer()->reduce('property', $properties);
         $this->assertProperties(['other', 'other2'], $reducedProperties);
     }
 

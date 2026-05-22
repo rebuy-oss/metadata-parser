@@ -40,10 +40,10 @@ class PhpDocParserTest extends TestCase
         $c = new class {
         };
 
-        $classMetadata = new RawClassMetadata(\get_class($c));
+        $classMetadata = new RawClassMetadata($c::class);
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
 
-        $this->assertSame(\get_class($c), $classMetadata->getClassName());
+        $this->assertSame($c::class, $classMetadata->getClassName());
         $this->assertCount(0, $classMetadata->getPropertyCollections(), 'Number of properties should match');
     }
 
@@ -65,7 +65,7 @@ class PhpDocParserTest extends TestCase
             private $property;
         };
 
-        $classMetadata = new RawClassMetadata(\get_class($c));
+        $classMetadata = new RawClassMetadata($c::class);
 
         $this->expectException(InvalidTypeException::class);
         $this->expectExceptionMessage('resource');
@@ -132,7 +132,7 @@ class PhpDocParserTest extends TestCase
     #[DataProvider('providePropertyCases')]
     public function testProperty($c, string $propertyTypeClass, bool $nullable, string $type): void
     {
-        $classMetadata = new RawClassMetadata(\get_class($c));
+        $classMetadata = new RawClassMetadata($c::class);
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
 
         $props = $classMetadata->getPropertyCollections();
@@ -158,7 +158,7 @@ class PhpDocParserTest extends TestCase
             private $property2;
         };
 
-        $classMetadata = new RawClassMetadata(\get_class($c));
+        $classMetadata = new RawClassMetadata($c::class);
         $classMetadata->addPropertyVariation('foo', new PropertyVariationMetadata('property1', false, true));
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
 
@@ -185,7 +185,7 @@ class PhpDocParserTest extends TestCase
             private $property;
         };
 
-        $classMetadata = new RawClassMetadata(\get_class($c));
+        $classMetadata = new RawClassMetadata($c::class);
         $propertyMetadata = new PropertyVariationMetadata('property', false, true);
         $propertyMetadata->setType(new PropertyTypeIterable(new PropertyTypeUnknown(false), false, false));
         $classMetadata->addPropertyVariation('property', $propertyMetadata);
@@ -214,7 +214,7 @@ class PhpDocParserTest extends TestCase
             public $parentProperty2;
         };
 
-        $classMetadata = new RawClassMetadata(\get_class($c));
+        $classMetadata = new RawClassMetadata($c::class);
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
 
         $props = $classMetadata->getPropertyCollections();
@@ -245,7 +245,7 @@ class PhpDocParserTest extends TestCase
             private array $property1;
         };
 
-        $classMetadata = new RawClassMetadata(\get_class($c));
+        $classMetadata = new RawClassMetadata($c::class);
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
 
         $props = $classMetadata->getPropertyCollections();
@@ -266,7 +266,7 @@ class PhpDocParserTest extends TestCase
             private $property;
         };
 
-        $classMetadata = new RawClassMetadata(\get_class($c));
+        $classMetadata = new RawClassMetadata($c::class);
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
 
         $props = $classMetadata->getPropertyCollections();

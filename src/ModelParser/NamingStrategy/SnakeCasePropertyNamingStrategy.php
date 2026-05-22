@@ -20,6 +20,6 @@ final class SnakeCasePropertyNamingStrategy implements PropertyNamingStrategyInt
 
     public function getSerializedName(string $name): string
     {
-        return strtolower(preg_replace($this->regex, '_\0', $name));
+        return strtolower((string) preg_replace($this->regex, '_\0', $name));
     }
 }

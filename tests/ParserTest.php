@@ -52,6 +52,7 @@ class ParserTest extends TestCase
     {
         $c = new class {
             private $property1;
+
             protected $property2;
 
             /**
@@ -60,7 +61,7 @@ class ParserTest extends TestCase
             public $property3;
         };
 
-        $classMetadataList = $this->parser->parse(\get_class($c));
+        $classMetadataList = $this->parser->parse($c::class);
 
         $this->assertCount(1, $classMetadataList, 'Number of class metadata should match');
 
@@ -92,7 +93,7 @@ class ParserTest extends TestCase
             private $property;
         };
 
-        $classMetadataList = $this->parser->parse(\get_class($c));
+        $classMetadataList = $this->parser->parse($c::class);
 
         $this->assertCount(2, $classMetadataList, 'Number of class metadata should match');
 
@@ -126,7 +127,7 @@ class ParserTest extends TestCase
             private $property;
         };
 
-        $classMetadataList = $this->parser->parse(\get_class($c));
+        $classMetadataList = $this->parser->parse($c::class);
 
         $this->assertCount(2, $classMetadataList, 'Number of class metadata should match');
 

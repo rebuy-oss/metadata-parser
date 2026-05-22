@@ -10,8 +10,11 @@ class ClassDiscriminatorMetadata
      * @var class-string
      */
     public string $baseClass;
+
     public string $propertyName;
+
     public string $value;
+
     public bool $disabled = false;
 
     /**

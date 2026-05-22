@@ -9,6 +9,8 @@ use Tests\Liip\MetadataParser\ModelParser\ReflectionParserTest;
 class TypeDeclarationModel
 {
     private string $property1;
-    public ?int $property2;
+
+    public ?int $property2 = null;
+
     protected ReflectionParserTest $property3;
 }

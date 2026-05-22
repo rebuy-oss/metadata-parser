@@ -14,16 +14,11 @@ final class PropertyMetadata extends AbstractPropertyMetadata
     private $type;
 
     /**
-     * @var string
-     */
-    private $serializedName;
-
-    /**
      * @param string[] $groups
      * @param mixed[]  $customInformation
      */
     public function __construct(
-        string $serializedName,
+        private readonly string $serializedName,
         string $name,
         ?PropertyType $type = null,
         bool $readOnly = true,
@@ -35,7 +30,6 @@ final class PropertyMetadata extends AbstractPropertyMetadata
         ?int $maxDepth = null,
     ) {
         parent::__construct($name, $readOnly, $public);
-        $this->serializedName = $serializedName;
         $this->type = $type ?: new PropertyTypeUnknown(true);
         $this->setVersionRange($versionRange ?: new VersionRange(null, null));
         $this->setGroups($groups);

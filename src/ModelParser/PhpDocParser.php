@@ -40,9 +40,7 @@ final class PhpDocParser implements ModelParserInterface
      */
     private function parseProperties(\ReflectionClass $reflClass, RawClassMetadata $classMetadata, PropertyNamingStrategyInterface $propertyNamingStrategy): array
     {
-        $existingProperties = array_map(static function (PropertyCollection $prop): string {
-            return (string) $prop;
-        }, $classMetadata->getPropertyCollections());
+        $existingProperties = array_map(static fn (PropertyCollection $prop): string => (string) $prop, $classMetadata->getPropertyCollections());
 
         $addedProperties = [];
         $parentProperties = [];

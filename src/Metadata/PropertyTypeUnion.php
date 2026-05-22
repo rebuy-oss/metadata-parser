@@ -6,7 +6,7 @@ namespace Liip\MetadataParser\Metadata;
 
 final class PropertyTypeUnion extends AbstractPropertyType
 {
-    private const DEFAULT_ORDER = 8;
+    private const int DEFAULT_ORDER = 8;
 
     /**
      * @var array<string, string>
@@ -94,7 +94,7 @@ final class PropertyTypeUnion extends AbstractPropertyType
     public function merge(PropertyType $other): PropertyType
     {
         if (!$other instanceof self) {
-            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same', self::class, \get_class($other)));
+            throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same', self::class, $other::class));
         }
 
         $mergedTypes = [...$this->getTypes(), ...$other->getTypes()];

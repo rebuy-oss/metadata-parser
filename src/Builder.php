@@ -22,14 +22,10 @@ use Liip\MetadataParser\Reducer\PropertyReducerInterface;
  */
 final class Builder
 {
-    private Parser $parser;
-
-    private RecursionChecker $recursionChecker;
-
-    public function __construct(Parser $parser, RecursionChecker $recursionChecker)
-    {
-        $this->parser = $parser;
-        $this->recursionChecker = $recursionChecker;
+    public function __construct(
+        private readonly Parser $parser,
+        private readonly RecursionChecker $recursionChecker,
+    ) {
     }
 
     /**

@@ -80,9 +80,9 @@ final class LiipMetadataAttributeParser implements ModelParserInterface
                     break;
 
                 default:
-                    if (0 === strncmp('Liip\MetadataParser\\', \get_class($attribute), mb_strlen('Liip\MetadataParser\\'))) {
+                    if (0 === strncmp('Liip\MetadataParser\\', $attribute::class, mb_strlen('Liip\MetadataParser\\'))) {
                         // if there are attributes we can safely ignore, we need to explicitly ignore them
-                        throw ParseException::unsupportedPropertyAttribute((string) $classMetadata, (string) $property, \get_class($attribute));
+                        throw ParseException::unsupportedPropertyAttribute((string) $classMetadata, (string) $property, $attribute::class);
                     }
                     break;
             }
@@ -92,7 +92,7 @@ final class LiipMetadataAttributeParser implements ModelParserInterface
     private function getMethodName(\ReflectionMethod $reflMethod): string
     {
         $name = $reflMethod->getName();
-        if (0 === strpos($name, 'get')) {
+        if (str_starts_with($name, 'get')) {
             $name = lcfirst(substr($name, 3));
         }
 

@@ -53,10 +53,10 @@ class ReflectionParserTest extends TestCase
         $c = new class {
         };
 
-        $rawClassMetadata = new RawClassMetadata(\get_class($c));
+        $rawClassMetadata = new RawClassMetadata($c::class);
         $this->parser->parse($rawClassMetadata, new SnakeCasePropertyNamingStrategy());
 
-        $this->assertSame(\get_class($c), $rawClassMetadata->getClassName());
+        $this->assertSame($c::class, $rawClassMetadata->getClassName());
         $this->assertCount(0, $rawClassMetadata->getPropertyCollections(), 'Number of class metadata properties should match');
     }
 
@@ -64,11 +64,13 @@ class ReflectionParserTest extends TestCase
     {
         $c = new class {
             private $property1;
+
             protected $property2;
+
             public $property3;
         };
 
-        $rawClassMetadata = new RawClassMetadata(\get_class($c));
+        $rawClassMetadata = new RawClassMetadata($c::class);
         $this->parser->parse($rawClassMetadata, new SnakeCasePropertyNamingStrategy());
 
         $props = $rawClassMetadata->getPropertyCollections();
@@ -186,10 +188,11 @@ class ReflectionParserTest extends TestCase
     {
         $c = new class {
             private $property1;
+
             private $property2;
         };
 
-        $rawClassMetadata = new RawClassMetadata(\get_class($c));
+        $rawClassMetadata = new RawClassMetadata($c::class);
         $rawClassMetadata->addPropertyVariation('foo', new PropertyVariationMetadata('property1', false, true));
         $this->parser->parse($rawClassMetadata, new SnakeCasePropertyNamingStrategy());
 
@@ -211,10 +214,11 @@ class ReflectionParserTest extends TestCase
     {
         $c = new class extends ReflectionBaseModel {
             private $property1;
+
             public $parentProperty2;
         };
 
-        $rawClassMetadata = new RawClassMetadata(\get_class($c));
+        $rawClassMetadata = new RawClassMetadata($c::class);
         $this->parser->parse($rawClassMetadata, new SnakeCasePropertyNamingStrategy());
 
         $props = $rawClassMetadata->getPropertyCollections();
@@ -245,7 +249,7 @@ class ReflectionParserTest extends TestCase
             }
         };
 
-        $rawClassMetadata = new RawClassMetadata(\get_class($c));
+        $rawClassMetadata = new RawClassMetadata($c::class);
         $this->parser->parse($rawClassMetadata, new SnakeCasePropertyNamingStrategy());
 
         $parameters = $rawClassMetadata->getConstructorParameters();

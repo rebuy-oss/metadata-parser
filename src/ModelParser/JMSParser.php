@@ -53,7 +53,7 @@ use Symfony\Component\TypeInfo\Exception\UnsupportedException;
  */
 final class JMSParser implements ModelParserInterface
 {
-    private const ACCESS_ORDER_CUSTOM = 'custom';
+    private const string ACCESS_ORDER_CUSTOM = 'custom';
 
     private PhpTypeParser $phpTypeParser;
 
@@ -169,9 +169,7 @@ final class JMSParser implements ModelParserInterface
                         $order[$property->getSerializedName()] = $position;
                     }
 
-                    $classMetadata->sortProperties(static function (PropertyCollection $propA, PropertyCollection $propB) use ($order): int {
-                        return $order[$propA->getSerializedName()] <=> $order[$propB->getSerializedName()];
-                    });
+                    $classMetadata->sortProperties(static fn (PropertyCollection $propA, PropertyCollection $propB): int => $order[$propA->getSerializedName()] <=> $order[$propB->getSerializedName()]);
                     break;
 
                 case $attribute instanceof ExclusionPolicy:
@@ -189,9 +187,9 @@ final class JMSParser implements ModelParserInterface
                     break;
 
                 default:
-                    if (0 === strncmp('JMS\Serializer\\', \get_class($attribute), mb_strlen('JMS\Serializer\\'))) {
+                    if (0 === strncmp('JMS\Serializer\\', $attribute::class, mb_strlen('JMS\Serializer\\'))) {
                         // if there are attributes we can safely ignore, we need to explicitly ignore them
-                        throw ParseException::unsupportedClassAttribute((string) $classMetadata, \get_class($attribute));
+                        throw ParseException::unsupportedClassAttribute((string) $classMetadata, $attribute::class);
                     }
             }
         }
@@ -211,7 +209,7 @@ final class JMSParser implements ModelParserInterface
 
         $attributes = $this->annotationOrAttributeReader->getClassAnnotations($reflectionClass);
         foreach ($attributes as $attribute) {
-            $map[\get_class($attribute)] = [
+            $map[$attribute::class] = [
                 'attribute' => $attribute,
                 'className' => $reflectionClass->getName(),
             ];
@@ -315,9 +313,9 @@ final class JMSParser implements ModelParserInterface
                     break;
 
                 default:
-                    if (0 === strncmp('JMS\Serializer\\', \get_class($attribute), mb_strlen('JMS\Serializer\\'))) {
+                    if (0 === strncmp('JMS\Serializer\\', $attribute::class, mb_strlen('JMS\Serializer\\'))) {
                         // if there are attributes we can safely ignore, we need to explicitly ignore them
-                        throw ParseException::unsupportedPropertyAttribute((string) $classMetadata, (string) $property, \get_class($attribute));
+                        throw ParseException::unsupportedPropertyAttribute((string) $classMetadata, (string) $property, $attribute::class);
                     }
                     break;
             }
@@ -404,24 +402,12 @@ final class JMSParser implements ModelParserInterface
 
     private function isVirtualProperty(array $attributes): bool
     {
-        foreach ($attributes as $attribute) {
-            if ($attribute instanceof VirtualProperty) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($attributes, static fn ($attribute) => $attribute instanceof VirtualProperty);
     }
 
     private function isPostDeserializeMethod(array $attributes): bool
     {
-        foreach ($attributes as $attribute) {
-            if ($attribute instanceof PostDeserialize) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($attributes, static fn ($attribute) => $attribute instanceof PostDeserialize);
     }
 
     private function getMethodName(array $attributes, \ReflectionMethod $reflMethod): string

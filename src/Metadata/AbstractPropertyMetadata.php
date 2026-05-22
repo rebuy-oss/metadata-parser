@@ -7,7 +7,7 @@ namespace Liip\MetadataParser\Metadata;
 /**
  * A single property represents one item of a class that is serialized to a specific name.
  */
-abstract class AbstractPropertyMetadata implements \JsonSerializable
+abstract class AbstractPropertyMetadata implements \JsonSerializable, \Stringable
 {
     /**
      * @var string[]

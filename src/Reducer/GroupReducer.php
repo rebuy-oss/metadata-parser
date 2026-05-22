@@ -12,16 +12,10 @@ use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 final class GroupReducer implements PropertyReducerInterface
 {
     /**
-     * @var string[]
-     */
-    private $groups;
-
-    /**
      * @param string[] $groups
      */
-    public function __construct(array $groups)
+    public function __construct(private readonly array $groups)
     {
-        $this->groups = $groups;
     }
 
     public function reduce(string $serializedName, array $properties): array

@@ -19,7 +19,7 @@ class VisibilityAwarePropertyAccessGuesserTest extends TestCase
     {
         $classMetadata = $this->parseClass($class, $parsers);
 
-        $this->assertSame(\get_class($class), $classMetadata->getClassName());
+        $this->assertSame($class::class, $classMetadata->getClassName());
         $this->assertCount($expectedPropertyCount, $classMetadata->getPropertyCollections(), 'Number of properties should match');
 
         if (null !== $accessType) {
@@ -44,7 +44,7 @@ class VisibilityAwarePropertyAccessGuesserTest extends TestCase
      */
     public function parseClass($class, array $parsers): RawClassMetadata
     {
-        $class = \is_object($class) ? \get_class($class) : $class;
+        $class = \is_object($class) ? $class::class : $class;
         $classMetadata = new RawClassMetadata($class);
 
         foreach ($parsers as $parser) {
@@ -121,7 +121,7 @@ class VisibilityAwarePropertyAccessGuesserTest extends TestCase
         ];
         yield 'MissingGetter' => [
             'class' => new class {
-                private ?string $name;
+                private ?string $name = null;
 
                 public function setName(?string $name): void
                 {

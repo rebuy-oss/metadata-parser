@@ -4,28 +4,16 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\Metadata;
 
-final class ParameterMetadata implements \JsonSerializable
+final class ParameterMetadata implements \JsonSerializable, \Stringable
 {
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var bool
-     */
-    private $required;
-
-    /**
-     * @var mixed The default value can be of any type
-     */
-    private $defaultValue;
-
-    public function __construct(string $name, bool $required, $defaultValue = null)
-    {
-        $this->name = $name;
-        $this->required = $required;
-        $this->defaultValue = $defaultValue;
+    public function __construct(
+        private string $name,
+        private bool $required,
+        /**
+         * @var mixed The default value can be of any type
+         */
+        private $defaultValue = null,
+    ) {
     }
 
     public function __toString(): string
