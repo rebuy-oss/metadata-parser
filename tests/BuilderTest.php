@@ -80,9 +80,6 @@ class BuilderTest extends TestCase
     public function testPropertyWithDifferentSerializedName(): void
     {
         $c = new class {
-            /**
-             * @SerializedName("myProperty")
-             */
             #[SerializedName('myProperty')]
             public string $myProperty;
         };

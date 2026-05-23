@@ -10,8 +10,7 @@ abstract class AbstractModel
 {
     /**
      * @var int
-     *
-     * @JMS\Type("integer")
      */
+    #[JMS\Type('integer')]
     private $parentProperty1;
 }

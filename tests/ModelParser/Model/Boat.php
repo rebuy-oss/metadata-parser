@@ -6,12 +6,7 @@ namespace Tests\Liip\MetadataParser\ModelParser\Model;
 
 use JMS\Serializer\Annotation as JMS;
 
-/**
- * @JMS\Discriminator(field = "type", map = {
- *     "ferry": "Tests\Liip\MetadataParser\ModelParser\Model\Ferry",
- *     "cabinCruiser": "Tests\Liip\MetadataParser\ModelParser\Model\CabinCruiser"
- * })
- */
+#[JMS\Discriminator(field: 'type', map: ['ferry' => Ferry::class, 'cabinCruiser' => CabinCruiser::class])]
 abstract class Boat extends Vehicle
 {
 }
