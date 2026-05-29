@@ -14,6 +14,7 @@ use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\TypeInfo\Type;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum;
 
 #[Small]
@@ -29,79 +30,79 @@ class PropertyTypeTest extends TestCase
         ];
 
         yield [
-            new PropertyTypePrimitive('string', true),
+            new PropertyTypePrimitive(Type::builtin('string'), true),
             new PropertyTypeUnknown(false),
             'string',
             false,
         ];
 
         yield [
-            new PropertyTypeDateTime(false, true),
+            new PropertyTypeDateTime(Type::object(\DateTime::class), true),
             new PropertyTypeUnknown(false),
             'DateTime',
             false,
         ];
 
         yield [
-            new PropertyTypeClass(\stdClass::class, true),
+            new PropertyTypeClass(Type::object(\stdClass::class), true),
             new PropertyTypeUnknown(false),
             'stdClass',
             false,
         ];
 
         yield [
-            new PropertyTypeEnum(SuitEnum::class, true),
+            new PropertyTypeEnum(Type::enum(SuitEnum::class), true),
             new PropertyTypeUnknown(false),
             SuitEnum::class,
             false,
         ];
 
         yield [
-            new PropertyTypeIterable(new PropertyTypePrimitive('bool', false), false, true),
+            self::list('bool', true),
             new PropertyTypeUnknown(false),
-            'bool[]',
+            'list<bool>',
             false,
         ];
 
         yield [
-            new PropertyTypePrimitive('string', true),
-            new PropertyTypePrimitive('string', false),
+            new PropertyTypePrimitive(Type::builtin('string'), true),
+            new PropertyTypePrimitive(Type::builtin('string'), false),
             'string',
             false,
         ];
 
         yield [
-            new PropertyTypeDateTime(false, true),
-            new PropertyTypeDateTime(false, false),
+            new PropertyTypeDateTime(Type::object(\DateTime::class), true),
+            new PropertyTypeDateTime(Type::object(\DateTime::class), false),
             'DateTime',
             false,
         ];
 
         yield [
-            new PropertyTypeClass(\stdClass::class, true),
-            new PropertyTypeClass(\stdClass::class, false),
+            new PropertyTypeClass(Type::object(\stdClass::class), true),
+            new PropertyTypeClass(Type::object(\stdClass::class), false),
             'stdClass',
             false,
         ];
 
         yield [
-            new PropertyTypeIterable(new PropertyTypePrimitive('bool', false), false, true),
-            new PropertyTypeIterable(new PropertyTypePrimitive('bool', false), false, false),
-            'bool[]',
+            self::list('bool', true),
+            self::list('bool', false),
+            'list<bool>',
             false,
         ];
 
         yield [
-            new PropertyTypeIterable(new PropertyTypePrimitive('bool', false), false, true),
-            new PropertyTypeIterable(new PropertyTypeUnknown(false), false, false),
-            'bool[]',
+            self::list('bool', true),
+            self::listOfUnknown(false),
+            'list<bool>',
             false,
         ];
 
         yield [
-            new PropertyTypeIterable(new PropertyTypeUnknown(false), false, false),
-            new PropertyTypeIterable(new PropertyTypePrimitive('bool', false), false, true),
-            'bool[]',
+            self::listOfUnknown(false),
+            self::list('bool', true),
+            'list<bool>',
             false,
         ];
     }
@@ -120,8 +121,8 @@ class PropertyTypeTest extends TestCase
      */
     public function testUpgradeToHashmap(): void
     {
-        $array = new PropertyTypeIterable(new PropertyTypePrimitive('bool', false), false, true);
-        $hashmap = new PropertyTypeIterable(new PropertyTypePrimitive('bool', false), true, true);
+        $array = self::list('bool', true);
+        $hashmap = self::hashmap('bool', true);
 
         /** @var PropertyTypeIterable $merged */
         $merged = $array->merge($hashmap);
@@ -164,15 +165,39 @@ class PropertyTypeTest extends TestCase
     {
         return [
             new PropertyTypeUnknown(true),
-            new PropertyTypePrimitive('string', true),
-            new PropertyTypePrimitive('int', true),
-            new PropertyTypeDateTime(false, true),
-            new PropertyTypeDateTime(true, true),
-            new PropertyTypeEnum(SuitEnum::class, true),
-            new PropertyTypeClass(\stdClass::class, true),
-            new PropertyTypeIterable(new PropertyTypePrimitive('bool', false), false, true),
-            new PropertyTypeIterable(new PropertyTypePrimitive('int', false), false, true),
-            new PropertyTypeIterable(new PropertyTypePrimitive('string', false), true, true),
+            new PropertyTypePrimitive(Type::builtin('string'), true),
+            new PropertyTypePrimitive(Type::builtin('int'), true),
+            new PropertyTypeDateTime(Type::object(\DateTime::class), true),
+            new PropertyTypeDateTime(Type::object(\DateTimeImmutable::class), true),
+            new PropertyTypeEnum(Type::enum(SuitEnum::class), true),
+            new PropertyTypeClass(Type::object(\stdClass::class), true),
+            self::list('bool', true),
+            self::list('int', true),
+            self::hashmap('string', true),
         ];
+    }
+
+    private static function list(string $primitive, bool $nullable): PropertyTypeIterable
+    {
+        $sub = new PropertyTypePrimitive(Type::builtin($primitive), false);
+        $type = Type::list($sub->getTypeInfo());
+
+        return new PropertyTypeIterable($type, $nullable, $sub);
+    }
+
+    private static function hashmap(string $primitive, bool $nullable): PropertyTypeIterable
+    {
+        $sub = new PropertyTypePrimitive(Type::builtin($primitive), false);
+        $type = Type::array($sub->getTypeInfo(), Type::string());
+
+        return new PropertyTypeIterable($type, $nullable, $sub);
+    }
+
+    private static function listOfUnknown(bool $nullable): PropertyTypeIterable
+    {
+        $sub = new PropertyTypeUnknown(false);
+        $type = Type::list($sub->getTypeInfo());
+
+        return new PropertyTypeIterable($type, $nullable, $sub);
     }
 }

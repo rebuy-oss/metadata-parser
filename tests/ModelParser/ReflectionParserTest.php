@@ -140,7 +140,7 @@ class ReflectionParserTest extends TestCase
         $this->assertPropertyCollection('property2', 1, $props[1]);
         $property2 = $props[1]->getVariations()[0];
         $this->assertProperty('property2', true, false, $property2);
-        $this->assertPropertyType($property2->getType(), PropertyTypeUnion::class, 'null|array|false|int|string', true);
+        $this->assertPropertyType($property2->getType(), PropertyTypeUnion::class, 'null|list<mixed>|false|int|string', true);
     }
 
     public function testTypedPropertiesIntersection(): void

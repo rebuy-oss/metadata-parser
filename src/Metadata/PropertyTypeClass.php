@@ -6,40 +6,33 @@ namespace Liip\MetadataParser\Metadata;
 
 use Doctrine\Common\Collections\Collection;
 use Liip\MetadataParser\Exception\InvalidTypeException;
+use Symfony\Component\TypeInfo\Type\ObjectType;
 
-final class PropertyTypeClass extends AbstractPropertyType
+/**
+ * @template T of ObjectType
+ *
+ * @extends AbstractPropertyType<T, bool>
+ */
+class PropertyTypeClass extends AbstractPropertyType
 {
-    /**
-     * @var string
-     */
-    private $className;
+    private ?ClassMetadata $classMetadata = null;
 
     /**
-     * @var ClassMetadata|null
+     * @param T $type
      */
-    private $classMetadata;
-
-    public function __construct(string $className, bool $nullable)
+    public function __construct(ObjectType $type, bool $nullable)
     {
-        parent::__construct($nullable);
-        if (!self::isTypeCustomClass($className)) {
-            throw new InvalidTypeException(\sprintf('Given type "%s" is not a custom class or interface but another supported type', $className));
-        }
+        $className = $type->getClassName();
         if (!class_exists($className) && !interface_exists($className)) {
             throw InvalidTypeException::classNotFound($className);
         }
 
-        $this->className = $className;
-    }
-
-    public function __toString(): string
-    {
-        return $this->className.parent::__toString();
+        parent::__construct($type, $nullable);
     }
 
     public function getClassName(): string
     {
-        return $this->className;
+        return $this->typeInfo->getClassName();
     }
 
     public function getClassMetadata(): ClassMetadata
@@ -66,8 +59,9 @@ final class PropertyTypeClass extends AbstractPropertyType
         $nullable = $this->isNullable() && $other->isNullable();
 
         if ($other instanceof PropertyTypeUnknown) {
-            return new self($this->className, $nullable);
+            return new self($this->typeInfo, $nullable);
         }
+
         if (is_a($this->getClassName(), Collection::class, true) && (($other instanceof PropertyTypeIterable) && $other->isTraversable())) {
             return $other->merge($this);
         }
@@ -81,12 +75,6 @@ final class PropertyTypeClass extends AbstractPropertyType
             throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be equal', self::class, $other::class));
         }
 
-        return new self($this->className, $nullable);
-    }
-
-    public static function isTypeCustomClass(string $typeName): bool
-    {
-        return !PropertyTypePrimitive::isTypePrimitive($typeName)
-            && !PropertyTypeDateTime::isTypeDateTime($typeName);
+        return new self($this->typeInfo, $nullable);
     }
 }

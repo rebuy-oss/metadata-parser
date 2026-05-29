@@ -43,6 +43,7 @@ use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 use Liip\MetadataParser\TypeParser\JMSTypeParser;
 use Liip\MetadataParser\TypeParser\PhpTypeParser;
 use Symfony\Component\TypeInfo\Exception\UnsupportedException;
+use Symfony\Component\TypeInfo\Type as SymfonyType;
 
 /**
  * Parse JMSSerializer attributes/annotations.
@@ -287,14 +288,17 @@ final class JMSParser implements ModelParserInterface
                     $types = [];
                     $isNullable = $this->isNullable($reflection);
                     if ($isNullable) {
-                        $types[] = new PropertyTypePrimitive('null', true);
+                        $types[] = new PropertyTypePrimitive(SymfonyType::builtin('null'), true);
                     }
 
                     foreach ($attribute->map as $value) {
                         $types[] = $this->jmsTypeParser->parse($value, $reflection, true);
                     }
 
-                    $type = new PropertyTypeUnion($types, $isNullable);
+                    $typeInfos = array_map(static fn (PropertyType $t): SymfonyType => $t->getTypeInfo(), $types);
+                    $unionType = SymfonyType::union(...$typeInfos);
+
+                    $type = new PropertyTypeUnion($unionType, $isNullable, $types);
                     $type->setFieldName($attribute->field);
                     $type->setTypeMap($attribute->map);
 
@@ -359,6 +363,8 @@ final class JMSParser implements ModelParserInterface
 
     /**
      * @param \ReflectionClass<object> $reflClass
+     *
+     * @return PropertyType<*>
      */
     private function getReturnType(PropertyVariationMetadata $property, \ReflectionMethod $reflMethod, \ReflectionClass $reflClass): PropertyType
     {
@@ -386,6 +392,9 @@ final class JMSParser implements ModelParserInterface
         }
     }
 
+    /**
+     * @return PropertyType<*>|null
+     */
     private function getReturnTypeOfMethod(\ReflectionMethod $reflMethod): ?PropertyType
     {
         $docComment = $reflMethod->getDocComment();

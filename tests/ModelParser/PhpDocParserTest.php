@@ -19,6 +19,7 @@ use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\TypeInfo\Type;
 use Tests\Liip\MetadataParser\ModelParser\Model\BaseModel;
 use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 
@@ -125,7 +126,7 @@ class PhpDocParserTest extends TestCase
             },
             PropertyTypeClass::class,
             true,
-            'stdClass|null',
+            'null|stdClass',
         ];
     }
 
@@ -187,7 +188,8 @@ class PhpDocParserTest extends TestCase
 
         $classMetadata = new RawClassMetadata($c::class);
         $propertyMetadata = new PropertyVariationMetadata('property', false, true);
-        $propertyMetadata->setType(new PropertyTypeIterable(new PropertyTypeUnknown(false), false, false));
+        $sub = new PropertyTypeUnknown(false);
+        $propertyMetadata->setType(new PropertyTypeIterable(Type::list(Type::mixed()), false, $sub));
         $classMetadata->addPropertyVariation('property', $propertyMetadata);
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
 
@@ -197,7 +199,7 @@ class PhpDocParserTest extends TestCase
         $this->assertPropertyCollection('property', 1, $props[0]);
         $property = $props[0]->getVariations()[0];
         $this->assertProperty('property', true, false, $property);
-        $this->assertPropertyType(PropertyTypeIterable::class, 'string[]', false, $property->getType());
+        $this->assertPropertyType(PropertyTypeIterable::class, 'array<int|string, string>', false, $property->getType());
     }
 
     public function testInheritedProperty(): void
@@ -254,7 +256,7 @@ class PhpDocParserTest extends TestCase
         $this->assertPropertyCollection('property1', 1, $props[0]);
         $property = $props[0]->getVariations()[0];
         $this->assertProperty('property1', false, false, $property);
-        $this->assertPropertyType(PropertyTypeIterable::class, 'string[]', false, $property->getType());
+        $this->assertPropertyType(PropertyTypeIterable::class, 'list<string>', false, $property->getType());
     }
 
     public function testNestedProperty(): void

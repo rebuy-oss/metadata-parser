@@ -6,11 +6,13 @@ namespace Liip\MetadataParser\ModelParser;
 
 use Liip\MetadataParser\Exception\ParseException;
 use Liip\MetadataParser\Metadata\ParameterMetadata;
+use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypeUnion;
 use Liip\MetadataParser\ModelParser\NamingStrategy\PropertyNamingStrategyInterface;
 use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 use Liip\MetadataParser\TypeParser\PhpTypeParser;
+use Symfony\Component\TypeInfo\Type;
 
 final class ReflectionParser implements ModelParserInterface
 {
@@ -73,7 +75,10 @@ final class ReflectionParser implements ModelParserInterface
                     $types = $this->getSupportedUnionTypes($reflectionType);
                     if (\count($types) > 1) {
                         $types = array_map($this->typeParser->parseReflectionType(...), $types);
-                        $type = new PropertyTypeUnion($types, $reflectionType->allowsNull());
+                        $typeInfos = array_map(static fn (PropertyType $t): Type => $t->getTypeInfo(), $types);
+                        $unionType = Type::union(...$typeInfos);
+
+                        $type = new PropertyTypeUnion($unionType, $reflectionType->allowsNull(), $types);
                     }
 
                     break;

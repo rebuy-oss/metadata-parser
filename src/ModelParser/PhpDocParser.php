@@ -87,6 +87,9 @@ final class PhpDocParser implements ModelParserInterface
         return array_values(array_diff(array_unique(array_merge($parentProperties, $addedProperties)), $existingProperties));
     }
 
+    /**
+     * @return PropertyType<*>|null
+     */
     private function getPropertyTypeFromDocComment(\ReflectionProperty $reflProperty): ?PropertyType
     {
         try {

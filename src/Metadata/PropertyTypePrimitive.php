@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\Metadata;
 
+use Symfony\Component\TypeInfo\Type\BuiltinType;
+use Symfony\Component\TypeInfo\Type\NullableType;
+
+/**
+ * @extends AbstractPropertyType<BuiltinType|NullableType<BuiltinType>, bool>
+ */
 final class PropertyTypePrimitive extends AbstractPropertyType
 {
     private const array TYPE_MAP = [
@@ -24,34 +30,20 @@ final class PropertyTypePrimitive extends AbstractPropertyType
     ];
 
     /**
-     * @var string|null
+     * @param BuiltinType<*> $type
      */
-    private $typeName;
-
-    public function __construct(string $typeName, bool $nullable)
+    public function __construct(BuiltinType $type, bool $nullable)
     {
-        parent::__construct($nullable);
-        if (\array_key_exists($typeName, self::TYPE_MAP)) {
-            $typeName = self::TYPE_MAP[$typeName];
-        }
-        if (!self::isTypePrimitive($typeName)) {
-            throw new \UnexpectedValueException(\sprintf('Given type "%s" is not primitive', $typeName));
-        }
-        $this->typeName = $typeName;
-    }
-
-    public function __toString(): string
-    {
-        if ('null' === $this->typeName) {
-            return $this->typeName;
+        if (!self::isTypePrimitive($type->getTypeIdentifier()->value)) {
+            throw new \UnexpectedValueException(\sprintf('Given type "%s" is not primitive', $type));
         }
 
-        return $this->typeName.parent::__toString();
+        parent::__construct($type, $nullable);
     }
 
     public function getTypeName(): string
     {
-        return $this->typeName;
+        return $this->typeInfo->getTypeIdentifier()->value;
     }
 
     public function merge(PropertyType $other): PropertyType
@@ -59,7 +51,7 @@ final class PropertyTypePrimitive extends AbstractPropertyType
         $nullable = $this->isNullable() && $other->isNullable();
 
         if ($other instanceof PropertyTypeUnknown) {
-            return new self($this->typeName, $nullable);
+            return new self($this->typeInfo, $nullable);
         }
         if (!$other instanceof self) {
             throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same or unknown', self::class, $other::class));
@@ -68,15 +60,16 @@ final class PropertyTypePrimitive extends AbstractPropertyType
             throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be equal', self::class, $other::class));
         }
 
-        return new self($this->typeName, $nullable);
+        return new self($this->typeInfo, $nullable);
     }
 
     public static function isTypePrimitive(string $typeName): bool
     {
-        if (\array_key_exists($typeName, self::TYPE_MAP)) {
-            $typeName = self::TYPE_MAP[$typeName];
-        }
+        return \in_array(self::normalize($typeName), self::PRIMITIVE_TYPES, true);
+    }
 
-        return \in_array($typeName, self::PRIMITIVE_TYPES, true);
+    public static function normalize(string $typeName): string
+    {
+        return self::TYPE_MAP[$typeName] ?? $typeName;
     }
 }

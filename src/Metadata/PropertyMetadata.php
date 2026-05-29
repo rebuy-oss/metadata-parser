@@ -9,11 +9,12 @@ use Liip\MetadataParser\ModelParser\RawMetadata\PropertyVariationMetadata;
 final class PropertyMetadata extends AbstractPropertyMetadata
 {
     /**
-     * @var PropertyType
+     * @var PropertyType<*>
      */
     private $type;
 
     /**
+     * @param PropertyType<*>|null $type
      * @param string[] $groups
      * @param mixed[]  $customInformation
      */

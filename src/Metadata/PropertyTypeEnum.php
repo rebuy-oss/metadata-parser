@@ -4,49 +4,37 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\Metadata;
 
-use Liip\MetadataParser\Exception\InvalidTypeException;
+use Symfony\Component\TypeInfo\Type\BackedEnumType;
+use Symfony\Component\TypeInfo\Type\EnumType;
 
-final class PropertyTypeEnum extends AbstractPropertyType
+/**
+ * @extends PropertyTypeClass<EnumType|BackedEnumType>
+ */
+final class PropertyTypeEnum extends PropertyTypeClass
 {
-    private string $className;
-
-    private ?string $backingType;
-
-    public function __construct(string $className, bool $nullable, private ?SerializationMode $serializationMode = null)
-    {
-        parent::__construct($nullable);
-        if (!enum_exists($className)) {
-            throw new InvalidTypeException(\sprintf('Given type "%s" is not a PHP 8.1 enum', $className));
-        }
-
-        $this->className = $className;
-        $this->backingType = null;
-
-        $reflEnum = new \ReflectionEnum($className);
-        $backingType = $reflEnum->getBackingType();
-        if ($backingType instanceof \ReflectionNamedType) {
-            $this->backingType = $backingType->getName();
-        }
-    }
-
-    public function __toString(): string
-    {
-        return $this->className.parent::__toString();
-    }
-
-    public function getClassName(): string
-    {
-        return $this->className;
+    /**
+     * @param EnumType<*>|BackedEnumType<*, *> $type
+     */
+    public function __construct(
+        EnumType|BackedEnumType $type,
+        bool $nullable,
+        private ?SerializationMode $serializationMode = null,
+    ) {
+        parent::__construct($type, $nullable);
     }
 
     public function getBackingType(): ?string
     {
-        return $this->backingType;
+        if ($this->typeInfo instanceof BackedEnumType) {
+            return $this->typeInfo->getBackingType()->getTypeIdentifier()->value;
+        }
+
+        return null;
     }
 
     public function isBackedEnum(): bool
     {
-        return null !== $this->backingType;
+        return $this->typeInfo instanceof BackedEnumType;
     }
 
     public function getSerializationMode(): ?SerializationMode
@@ -64,7 +52,7 @@ final class PropertyTypeEnum extends AbstractPropertyType
         $nullable = $this->isNullable() && $other->isNullable();
 
         if ($other instanceof PropertyTypeUnknown) {
-            return new self($this->className, $nullable, $this->serializationMode);
+            return new self($this->typeInfo, $nullable, $this->serializationMode);
         }
 
         if (!$other instanceof self) {
@@ -81,6 +69,6 @@ final class PropertyTypeEnum extends AbstractPropertyType
 
         $serializationMode = $this->serializationMode ?? $other->getSerializationMode();
 
-        return new self($this->className, $nullable, $serializationMode);
+        return new self($this->typeInfo, $nullable, $serializationMode);
     }
 }
