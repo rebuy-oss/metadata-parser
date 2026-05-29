@@ -139,7 +139,7 @@ class JMSParserTest extends TestCase
             },
             PropertyTypePrimitive::class,
             true,
-            'string|null',
+            'null|string',
         ];
 
         yield [
@@ -159,7 +159,7 @@ class JMSParserTest extends TestCase
             },
             PropertyTypeIterable::class,
             true,
-            'string[]|null',
+            'list<string>|null',
         ];
 
         yield [
@@ -169,7 +169,7 @@ class JMSParserTest extends TestCase
             },
             PropertyTypeIterable::class,
             true,
-            'string[]|\Doctrine\Common\Collections\ArrayCollection<string>|null',
+            'list<string>|null',
         ];
 
         yield [
@@ -179,7 +179,7 @@ class JMSParserTest extends TestCase
             },
             PropertyTypeIterable::class,
             true,
-            'string[]|\Doctrine\Common\Collections\ArrayCollection<string>|null',
+            'list<string>|null',
         ];
 
         yield [
@@ -189,7 +189,7 @@ class JMSParserTest extends TestCase
             },
             PropertyTypeIterable::class,
             true,
-            'array<string, int>|\Doctrine\Common\Collections\ArrayCollection<string, int>|null',
+            'array<string, int>|null',
         ];
     }
 
@@ -276,7 +276,7 @@ class JMSParserTest extends TestCase
         $this->assertPropertyCollection('property1', 1, $props[2]);
         $property = $props[2]->getVariations()[0];
         $this->assertPropertyVariation('property1', false, false, $property);
-        $this->assertPropertyType(PropertyTypePrimitive::class, 'string|null', true, $property->getType());
+        $this->assertPropertyType(PropertyTypePrimitive::class, 'null|string', true, $property->getType());
     }
 
     public function testSerializedName(): void
@@ -798,7 +798,7 @@ class JMSParserTest extends TestCase
 
         $this->assertPropertyCollection('foo', 1, $props[0]);
         $property = $props[0]->getVariations()[0];
-        $this->assertPropertyType(PropertyTypeIterable::class, 'string[]', false, $property->getType());
+        $this->assertPropertyType(PropertyTypeIterable::class, 'array<int|string, string>', false, $property->getType());
     }
 
     public function testVirtualPropertyWithConflictingReturnDocBlock(): void
@@ -924,7 +924,7 @@ class JMSParserTest extends TestCase
         $this->assertPropertyCollection('foo', 1, $props[0]);
         $property = $props[0]->getVariations()[0];
         $this->assertPropertyVariation('foo', true, true, $property);
-        $this->assertPropertyType(PropertyTypePrimitive::class, 'string|null', true, $property->getType());
+        $this->assertPropertyType(PropertyTypePrimitive::class, 'null|string', true, $property->getType());
     }
 
     public function testVirtualPropertyTypeExtendingDateTime(): void
@@ -1123,7 +1123,7 @@ class JMSParserTest extends TestCase
 
         $property = $props[0]->getVariations()[0];
         $this->assertSame('foo', $property->getName());
-        $this->assertPropertyType(PropertyTypePrimitive::class, 'string|null', true, $property->getType());
+        $this->assertPropertyType(PropertyTypePrimitive::class, 'null|string', true, $property->getType());
 
         $property = $props[0]->getVariations()[1];
         $this->assertSame('foo', $property->getName());
@@ -1154,7 +1154,7 @@ class JMSParserTest extends TestCase
 
         $property = $props[0]->getVariations()[0];
         $this->assertSame('foo', $property->getName());
-        $this->assertPropertyType(PropertyTypePrimitive::class, 'string|null', true, $property->getType());
+        $this->assertPropertyType(PropertyTypePrimitive::class, 'null|string', true, $property->getType());
 
         $property = $props[0]->getVariations()[1];
         $this->assertSame('bar', $property->getName());
@@ -1258,7 +1258,7 @@ class JMSParserTest extends TestCase
         $this->assertPropertyCollection('property1', 1, $props[0]);
         $property = $props[0]->getVariations()[0];
         $this->assertPropertyVariation('property1', false, false, $property);
-        $this->assertPropertyType(PropertyTypePrimitive::class, 'string|null', true, $property->getType());
+        $this->assertPropertyType(PropertyTypePrimitive::class, 'null|string', true, $property->getType());
 
         $this->assertPropertyCollection('property2', 1, $props[1]);
         $property = $props[1]->getVariations()[0];
@@ -1300,7 +1300,7 @@ class JMSParserTest extends TestCase
         $this->assertPropertyCollection('property_mixed', 1, $props[0]);
         $property = $props[0]->getVariations()[0];
         $this->assertPropertyVariation('mixedProperty', false, false, $property);
-        $this->assertPropertyType(PropertyTypePrimitive::class, 'string|null', true, $property->getType());
+        $this->assertPropertyType(PropertyTypePrimitive::class, 'null|string', true, $property->getType());
         $this->assertSame(['group1'], $props[0]->getVariations()[0]->getGroups());
 
         $this->assertPropertyCollection('property_attribute', 1, $props[1]);
@@ -1311,7 +1311,7 @@ class JMSParserTest extends TestCase
         $this->assertPropertyCollection('annotations_property', 1, $props[2]);
         $property = $props[2]->getVariations()[0];
         $this->assertPropertyVariation('annotationsProperty', true, false, $property);
-        $this->assertPropertyType(PropertyTypeIterable::class, 'string[]|null', true, $property->getType());
+        $this->assertPropertyType(PropertyTypeIterable::class, 'list<string>|null', true, $property->getType());
     }
 
     public function testVirtualPropertyWithoutDocblock(): void

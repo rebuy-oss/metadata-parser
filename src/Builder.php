@@ -63,6 +63,7 @@ final class Builder
     }
 
     /**
+     * @param PropertyType<*> $type
      * @param ClassMetadata[] $classMetadataList
      *
      * @throws \UnexpectedValueException if the class is not found

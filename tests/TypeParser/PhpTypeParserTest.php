@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Liip\MetadataParser\TypeParser;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Liip\MetadataParser\Exception\InvalidTypeException;
 use Liip\MetadataParser\Metadata\PropertyTypeEnum;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
@@ -40,18 +42,18 @@ class PhpTypeParserTest extends TestCase
         yield [$reflClass->getProperty('integer'), 'int'];
         yield [$reflClass->getProperty('double'), 'float'];
         yield [$reflClass->getProperty('intOrNull'), 'int|null'];
-        yield [$reflClass->getProperty('stdClassOrNull'), 'stdClass|null'];
+        yield [$reflClass->getProperty('stdClassOrNull'), 'null|stdClass'];
         yield [$reflClass->getProperty('dateTime'), 'DateTime'];
         yield [$reflClass->getProperty('dateTimeImmutable'), 'DateTimeImmutable'];
-        yield [$reflClass->getProperty('stringArray'), 'string[]'];
-        yield [$reflClass->getProperty('stringTripleArray'), 'string[][][]'];
+        yield [$reflClass->getProperty('stringArray'), 'array<int|string, string>'];
+        yield [$reflClass->getProperty('stringTripleArray'), 'array<int|string, array<int|string, array<int|string, string>>>'];
         yield [$reflClass->getProperty('stringMap'), 'array<string, string>'];
         yield [$reflClass->getProperty('deepStringMap'), 'array<string, array<string, array<string, string>>>'];
-        yield [$reflClass->getProperty('nestedStringArray'), 'array<string, string[]>[]'];
-        yield [$reflClass->getProperty('stdClassArrayOrNull'), 'stdClass[]|null'];
-        yield [$reflClass->getProperty('stringCollectionOrNull'), 'string[]|\Doctrine\Common\Collections\Collection<string>|null'];
-        yield [$reflClass->getProperty('stdClassMap'), 'array<string, stdClass[]>'];
-        yield [$reflClass->getProperty('stringList'), 'string[]'];
+        yield [$reflClass->getProperty('nestedStringArray'), 'array<int|string, array<string, array<int|string, string>>>'];
+        yield [$reflClass->getProperty('stdClassArrayOrNull'), 'array<int|string, stdClass>|null'];
+        yield [$reflClass->getProperty('stringCollectionOrNull'), 'array<int|string, string>|null'];
+        yield [$reflClass->getProperty('stdClassMap'), 'array<string, array<int|string, stdClass>>'];
+        yield [$reflClass->getProperty('stringList'), 'list<string>'];
         yield [$reflClass->getProperty('stringMap'), 'array<string, string>'];
         yield [$reflClass->getProperty('intMap'), 'array<string, int>'];
     }
@@ -60,9 +62,9 @@ class PhpTypeParserTest extends TestCase
     {
         $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);
 
-        yield [$reflClass->getProperty('stringCollection'), 'string[]|\Doctrine\Common\Collections\Collection<string>'];
-        yield [$reflClass->getProperty('stringArrayCollection'), 'string[]|\Doctrine\Common\Collections\ArrayCollection<string>'];
-        yield [$reflClass->getProperty('hashmapCollection'), 'array<string, int>|\Doctrine\Common\Collections\ArrayCollection<string, int>'];
+        yield [$reflClass->getProperty('stringCollection'), 'array<int|string, string>', Collection::class];
+        yield [$reflClass->getProperty('stringArrayCollection'), 'array<int|string, string>', ArrayCollection::class];
+        yield [$reflClass->getProperty('hashmapCollection'), 'Doctrine\Common\Collections\ArrayCollection<string, int>', ArrayCollection::class];
     }
 
     #[DataProvider('providePropertyTypeCases')]
@@ -77,11 +79,12 @@ class PhpTypeParserTest extends TestCase
     }
 
     #[DataProvider('providePropertyTypeArrayIsCollectionCases')]
-    public function testPropertyTypeArrayIsCollection(\ReflectionProperty $subject, string $expectedType): void
+    public function testPropertyTypeArrayIsCollection(\ReflectionProperty $subject, string $expectedType, string $expectedTraversableClass): void
     {
         $type = $this->parser->parseAnnotationType($subject);
         $this->assertInstanceOf(PropertyTypeIterable::class, $type);
         $this->assertTrue($type->isTraversable());
+        $this->assertSame($expectedTraversableClass, $type->getTraversableClass());
         $this->assertSame($expectedType, (string) $type, 'Type should match');
     }
 
@@ -107,9 +110,9 @@ class PhpTypeParserTest extends TestCase
         yield [$reflClass->getProperty('sameNamespace'), ReflectionAbstractModel::class];
         yield [$reflClass->getProperty('aliasDifferentNamespace'), RecursionContextTest::class];
         yield [$reflClass->getProperty('aliasSameNamespace'), BaseModel::class];
-        yield [$reflClass->getProperty('arrayNested'), BaseModel::class.'[]'];
+        yield [$reflClass->getProperty('arrayNested'), 'array<int|string, '.BaseModel::class.'>'];
         yield [$reflClass->getProperty('stringNestedMap'), 'array<string, '.BaseModel::class.'>'];
-        yield [$reflClass->getProperty('nestedCollection'), BaseModel::class.'[]|\Doctrine\Common\Collections\Collection<'.BaseModel::class.'>'];
+        yield [$reflClass->getProperty('nestedCollection'), 'array<int|string, '.BaseModel::class.'>'];
     }
 
     #[DataProvider('provideNamespaceResolutionCases')]
@@ -152,7 +155,7 @@ class PhpTypeParserTest extends TestCase
 
         yield [
             $reflClass->getMethod('method3')->getReturnType(),
-            'array',
+            'list<mixed>',
             false,
         ];
     }

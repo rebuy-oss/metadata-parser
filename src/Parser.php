@@ -71,6 +71,9 @@ final class Parser
         }
     }
 
+    /**
+     * @param PropertyType<*> $type
+     */
     private function parsePropertyType(PropertyType $type, RawClassMetadataRegistry $registry): void
     {
         if ($type instanceof PropertyTypeIterable) {

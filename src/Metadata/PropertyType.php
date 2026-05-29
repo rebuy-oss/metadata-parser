@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\Metadata;
 
-/**
- * This is a marker interface for property types.
- */
-interface PropertyType
-{
-    /**
-     * Information about the type suitable for debugging.
-     */
-    public function __toString(): string;
+use Symfony\Component\TypeInfo\Type;
 
+/**
+ * @template T of Type
+ */
+interface PropertyType extends \Stringable
+{
     /**
      * Whether this property can be nullified.
      *
@@ -24,7 +21,16 @@ interface PropertyType
     /**
      * Merges another property type into this one.
      *
+     * @param PropertyType<*> $other
+     *
+     * @return PropertyType<*>
+     *
      * @throws \UnexpectedValueException if the types are not compatible
      */
     public function merge(self $other): self;
+
+    /**
+     * @return T
+     */
+    public function getTypeInfo(): Type;
 }

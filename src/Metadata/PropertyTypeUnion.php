@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\Metadata;
 
+use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\Type\NullableType;
+use Symfony\Component\TypeInfo\Type\UnionType;
+
+/**
+ * @extends AbstractPropertyType<UnionType|NullableType<UnionType>, bool>
+ */
 final class PropertyTypeUnion extends AbstractPropertyType
 {
     private const int DEFAULT_ORDER = 8;
@@ -16,22 +23,23 @@ final class PropertyTypeUnion extends AbstractPropertyType
     private ?string $fieldName = null;
 
     /**
-     * @var PropertyType[]
+     * @var PropertyType<*>[]
      */
     private array $types;
 
     /**
-     * @param PropertyType[] $types
+     * @param UnionType<*> $type
+     * @param PropertyType<*>[] $types
      */
-    public function __construct(array $types, bool $nullable)
+    public function __construct(UnionType $type, bool $nullable, array $types)
     {
-        parent::__construct($nullable);
+        parent::__construct($type, $nullable);
 
         $this->setTypes($types);
     }
 
     /**
-     * @return PropertyType[]
+     * @return PropertyType<*>[]
      */
     public function getTypes(): array
     {
@@ -39,13 +47,16 @@ final class PropertyTypeUnion extends AbstractPropertyType
     }
 
     /**
-     * @param PropertyType[] $types
+     * @param PropertyType<*>[] $types
      */
     public function setTypes(array $types): void
     {
         $this->types = $this->reorderTypes($types);
     }
 
+    /**
+     * @return PropertyTypeClass<*>|null
+     */
     public function getTypeByClassName(string $className): ?PropertyTypeClass
     {
         foreach ($this->types as $type) {
@@ -104,8 +115,11 @@ final class PropertyTypeUnion extends AbstractPropertyType
         }
 
         $mergedTypes = [...$this->getTypes(), ...$other->getTypes()];
+        $typeInfos = array_map(static fn (PropertyType $type): Type => $type->getTypeInfo(), $mergedTypes);
+        $unionType = Type::union(...$typeInfos);
+        $nullable = $this->isNullable() && $other->isNullable();
 
-        $mergedPropertyType = new self($mergedTypes, $this->isNullable() && $other->isNullable());
+        $mergedPropertyType = new self($unionType, $nullable, $mergedTypes);
 
         $mergedTypeMap = [...$this->getTypeMap(), ...$other->getTypeMap()];
         $mergedPropertyType->setTypeMap($mergedTypeMap);
@@ -127,9 +141,9 @@ final class PropertyTypeUnion extends AbstractPropertyType
     /**
      * Sorting the types by primitives first and then by class will make it easier when (de-)serializing the values.
      *
-     * @param PropertyType[] $types
+     * @param PropertyType<*>[] $types
      *
-     * @return PropertyType[]
+     * @return PropertyType<*>[]
      */
     private function reorderTypes(array $types): array
     {

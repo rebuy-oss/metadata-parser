@@ -142,6 +142,9 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable, \Stringabl
         return $data;
     }
 
+    /**
+     * @return PropertyType<*>
+     */
     abstract public function getType(): PropertyType;
 
     protected function setVersionRange(VersionRange $version): void

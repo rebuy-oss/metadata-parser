@@ -18,14 +18,11 @@ use Liip\MetadataParser\Metadata\VersionRange;
 final class PropertyVariationMetadata extends AbstractPropertyMetadata
 {
     /**
-     * @var PropertyType
+     * @var PropertyType<*>
      */
-    private $type;
+    private PropertyType $type;
 
-    /**
-     * @var bool
-     */
-    private $preferred;
+    private bool $preferred;
 
     /**
      * @param string $name Name of the property in PHP or the method name for a virtual property
@@ -42,6 +39,9 @@ final class PropertyVariationMetadata extends AbstractPropertyMetadata
         return new self($reflProperty->getName(), false, $reflProperty->isPublic());
     }
 
+    /**
+     * @param PropertyType<*> $type
+     */
     public function setType(PropertyType $type): void
     {
         $this->type = $type;

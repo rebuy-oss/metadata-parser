@@ -4,24 +4,42 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\Metadata;
 
+use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\Type\NullableType;
+
 /**
- * Base information about property types.
+ * @template T of Type
+ * @template TNullable as bool
  *
- * Handles nullable.
+ * @implements PropertyType<T>
  */
 abstract class AbstractPropertyType implements PropertyType
 {
-    protected function __construct(private bool $nullable)
-    {
+    /**
+     * @param T         $typeInfo
+     * @param TNullable $nullable
+     */
+    protected function __construct(
+        protected readonly Type $typeInfo,
+        protected readonly bool $nullable,
+    ) {
     }
 
     public function __toString(): string
     {
-        return $this->isNullable() ? '|null' : '';
+        return $this->getTypeInfo()->__toString();
     }
 
     public function isNullable(): bool
     {
         return $this->nullable;
+    }
+
+    /**
+     * @return (TNullable is true ? NullableType<T> : T)
+     */
+    public function getTypeInfo(): Type
+    {
+        return $this->nullable ? Type::nullable($this->typeInfo) : $this->typeInfo;
     }
 }

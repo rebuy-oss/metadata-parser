@@ -16,6 +16,7 @@ use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
 use Liip\MetadataParser\Metadata\SerializationMode;
+use Symfony\Component\TypeInfo\Type;
 
 final class JMSTypeParser
 {
@@ -34,6 +35,9 @@ final class JMSTypeParser
         $this->jmsTypeParser = new Parser();
     }
 
+    /**
+     * @return PropertyType<*>
+     */
     public function parse(string $rawType, \ReflectionProperty|\ReflectionMethod|null $reflection = null, bool $isSubType = false): PropertyType
     {
         if ('' === $rawType) {
@@ -45,6 +49,8 @@ final class JMSTypeParser
 
     /**
      * @param array<int|string, mixed> $typeInfo
+     *
+     * @return PropertyType<*>
      */
     private function parseType(array $typeInfo, \ReflectionProperty|\ReflectionMethod|null $reflection, bool $isSubType = false): PropertyType
     {
@@ -61,32 +67,50 @@ final class JMSTypeParser
 
         if (0 === \count($typeInfo['params']) && self::TYPE_ENUM !== $typeInfo['name']) {
             if (self::TYPE_ARRAY === $typeInfo['name']) {
-                return new PropertyTypeIterable(new PropertyTypeUnknown(false), false, $nullable);
+                $subType = new PropertyTypeUnknown(false);
+                $typeInfo = Type::list(Type::mixed());
+
+                return new PropertyTypeIterable($typeInfo, $nullable, $subType);
             }
 
             if (PropertyTypePrimitive::isTypePrimitive($typeInfo['name'])) {
-                return new PropertyTypePrimitive($typeInfo['name'], $nullable);
+                return new PropertyTypePrimitive(Type::builtin(PropertyTypePrimitive::normalize($typeInfo['name'])), $nullable);
             }
             if (PropertyTypeDateTime::isTypeDateTime($typeInfo['name'])) {
-                return PropertyTypeDateTime::fromDateTimeClass($typeInfo['name'], $nullable);
+                return new PropertyTypeDateTime(Type::object($typeInfo['name']), $nullable);
             }
 
-            return new PropertyTypeClass($typeInfo['name'], $nullable);
+            return new PropertyTypeClass(Type::object($typeInfo['name']), $nullable);
         }
 
         $traversableClass = $this->getTraversableClass($typeInfo['name']);
         if (self::TYPE_ARRAY === $typeInfo['name'] || $traversableClass) {
             if (1 === \count($typeInfo['params'])) {
-                return new PropertyTypeIterable($this->parseType($typeInfo['params'][0], $reflection, true), false, $nullable, $traversableClass);
+                $subType = $this->parseType($typeInfo['params'][0], $reflection, true);
+
+                return new PropertyTypeIterable(
+                    Type::list($subType->getTypeInfo()),
+                    $nullable,
+                    $subType,
+                    $traversableClass,
+                );
             }
             if (2 === \count($typeInfo['params'])) {
-                return new PropertyTypeIterable($this->parseType($typeInfo['params'][1], $reflection, true), true, $nullable, $traversableClass);
+                $key = Type::builtin($typeInfo['params'][0]['name']);
+                $subType = $this->parseType($typeInfo['params'][1], $reflection, true);
+
+                return new PropertyTypeIterable(
+                    Type::array($subType->getTypeInfo(), $key),
+                    $nullable,
+                    $subType,
+                    $traversableClass,
+                );
             }
 
             throw new InvalidTypeException(\sprintf('JMS property type array can\'t have more than 2 parameters (%s)', var_export($typeInfo, true)));
         }
 
-        if (PropertyTypeDateTime::isTypeDateTime($typeInfo['name']) || (self::TYPE_DATETIME_INTERFACE === $typeInfo['name'])) {
+        if (PropertyTypeDateTime::isTypeDateTime($typeInfo['name'])) {
             // the case of datetime without params is already handled above, we know we have params
             $serializeFormat = $typeInfo['params'][0] ?: null;
             // {@link \JMS\Serializer\Handler\DateHandler} of jms/serializer defaults to using the serialization format as a deserialization format if none was supplied...
@@ -96,8 +120,8 @@ final class JMSTypeParser
             // Jms defaults to DateTime when given DateTimeInterface despite the documentation saying DateTimeImmutable, {@see \JMS\Serializer\Handler\DateHandler} in jms/serializer
             $className = (self::TYPE_DATETIME_INTERFACE === $typeInfo['name']) ? \DateTime::class : $typeInfo['name'];
 
-            return PropertyTypeDateTime::fromDateTimeClass(
-                $className,
+            return new PropertyTypeDateTime(
+                Type::object($className),
                 $nullable,
                 new DateTimeOptions(
                     $serializeFormat,
@@ -112,7 +136,7 @@ final class JMSTypeParser
 
             $serializationMode = $this->getEnumSerializationMode($enumType, $typeInfo['params']);
 
-            return new PropertyTypeEnum($enumType, $nullable, $serializationMode);
+            return new PropertyTypeEnum(Type::enum($enumType), $nullable, $serializationMode);
         }
 
         throw new InvalidTypeException(\sprintf('Unknown JMS property found (%s)', var_export($typeInfo, true)));

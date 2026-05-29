@@ -7,12 +7,14 @@ namespace Tests\Liip\MetadataParser;
 use Liip\MetadataParser\Exception\RecursionException;
 use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
+use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\RecursionChecker;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\TypeInfo\Type;
 use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 use Tests\Liip\MetadataParser\ModelParser\Model\Recursion;
 
@@ -21,7 +23,7 @@ class RecursionCheckerTest extends TestCase
 {
     public function testNoRecursion(): void
     {
-        $customClassType = new PropertyTypeClass(Nested::class, false);
+        $customClassType = new PropertyTypeClass(Type::object(Nested::class), false);
         $customClassType->setClassMetadata(new ClassMetadata(Nested::class, []));
         $classMetadata = new ClassMetadata(
             'Root',
@@ -41,7 +43,7 @@ class RecursionCheckerTest extends TestCase
 
     public function testRecursion(): void
     {
-        $customClassType = new PropertyTypeClass(Recursion::class, true);
+        $customClassType = new PropertyTypeClass(Type::object(Recursion::class), true);
         $classMetadata = new ClassMetadata(
             Recursion::class,
             [
@@ -60,7 +62,7 @@ class RecursionCheckerTest extends TestCase
 
     public function testRecursionWithMaxDepth(): void
     {
-        $customClassType = new PropertyTypeClass(Recursion::class, true);
+        $customClassType = new PropertyTypeClass(Type::object(Recursion::class), true);
         $classMetadata = new ClassMetadata(
             Recursion::class,
             [
@@ -90,14 +92,14 @@ class RecursionCheckerTest extends TestCase
 
     public function testRecursionOnArray(): void
     {
-        $customClassType = new PropertyTypeClass(Recursion::class, true);
+        $customClassType = new PropertyTypeClass(Type::object(Recursion::class), true);
         $classMetadata = new ClassMetadata(
             Recursion::class,
             [
                 new PropertyMetadata(
                     'property',
                     'property',
-                    new PropertyTypeIterable($customClassType, false, true)
+                    self::iterable($customClassType, true)
                 ),
             ]
         );
@@ -109,7 +111,7 @@ class RecursionCheckerTest extends TestCase
 
     public function testRecursionWithGaps(): void
     {
-        $innerCustomClassType = new PropertyTypeClass(Recursion::class, true);
+        $innerCustomClassType = new PropertyTypeClass(Type::object(Recursion::class), true);
         $recursionClassMetadata = new ClassMetadata(
             Recursion::class,
             [
@@ -122,7 +124,7 @@ class RecursionCheckerTest extends TestCase
         );
         $innerCustomClassType->setClassMetadata($recursionClassMetadata);
 
-        $outerCustomClassType = new PropertyTypeClass(Recursion::class, false);
+        $outerCustomClassType = new PropertyTypeClass(Type::object(Recursion::class), false);
         $outerCustomClassType->setClassMetadata($recursionClassMetadata);
         $classMetadata = new ClassMetadata(
             'Root',
@@ -141,7 +143,7 @@ class RecursionCheckerTest extends TestCase
 
     public function testExpectedRecursion(): void
     {
-        $innerCustomClassType = new PropertyTypeClass(Recursion::class, true);
+        $innerCustomClassType = new PropertyTypeClass(Type::object(Recursion::class), true);
         $recursionClassMetadata = new ClassMetadata(
             Recursion::class,
             [
@@ -154,7 +156,7 @@ class RecursionCheckerTest extends TestCase
         );
         $innerCustomClassType->setClassMetadata($recursionClassMetadata);
 
-        $outerCustomClassType = new PropertyTypeClass(Recursion::class, false);
+        $outerCustomClassType = new PropertyTypeClass(Type::object(Recursion::class), false);
         $outerCustomClassType->setClassMetadata($recursionClassMetadata);
         $classMetadata = new ClassMetadata(
             'Root',
@@ -180,7 +182,7 @@ class RecursionCheckerTest extends TestCase
 
     public function testExpectedRecursionArray(): void
     {
-        $innerCustomClassType = new PropertyTypeClass(Recursion::class, true);
+        $innerCustomClassType = new PropertyTypeClass(Type::object(Recursion::class), true);
         $recursionClassMetadata = new ClassMetadata(
             Recursion::class,
             [
@@ -193,7 +195,7 @@ class RecursionCheckerTest extends TestCase
         );
         $innerCustomClassType->setClassMetadata($recursionClassMetadata);
 
-        $outerCustomClassType = new PropertyTypeClass(Recursion::class, false);
+        $outerCustomClassType = new PropertyTypeClass(Type::object(Recursion::class), false);
         $outerCustomClassType->setClassMetadata($recursionClassMetadata);
         $classMetadata = new ClassMetadata(
             'Root',
@@ -201,7 +203,7 @@ class RecursionCheckerTest extends TestCase
                 new PropertyMetadata(
                     'property',
                     'property',
-                    new PropertyTypeIterable($outerCustomClassType, false, true)
+                    self::iterable($outerCustomClassType, true)
                 ),
             ]
         );
@@ -218,6 +220,13 @@ class RecursionCheckerTest extends TestCase
         $subType = $type->getLeafType();
         $this->assertInstanceOf(PropertyTypeClass::class, $subType);
         $this->assertCount(0, $subType->getClassMetadata()->getProperties());
+    }
+
+    private static function iterable(PropertyType $subType, bool $nullable, ?string $traversableClass = null): PropertyTypeIterable
+    {
+        $type = Type::list($subType->getTypeInfo());
+
+        return new PropertyTypeIterable($type, $nullable, $subType, $traversableClass);
     }
 
     private function createChecker(array $expectedRecursions = []): RecursionChecker

@@ -40,13 +40,13 @@ class JMSTypeParserTest extends TestCase
 
         yield [
             'array',
-            'array',
+            'list<mixed>|null',
             true,
         ];
 
         yield [
             'string',
-            'string|null',
+            'null|string',
         ];
 
         yield [
@@ -66,22 +66,22 @@ class JMSTypeParserTest extends TestCase
 
         yield [
             'stdClass',
-            'stdClass|null',
+            'null|stdClass',
         ];
 
         yield [
             'array<string>',
-            'string[]|null',
+            'list<string>|null',
         ];
 
         yield [
             'array<array<array<boolean>>>',
-            'bool[][][]|null',
+            'list<list<list<bool>>>|null',
         ];
 
         yield [
             'array<int>',
-            'int[]|null',
+            'list<int>|null',
         ];
 
         yield [
@@ -96,7 +96,7 @@ class JMSTypeParserTest extends TestCase
 
         yield [
             'array<string, array<array<string, bool>>>',
-            'array<string, array<string, bool>[]>|null',
+            'array<string, list<array<string, bool>>>|null',
         ];
     }
 
