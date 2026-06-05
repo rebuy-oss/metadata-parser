@@ -26,10 +26,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 #[Small]
 class PhpDocParserTest extends TestCase
 {
-    /**
-     * @var PhpDocParser
-     */
-    private $parser;
+    private PhpDocParser $parser;
 
     protected function setUp(): void
     {

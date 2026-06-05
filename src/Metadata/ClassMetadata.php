@@ -31,11 +31,11 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
      * @param string[]            $postDeserializeMethods Method names to call on the class after it has been deserialized.
      */
     public function __construct(
-        private string $className,
+        private readonly string $className,
         array $properties,
         array $constructorParameters = [],
-        private array $postDeserializeMethods = [],
-        private ?ClassDiscriminatorMetadata $discriminatorMetadata = null,
+        private readonly array $postDeserializeMethods = [],
+        private readonly ?ClassDiscriminatorMetadata $discriminatorMetadata = null,
     ) {
         \assert(array_reduce(
             $constructorParameters,
@@ -103,7 +103,7 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
 
     public function hasConstructorParameter(string $name): bool
     {
-        return array_any($this->constructorParameters, static fn ($parameter) => $parameter->getName() === $name);
+        return array_any($this->constructorParameters, static fn ($parameter): bool => $parameter->getName() === $name);
     }
 
     public function getConstructorParameter(string $name): ParameterMetadata

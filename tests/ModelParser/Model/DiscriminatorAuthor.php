@@ -13,5 +13,5 @@ class DiscriminatorAuthor
 
     #[Type(name: 'string')]
     #[SerializedName(name: 'objectType')]
-    private $objectType = 'author';
+    private string $objectType = 'author';
 }

@@ -16,7 +16,7 @@ final class PreferredReducer implements PropertyReducerInterface
 {
     public function reduce(string $serializedName, array $properties): array
     {
-        $preferred = array_values(array_filter($properties, static fn (PropertyVariationMetadata $property) => $property->isPreferred()));
+        $preferred = array_values(array_filter($properties, static fn (PropertyVariationMetadata $property): bool => $property->isPreferred()));
 
         if (\count($preferred)) {
             return $preferred;

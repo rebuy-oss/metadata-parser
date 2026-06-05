@@ -7,7 +7,7 @@ namespace Liip\MetadataParser\Metadata;
 /**
  * Options as provided in the JMSSerializer DateTime / DateTimeImmutable type attributes.
  */
-final class DateTimeOptions implements \JsonSerializable
+final readonly class DateTimeOptions implements \JsonSerializable
 {
     /**
      * @param list<string>|null $deserializeFormats Use if different formats should be used for parsing dates than for generating dates.

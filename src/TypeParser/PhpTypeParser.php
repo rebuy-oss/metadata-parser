@@ -13,7 +13,7 @@ use Symfony\Component\TypeInfo\TypeResolver\TypeResolver;
 /**
  * @internal
  */
-final class PhpTypeParser
+final readonly class PhpTypeParser
 {
     private TypeResolver $stringTypeResolver;
 

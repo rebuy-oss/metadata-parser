@@ -118,7 +118,7 @@ final class LiipMetadataAttributeParser implements ModelParserInterface
         $attributes = $reflection->getAttributes();
 
         return array_map(
-            static fn (\ReflectionAttribute $attribute) => $attribute->newInstance(),
+            static fn (\ReflectionAttribute $attribute): object => $attribute->newInstance(),
             $attributes
         );
     }

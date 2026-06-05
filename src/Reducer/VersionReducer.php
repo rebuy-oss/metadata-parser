@@ -7,7 +7,7 @@ namespace Liip\MetadataParser\Reducer;
 /**
  * Select the property based on whether it is included in the specified version.
  */
-final class VersionReducer implements PropertyReducerInterface
+final readonly class VersionReducer implements PropertyReducerInterface
 {
     public function __construct(private string $version)
     {

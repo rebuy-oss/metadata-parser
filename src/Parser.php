@@ -14,7 +14,7 @@ use Liip\MetadataParser\ModelParser\NamingStrategy\PropertyNamingStrategyInterfa
 use Liip\MetadataParser\ModelParser\NamingStrategy\SnakeCasePropertyNamingStrategy;
 use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 
-final class Parser
+final readonly class Parser
 {
     private PropertyNamingStrategyInterface $propertyNamingStrategy;
 

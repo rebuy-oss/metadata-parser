@@ -11,7 +11,7 @@ final class PropertyMetadata extends AbstractPropertyMetadata
     /**
      * @var PropertyType<*>
      */
-    private $type;
+    private readonly PropertyType $type;
 
     /**
      * @param PropertyType<*>|null $type

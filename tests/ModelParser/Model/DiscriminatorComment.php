@@ -13,5 +13,5 @@ class DiscriminatorComment
 
     #[Type(name: 'string')]
     #[SerializedName(name: 'objectType')]
-    private $objectType = 'comment';
+    private string $objectType = 'comment';
 }

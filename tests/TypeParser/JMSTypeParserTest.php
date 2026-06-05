@@ -20,10 +20,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\ClassWithEnums;
 #[Small]
 class JMSTypeParserTest extends TestCase
 {
-    /**
-     * @var JMSTypeParser
-     */
-    private $parser;
+    private JMSTypeParser $parser;
 
     protected function setUp(): void
     {

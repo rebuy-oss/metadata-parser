@@ -42,7 +42,7 @@ final class RawClassMetadata implements \JsonSerializable, \Stringable
         /**
          * @var class-string
          */
-        private string $className,
+        private readonly string $className,
     ) {
     }
 

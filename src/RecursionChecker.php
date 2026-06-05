@@ -22,7 +22,7 @@ use Psr\Log\LoggerInterface;
  * E.g. product->variants (which themselves are products. You can configure to
  * abort at product->variants->variants to avoid a recursion.
  */
-final class RecursionChecker
+final readonly class RecursionChecker
 {
     /**
      * The expected recursions can be absolute, starting with the root class.

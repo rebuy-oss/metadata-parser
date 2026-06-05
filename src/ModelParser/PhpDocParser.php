@@ -15,7 +15,7 @@ use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 use Liip\MetadataParser\TypeParser\PhpTypeParser;
 use Symfony\Component\TypeInfo\Exception\UnsupportedException;
 
-final class PhpDocParser implements ModelParserInterface
+final readonly class PhpDocParser implements ModelParserInterface
 {
     private PhpTypeParser $typeParser;
 

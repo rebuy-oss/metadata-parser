@@ -147,7 +147,7 @@ final class PropertyTypeUnion extends AbstractPropertyType
      */
     private function reorderTypes(array $types): array
     {
-        uasort($types, static function (PropertyType $first, PropertyType $second) {
+        uasort($types, static function (PropertyType $first, PropertyType $second): int {
             $order = ['null' => 0, 'array' => 1, 'true' => 2, 'false' => 3, 'bool' => 4, 'int' => 5, 'float' => 6, 'string' => 7];
             $firstTypeName = $first instanceof PropertyTypeIterable ? 'array' : null;
             $secondTypeName = $second instanceof PropertyTypeIterable ? 'array' : null;
