@@ -33,7 +33,8 @@
         "jms/serializer": "^3",
         "phpstan/phpstan": "^2.1.44",
         "phpstan/phpstan-phpunit": "^2.0.16",
-        "phpunit/phpunit": "^13.1.10"
+        "phpunit/phpunit": "^13.1.10",
+        "rector/rector": "^2.4"
     },
     "suggest": {
         "jms/serializer": "If you want to parse JMS models into metadata",
@@ -56,17 +57,20 @@
         "liip/metadata-parser": "*"
     },
     "scripts": {
-        "fix-cs": "vendor/bin/php-cs-fixer fix -v",
-        "cs-fixer": "vendor/bin/php-cs-fixer fix --dry-run --diff -v",
+        "cs:fix": "vendor/bin/php-cs-fixer fix -v",
+        "cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff -v",
         "phpstan": "vendor/bin/phpstan analyse",
         "phpstan-tests": "vendor/bin/phpstan analyse -c phpstan.tests.neon",
+        "rector:check": "vendor/bin/rector process --dry-run",
+        "rector:fix": "vendor/bin/rector process",
         "phpstan-all": [
             "@phpstan",
             "@phpstan-tests"
         ],
         "phpunit": "vendor/bin/phpunit",
         "ci": [
-            "@cs-fixer",
+            "@cs:check",
+            "@rector:check",
             "@phpstan-all",
             "@phpunit"
         ]

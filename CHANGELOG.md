@@ -14,6 +14,7 @@
   Attributes are out for a while now, so we drop the hard dependency on the annotation library. In case it is still
   required, it can still be installed and used by passing the `Reader` to the `JMSParser`.
 * Directly create types and pass them to the `PropertyType*` classes instead of creating them inside the class
+* Add rector-php analysis
 
 # Version 2.x
 

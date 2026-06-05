@@ -580,7 +580,7 @@ class JMSParserTest extends TestCase
     public function testInvalidPropertyAnnotations(): void
     {
         $c = new class {
-            #[JMS\Type]
+            #[JMS\Type([])]
             private $property;
         };
 
@@ -588,6 +588,7 @@ class JMSParserTest extends TestCase
 
         $this->expectException(ParseException::class);
         $this->expectExceptionMessage('Type');
+
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
     }
 
