@@ -14,7 +14,7 @@ use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 use Liip\MetadataParser\TypeParser\PhpTypeParser;
 use Symfony\Component\TypeInfo\Type;
 
-final class ReflectionParser implements ModelParserInterface
+final readonly class ReflectionParser implements ModelParserInterface
 {
     private const array SUPPORTED_UNION_TYPES = [
         'int',
@@ -30,17 +30,9 @@ final class ReflectionParser implements ModelParserInterface
 
     private PhpTypeParser $typeParser;
 
-    /**
-     * Whether the PHP reflections support property type declarations.
-     *
-     * @var bool
-     */
-    private $reflectionSupportsPropertyType;
-
     public function __construct()
     {
         $this->typeParser = new PhpTypeParser();
-        $this->reflectionSupportsPropertyType = version_compare(\PHP_VERSION, '7.4', '>=');
     }
 
     public function parse(RawClassMetadata $classMetadata, PropertyNamingStrategyInterface $propertyNamingStrategy): void
@@ -66,7 +58,7 @@ final class ReflectionParser implements ModelParserInterface
 
         foreach ($reflClass->getProperties() as $reflProperty) {
             $type = null;
-            $reflectionType = $this->reflectionSupportsPropertyType ? $reflProperty->getType() : null;
+            $reflectionType = $reflProperty->getType();
             switch (true) {
                 case $reflectionType instanceof \ReflectionNamedType:
                     $type = $this->typeParser->parseReflectionType($reflectionType);

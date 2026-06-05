@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\Metadata;
 
-final class PropertyAccessor implements \JsonSerializable
+final readonly class PropertyAccessor implements \JsonSerializable
 {
     public function __construct(
-        private readonly ?string $getterMethod,
-        private readonly ?string $setterMethod,
+        private ?string $getterMethod,
+        private ?string $setterMethod,
     ) {
     }
 

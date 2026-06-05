@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\ModelParser\NamingStrategy;
 
-final class SnakeCasePropertyNamingStrategy implements PropertyNamingStrategyInterface
+final readonly class SnakeCasePropertyNamingStrategy implements PropertyNamingStrategyInterface
 {
     private string $regex;
 

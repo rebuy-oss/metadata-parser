@@ -135,7 +135,7 @@ class JMSParserTest extends TestCase
         yield [
             new class {
                 #[JMS\Type('string')]
-                private $property;
+                private ?string $property = null;
             },
             PropertyTypePrimitive::class,
             true,
@@ -145,7 +145,7 @@ class JMSParserTest extends TestCase
         yield [
             new class {
                 #[JMS\Type('integer')]
-                private $property;
+                private ?int $property = null;
             },
             PropertyTypePrimitive::class,
             true,
@@ -212,7 +212,7 @@ class JMSParserTest extends TestCase
     {
         $c = new class {
             #[JMS\Type(Nested::class)]
-            private $property;
+            private ?Nested $property = null;
         };
 
         $classMetadata = new RawClassMetadata($c::class);
@@ -580,7 +580,7 @@ class JMSParserTest extends TestCase
     public function testInvalidPropertyAnnotations(): void
     {
         $c = new class {
-            #[JMS\Type]
+            #[JMS\Type([])]
             private $property;
         };
 
@@ -588,6 +588,7 @@ class JMSParserTest extends TestCase
 
         $this->expectException(ParseException::class);
         $this->expectExceptionMessage('Type');
+
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
     }
 
@@ -600,7 +601,7 @@ class JMSParserTest extends TestCase
             #[JMS\XmlList]
             #[JMS\XmlMap]
             #[JMS\XmlValue]
-            private $property;
+            private ?string $property = null;
         };
 
         $classMetadata = new RawClassMetadata($c::class);
@@ -616,7 +617,7 @@ class JMSParserTest extends TestCase
         $c = new class {
             #[JMS\Type('string')]
             #[JMS\Inline]
-            private $property;
+            private ?string $property = null;
         };
 
         $classMetadata = new RawClassMetadata($c::class);
@@ -962,7 +963,7 @@ class JMSParserTest extends TestCase
             #[JMS\Type("DateTime<'Y-m-d H:i:s', 'Europe/Zurich', 'Y-m-d'>")]
             public function foo()
             {
-                return 0;
+                return new \DateTime();
             }
         };
 
@@ -1041,7 +1042,7 @@ class JMSParserTest extends TestCase
         $c = new class {
             #[JMS\VirtualProperty]
             #[JMS\Exclude]
-            public function getFoo()
+            public function getFoo(): int
             {
                 return 0;
             }
@@ -1059,7 +1060,7 @@ class JMSParserTest extends TestCase
         $c = new class {
             #[JMS\VirtualProperty]
             #[JMS\Groups(['group1', 'group2'])]
-            public function getFoo()
+            public function getFoo(): int
             {
                 return 0;
             }
@@ -1081,7 +1082,7 @@ class JMSParserTest extends TestCase
             #[JMS\VirtualProperty]
             #[JMS\Since('1.2')]
             #[JMS\Until('3.9')]
-            public function getFoo()
+            public function getFoo(): int
             {
                 return 0;
             }
@@ -1104,7 +1105,7 @@ class JMSParserTest extends TestCase
     {
         $c = new class {
             #[JMS\Type('string')]
-            private $foo;
+            private ?string $foo = null;
 
             #[JMS\VirtualProperty]
             public function getFoo(): int
@@ -1134,7 +1135,7 @@ class JMSParserTest extends TestCase
     {
         $c = new class {
             #[JMS\Type('string')]
-            private $foo;
+            private ?string $foo = null;
 
             #[JMS\VirtualProperty]
             #[JMS\SerializedName('foo')]
@@ -1243,10 +1244,10 @@ class JMSParserTest extends TestCase
     {
         $c = new class {
             #[JMS\Type('string')]
-            private $property1;
+            private ?string $property1 = null;
 
             #[JMS\Type('bool')]
-            public $property2;
+            public ?bool $property2 = null;
         };
 
         $classMetadata = new RawClassMetadata($c::class);
@@ -1277,11 +1278,11 @@ class JMSParserTest extends TestCase
             #[JMS\Type('string')]
             #[JMS\SerializedName('property_mixed')]
             #[JMS\Groups(['group1'])]
-            private $mixedProperty;
+            private ?string $mixedProperty = null;
 
             #[JMS\SerializedName('property_attribute')]
             #[JMS\Type('bool')]
-            public $attributeProperty;
+            public ?bool $attributeProperty = null;
 
             /**
              * @JMS\Type("array<string>")

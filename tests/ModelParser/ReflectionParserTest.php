@@ -30,10 +30,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\ReflectionBaseModel;
 #[Small]
 class ReflectionParserTest extends TestCase
 {
-    /**
-     * @var ReflectionParser
-     */
-    private $parser;
+    private ReflectionParser $parser;
 
     protected function setUp(): void
     {

@@ -20,11 +20,11 @@ use Liip\MetadataParser\Reducer\PropertyReducerInterface;
  * set the metadata on the property types. This would allow to work with
  * general model graphs that may include recursion.
  */
-final class Builder
+final readonly class Builder
 {
     public function __construct(
-        private readonly Parser $parser,
-        private readonly RecursionChecker $recursionChecker,
+        private Parser $parser,
+        private RecursionChecker $recursionChecker,
     ) {
     }
 

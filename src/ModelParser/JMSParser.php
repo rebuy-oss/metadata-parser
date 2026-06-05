@@ -52,7 +52,7 @@ use Symfony\Component\TypeInfo\Type as SymfonyType;
  *
  * @internal
  */
-final class JMSParser implements ModelParserInterface
+final readonly class JMSParser implements ModelParserInterface
 {
     private const string ACCESS_ORDER_CUSTOM = 'custom';
 
@@ -60,7 +60,7 @@ final class JMSParser implements ModelParserInterface
 
     private JMSTypeParser $jmsTypeParser;
 
-    public function __construct(private readonly ?Reader $annotationReader = null)
+    public function __construct(private ?Reader $annotationReader = null)
     {
         $this->phpTypeParser = new PhpTypeParser();
         $this->jmsTypeParser = new JMSTypeParser();
@@ -432,7 +432,7 @@ final class JMSParser implements ModelParserInterface
      */
     private function isVirtualProperty(array $attributes): bool
     {
-        return array_any($attributes, static fn ($attribute) => $attribute instanceof VirtualProperty);
+        return array_any($attributes, static fn ($attribute): bool => $attribute instanceof VirtualProperty);
     }
 
     /**
@@ -440,7 +440,7 @@ final class JMSParser implements ModelParserInterface
      */
     private function isPostDeserializeMethod(array $attributes): bool
     {
-        return array_any($attributes, static fn ($attribute) => $attribute instanceof PostDeserialize);
+        return array_any($attributes, static fn ($attribute): bool => $attribute instanceof PostDeserialize);
     }
 
     /**
@@ -512,6 +512,7 @@ final class JMSParser implements ModelParserInterface
         /*
          * The marker interface `SerializerAttribute` was only introduced in version 3.29.1 of the jms/serializer,
          * so we have to fallback to fetching all in case an older verison is used.
+         * @phpstan-ignore function.impossibleType
          */
         if (class_exists(SerializerAttribute::class)) {
             $attributes = $reflection->getAttributes(SerializerAttribute::class, \ReflectionAttribute::IS_INSTANCEOF);
@@ -535,16 +536,19 @@ final class JMSParser implements ModelParserInterface
     }
 
     /**
-     * @param \ReflectionAttribute<SerializerAttribute>[] $attributes
+     * @param \ReflectionAttribute<object>[] $attributes
      *
-     * @return list<SerializerAttribute>
+     * @return list<object>
      */
     private function buildAttributes(array $attributes): array
     {
+        /*
+         * @phpstan-ignore function.impossibleType
+         */
         if (!class_exists(SerializerAttribute::class)) {
             $attributes = array_filter(
                 $attributes,
-                static fn (\ReflectionAttribute $attribute) => str_starts_with($attribute->name, 'JMS\Serializer\Annotation')
+                static fn (\ReflectionAttribute $attribute): bool => str_starts_with($attribute->name, 'JMS\Serializer\Annotation')
             );
         }
 

@@ -28,10 +28,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\Vehicle;
 #[Small]
 class ParserTest extends TestCase
 {
-    /**
-     * @var Parser
-     */
-    private $parser;
+    private Parser $parser;
 
     protected function setUp(): void
     {

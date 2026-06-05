@@ -18,7 +18,7 @@ final class PropertyTypeEnum extends PropertyTypeClass
     public function __construct(
         EnumType|BackedEnumType $type,
         bool $nullable,
-        private ?SerializationMode $serializationMode = null,
+        private readonly ?SerializationMode $serializationMode = null,
     ) {
         parent::__construct($type, $nullable);
     }

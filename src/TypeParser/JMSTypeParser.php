@@ -18,7 +18,7 @@ use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
 use Liip\MetadataParser\Metadata\SerializationMode;
 use Symfony\Component\TypeInfo\Type;
 
-final class JMSTypeParser
+final readonly class JMSTypeParser
 {
     private const string TYPE_ARRAY = 'array';
     private const string TYPE_ENUM = 'enum';

@@ -11,7 +11,7 @@ final class RawClassMetadataRegistry
     /**
      * @var RawClassMetadata[]
      */
-    private $classMetadata = [];
+    private array $classMetadata = [];
 
     public function add(RawClassMetadata $classMetadata): void
     {

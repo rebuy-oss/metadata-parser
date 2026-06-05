@@ -15,7 +15,7 @@ final class RecursionContext implements \Stringable
     /**
      * @var PropertyMetadata[]
      */
-    private $stack = [];
+    private array $stack = [];
 
     public function __construct(private readonly string $root)
     {
@@ -27,7 +27,7 @@ final class RecursionContext implements \Stringable
             return $this->root;
         }
 
-        $stack = array_map(static fn (PropertyMetadata $propertyMetadata) => $propertyMetadata->getSerializedName(), $this->stack);
+        $stack = array_map(static fn (PropertyMetadata $propertyMetadata): string => $propertyMetadata->getSerializedName(), $this->stack);
 
         return \sprintf('%s->%s', $this->root, implode('->', $stack));
     }
@@ -60,7 +60,7 @@ final class RecursionContext implements \Stringable
 
         foreach ($current as $i => $name) {
             if ($stackToCheck[0] === $name) {
-                $valid = array_all($stackToCheck, static fn ($nameToCheck, $j) => !(self::MATCH_EVERYTHING !== $nameToCheck && ($current[$i + (int) $j] ?? null) !== $nameToCheck));
+                $valid = array_all($stackToCheck, static fn ($nameToCheck, $j): bool => !(self::MATCH_EVERYTHING !== $nameToCheck && ($current[$i + (int) $j] ?? null) !== $nameToCheck));
                 if ($valid) {
                     return true;
                 }
