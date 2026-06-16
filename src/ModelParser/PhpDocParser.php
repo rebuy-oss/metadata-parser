@@ -19,7 +19,10 @@ final class PhpDocParser implements ModelParserInterface
 {
     private PhpTypeParser $typeParser;
 
-    public function __construct()
+    /**
+     * @param bool $strict If true, will never attempt to assume nullability. If false, untyped properties will be assumed to be nullable
+     */
+    public function __construct(private bool $strict = true)
     {
         $this->typeParser = new PhpTypeParser();
     }
@@ -90,7 +93,13 @@ final class PhpDocParser implements ModelParserInterface
     private function getPropertyTypeFromDocComment(\ReflectionProperty $reflProperty): ?PropertyType
     {
         try {
-            return $this->typeParser->parseAnnotationType($reflProperty);
+            $propertyType = $this->typeParser->parseAnnotationType($reflProperty);
+
+            if (!$this->strict && (!$reflProperty->hasType() || ('mixed' === (string)$reflProperty->getType()))) {
+                $propertyType = $propertyType->asNullable(true);
+            }
+
+            return $propertyType;
         } catch (InvalidTypeException $e) {
             if ($e->getPrevious() instanceof UnsupportedException) {
                 return null;

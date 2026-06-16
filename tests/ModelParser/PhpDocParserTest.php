@@ -30,9 +30,12 @@ class PhpDocParserTest extends TestCase
      */
     private $parser;
 
+    private ?PhpDocParser $looseParser = null;
+
     protected function setUp(): void
     {
         $this->parser = new PhpDocParser();
+        $this->looseParser = new PhpDocParser(strict: false);
     }
 
     public function testEmpty(): void
@@ -81,6 +84,7 @@ class PhpDocParserTest extends TestCase
             PropertyTypeUnknown::class,
             true,
             'mixed',
+            true,
         ];
 
         yield [
@@ -93,6 +97,7 @@ class PhpDocParserTest extends TestCase
             PropertyTypeUnknown::class,
             true,
             'mixed',
+            true,
         ];
 
         yield [
@@ -102,6 +107,7 @@ class PhpDocParserTest extends TestCase
             PropertyTypeUnknown::class,
             true,
             'mixed',
+            true,
         ];
 
         yield [
@@ -114,6 +120,46 @@ class PhpDocParserTest extends TestCase
             PropertyTypePrimitive::class,
             true,
             'int|null',
+            true,
+        ];
+
+        yield [
+            new class {
+                /**
+                 * @var int
+                 */
+                private $property;
+            },
+            PropertyTypePrimitive::class,
+            true,
+            'int|null',
+            false,
+        ];
+
+        yield [
+            new class {
+                /**
+                 * @var int
+                 */
+                private mixed $property;
+            },
+            PropertyTypePrimitive::class,
+            true,
+            'int|null',
+            false,
+        ];
+
+        yield [
+            new class {
+                /**
+                 * @var int
+                 */
+                private int $property;
+            },
+            PropertyTypePrimitive::class,
+            false,
+            'int',
+            false,
         ];
 
         yield [
@@ -126,16 +172,31 @@ class PhpDocParserTest extends TestCase
             PropertyTypeClass::class,
             true,
             'stdClass|null',
+            true,
+        ];
+
+        yield [
+            new class {
+                /**
+                 * @var \stdClass
+                 */
+                private $property;
+            },
+            PropertyTypeClass::class,
+            true,
+            'stdClass|null',
+            false,
         ];
     }
 
     /**
      * @dataProvider providePropertyCases
      */
-    public function testProperty($c, string $propertyTypeClass, bool $nullable, string $type): void
+    public function testProperty($c, string $propertyTypeClass, bool $nullable, string $type, bool $strict): void
     {
         $classMetadata = new RawClassMetadata(\get_class($c));
-        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+        $parser = $strict ? $this->parser : $this->looseParser;
+        $parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
 
         $props = $classMetadata->getPropertyCollections();
         $this->assertCount(1, $props, 'Number of properties should match');

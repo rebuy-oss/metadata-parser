@@ -2,6 +2,10 @@
 
 # Version 2.x
 
+# 2.4.0
+
+* `PhpDocParser` can be non-strict: a phpdoc on an untyped property can be considered nullable even if the `@var` annotation doesn't say that
+
 # 2.3.0
 
 * Drop support for PHP 8.1
