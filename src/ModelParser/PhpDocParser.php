@@ -95,7 +95,7 @@ final class PhpDocParser implements ModelParserInterface
         try {
             $propertyType = $this->typeParser->parseAnnotationType($reflProperty);
 
-            if (!$this->strict && (!$reflProperty->hasType() || ('mixed' === (string)$reflProperty->getType()))) {
+            if (!$this->strict && (!$reflProperty->hasType() || ('mixed' === (string) $reflProperty->getType()))) {
                 $propertyType = $propertyType->asNullable(true);
             }
 

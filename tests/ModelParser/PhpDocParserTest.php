@@ -152,7 +152,7 @@ class PhpDocParserTest extends TestCase
         yield [
             new class {
                 /**
-                 * @var int
+                 * @var int redundant type tag
                  */
                 private int $property;
             },
