@@ -5,6 +5,7 @@
 # 2.4.0
 
 * `PhpDocParser` can be non-strict: a phpdoc on an untyped property can be considered nullable even if the `@var` annotation doesn't say that
+* Add `DoctrineMetadataParser` to extract information about properties using Doctrine's entity mapping metadata (ORM/ODM). For custom DBAL types, a type mapping from DBAL to a serialization type hint can be used
 
 # 2.3.0
 
