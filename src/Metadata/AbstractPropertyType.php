@@ -30,4 +30,12 @@ abstract class AbstractPropertyType implements PropertyType
     {
         return $this->nullable;
     }
+
+    public function asNullable(bool $nullable = true): self
+    {
+        $self = clone $this;
+        $self->nullable = $nullable;
+
+        return $self;
+    }
 }

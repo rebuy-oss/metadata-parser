@@ -20,7 +20,10 @@ final class PhpDocParser implements ModelParserInterface
      */
     private $typeParser;
 
-    public function __construct()
+    /**
+     * @param bool $strict If true, will never attempt to assume nullability. If false, untyped properties will be assumed to be nullable
+     */
+    public function __construct(private bool $strict = true)
     {
         $this->typeParser = new PhpTypeParser();
     }
@@ -92,7 +95,13 @@ final class PhpDocParser implements ModelParserInterface
     {
         foreach (explode("\n", $docComment) as $line) {
             if (1 === preg_match('/@var ([^ ]+)/', $line, $matches)) {
-                return $this->typeParser->parseAnnotationType($matches[1], $reflProperty->getDeclaringClass());
+                $propertyType = $this->typeParser->parseAnnotationType($matches[1], $reflProperty->getDeclaringClass());
+
+                if (!$this->strict && (!$reflProperty->hasType() || ('mixed' === (string) $reflProperty->getType()))) {
+                    $propertyType = $propertyType->asNullable(true);
+                }
+
+                return $propertyType;
             }
         }
 

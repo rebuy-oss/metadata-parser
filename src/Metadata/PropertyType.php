@@ -22,6 +22,11 @@ interface PropertyType
     public function isNullable(): bool;
 
     /**
+     * Creates a new instance with the given nullability
+     */
+    public function asNullable(bool $nullable = true): self;
+
+    /**
      * Merges another property type into this one.
      *
      * @throws \UnexpectedValueException if the types are not compatible

@@ -34,6 +34,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Parser;
 use Liip\MetadataParser\RecursionChecker;
+use Liip\MetadataParser\ModelParser\DoctrineMetadataParser;
 use Liip\MetadataParser\ModelParser\JMSParser;
 use Liip\MetadataParser\ModelParser\LiipMetadataAnnotationParser;
 use Liip\MetadataParser\ModelParser\PhpDocParser;
@@ -42,7 +43,8 @@ use Liip\MetadataParser\ModelParser\VisibilityAwarePropertyAccessGuesser;
 
 $parser = new Parser(
     new ReflectionParser(),
-    new PhpDocParser(),
+    new PhpDocParser(strict: false),
+    new DoctrineMetadataParser(),
     new JMSParser(new AnnotationReader()),
     new VisibilityAwarePropertyAccessGuesser(),
     new LiipMetadataAnnotationParser(new AnnotationReader()),
