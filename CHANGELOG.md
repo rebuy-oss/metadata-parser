@@ -12,6 +12,11 @@
 * Drop support for PHP 8.1
 * Add support for psalm/phpstan types in docblocks (e.g. `list<string>` or `array<string, int>`)
 
+# 2.2.2
+
+* `PhpDocParser` can be non-strict: a phpdoc on an untyped property can be considered nullable even if the `@var` annotation doesn't say that
+* Add `DoctrineMetadataParser` to extract information about properties using Doctrine's entity mapping metadata (ORM/ODM). For custom DBAL types, a type mapping from DBAL to a serialization type hint can be used
+
 # 2.2.1
 
 * `SnakeCasePropertyNamingStrategy` now allows grouping uppercase letters (i.e. acronyms/abbreviations) instead of
