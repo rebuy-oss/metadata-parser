@@ -2,6 +2,10 @@
 
 # Version 2.x
 
+# 2.2.3
+
+* Make sure the `DoctrineMetadataParser` can handle metadata from version `2.x` and `3.x` of the package `doctrine/orm`
+
 # 2.2.2
 
 * `PhpDocParser` can be non-strict: a phpdoc on an untyped property can be considered nullable even if the `@var` annotation doesn't say that

@@ -4,3 +4,14 @@ parameters:
         - PHP_VERSION_ID
     paths:
         - src/
+    ignoreErrors:
+        # Both errors happen when doctrine/orm 3.x is installed.
+        # Since there is a proper condition that handles this case, we can ignore these errors
+        -
+            message: '#Class Doctrine\\ORM\\Mapping\\ClassMetadataInfo not found#'
+            path: src/ModelParser/DoctrineMetadataParser.php
+            reportUnmatched: false
+        -
+            message: '#unknown class Doctrine\\ORM\\Mapping\\ClassMetadataInfo#'
+            path: src/ModelParser/DoctrineMetadataParser.php
+            reportUnmatched: false
