@@ -30,29 +30,40 @@ If you need, open an issue.
 
 ## Setup
 ```php
-use Doctrine\Common\Annotations\AnnotationReader;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Parser;
 use Liip\MetadataParser\RecursionChecker;
 use Liip\MetadataParser\ModelParser\DoctrineMetadataParser;
 use Liip\MetadataParser\ModelParser\JMSParser;
-use Liip\MetadataParser\ModelParser\LiipMetadataAnnotationParser;
+use Liip\MetadataParser\ModelParser\LiipMetadataAttributeParser;
 use Liip\MetadataParser\ModelParser\PhpDocParser;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\MetadataParser\ModelParser\VisibilityAwarePropertyAccessGuesser;
 
-$parser = new Parser(
+// The Parser takes a list of model parsers and an optional naming strategy.
+$parser = new Parser([
     new ReflectionParser(),
     new PhpDocParser(strict: false),
     new DoctrineMetadataParser(),
-    new JMSParser(new AnnotationReader()),
+    new JMSParser(),
     new VisibilityAwarePropertyAccessGuesser(),
-    new LiipMetadataAnnotationParser(new AnnotationReader()),
-);
+    new LiipMetadataAttributeParser(),
+]);
 
+// The logger is optional and only used to report broken recursions.
 $recursionChecker = new RecursionChecker(new NullLogger());
 
 $builder = new Builder($parser, $recursionChecker);
+```
+
+By default, `JMSParser` reads JMS metadata from PHP attributes (e.g. `#[JMS\Type('string')]`).
+If your models still use the legacy Doctrine annotations (e.g. `@JMS\Type("string")`), install
+`doctrine/annotations` and pass a `Reader` to the parser:
+
+```php
+use Doctrine\Common\Annotations\AnnotationReader;
+
+$jmsParser = new JMSParser(new AnnotationReader());
 ```
 
 ## Usage
@@ -104,8 +115,6 @@ the corresponding strategy to the parser.
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\ModelParser\NamingStrategy\IdenticalPropertyNamingStrategy;
 
-$identicalNamingStrategy = new IdenticalPropertyNamingStrategy();
-
 $parser = new Parser(
     [
         // your parsers
@@ -113,39 +122,36 @@ $parser = new Parser(
     new IdenticalPropertyNamingStrategy()
 );
 
-$builder = new Builder($parser)
+$builder = new Builder($parser, new RecursionChecker());
 ```
 
-*Note*: The default `IdenticalPropertyNamingStrategy` strategy converts `myWORD` to `my_w_o_r_d` which is different from
-what JMS does (`my_word`). If you need the same behavior as in JMS, you can use the static method `IdenticalPropertyNamingStrategy::jmsSnakeCase()`.
+*Note*: By default `SnakeCasePropertyNamingStrategy` converts `myWORD` to `my_w_o_r_d`, which is different from
+what JMS does (`my_word`). If you need the same behavior as in JMS, use the static constructor
+`SnakeCasePropertyNamingStrategy::jmsSnakeCase()` (which groups consecutive uppercase letters).
 
 You can also create your own naming strategy by implementing the `Liip\MetadataParser\ModelParser\NamingStrategy\PropertyNamingStrategyInterface`
 
-### Handling Edge Cases with @Preferred
+### Handling Edge Cases with #[Preferred]
 
-This library provides its own annotation in `Liip\MetadataParser\Annotation\Preferred`
+This library provides its own attribute `Liip\MetadataParser\Attribute\Preferred`
 to specify which property to use in case there are several options. This can be
 useful for example when serializing models without specifying a version, when
 they use different virtual properties in different versions.
 
 ```php
 use JMS\Serializer\Annotation as JMS;
-use Liip\MetadataParser\Annotation as Liip;
+use Liip\MetadataParser\Attribute\Preferred;
 
 class Product
 {
-    /**
-     * @JMS\Since("2")
-     * @JMS\Type("string")
-     */
+    #[JMS\Since('2')]
+    #[JMS\Type('string')]
     public $name;
-    
-    /**
-     * @JMS\Until("1")
-     * @JMS\SerializedName("name")
-     * @JMS\Type("string")
-     * @Liip\Preferred
-     */
+
+    #[JMS\Until('1')]
+    #[JMS\SerializedName('name')]
+    #[JMS\Type('string')]
+    #[Preferred]
     public $legacyName;
 }
 ```
@@ -154,7 +160,7 @@ class Product
 
 #### JMS annotation
 
-If you are using JMS annotations, you can add the `MaxDepth` annotation to 
+If you are using JMS attributes, you can add the `MaxDepth` annotation to 
 properties that might be recursive. 
 
 The following example will tell the metadata parser that the recursion is 
@@ -163,12 +169,10 @@ expected up to a maximum depth of `3`.
 ```php
 use JMS\Serializer\Annotation as JMS;
 
-class RecursionModel 
+class RecursionModel
 {
-    /**
-     * @JMS\MaxDepth(3)
-     * @JMS\Type("RecursionModel")
-     */
+    #[JMS\MaxDepth(3)]
+    #[JMS\Type('RecursionModel')]
     public $recursion;
 }
 ```
@@ -190,7 +194,7 @@ would specify:
 $expectedRecursions = [
     ['variants', 'variants'],
 ];
-$recursionChecker = new RecursionChecker(new NullLogger(), $expectedRecursions);
+$recursionChecker = new RecursionChecker(expectedRecursions: $expectedRecursions);
 ``` 
 
 With this configuration, the `ClassMetadata` found in the property type for the
