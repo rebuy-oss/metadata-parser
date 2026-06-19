@@ -46,10 +46,10 @@ class DoctrineMetadataParserTest extends TestCase
     {
         $c = new EmptyModel();
 
-        $classMetadata = new RawClassMetadata(\get_class($c));
+        $classMetadata = new RawClassMetadata($c::class);
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
 
-        $this->assertSame(\get_class($c), $classMetadata->getClassName());
+        $this->assertSame($c::class, $classMetadata->getClassName());
         $this->assertCount(0, $classMetadata->getPropertyCollections(), 'Number of properties should match');
     }
 
@@ -93,6 +93,7 @@ class DoctrineMetadataParserTest extends TestCase
         $config->setProxyDir(sys_get_temp_dir().'/LiipDoctrineTestProxies');
         $config->setProxyNamespace('Tests\Liip\Doctrine\Proxies');
         $config->setMetadataDriverImpl(new AttributeDriver([__DIR__.'/Model'], true));
+        $config->enableNativeLazyObjects(true);
 
         $conn = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',

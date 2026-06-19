@@ -6,6 +6,7 @@ namespace Liip\MetadataParser\ModelParser;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
@@ -53,8 +54,8 @@ class DoctrineMetadataParser implements ModelParserInterface
     ];
 
     public function __construct(
-        private \Doctrine\Persistence\ManagerRegistry $registry,
-        private JMSTypeParser $typeParser = new JMSTypeParser(),
+        private readonly ManagerRegistry $registry,
+        private readonly JMSTypeParser $typeParser = new JMSTypeParser(),
         protected array $fieldMapping = self::DEFAULT_FIELD_TYPE_MAP,
     ) {
     }
