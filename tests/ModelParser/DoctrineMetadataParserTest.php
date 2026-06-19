@@ -93,7 +93,9 @@ class DoctrineMetadataParserTest extends TestCase
         $config->setProxyDir(sys_get_temp_dir().'/LiipDoctrineTestProxies');
         $config->setProxyNamespace('Tests\Liip\Doctrine\Proxies');
         $config->setMetadataDriverImpl(new AttributeDriver([__DIR__.'/Model'], true));
-        $config->enableNativeLazyObjects(true);
+        if (\PHP_VERSION_ID >= 80400 && method_exists($config, 'enableNativeLazyObjects')) {
+            $config->enableNativeLazyObjects(true);
+        }
 
         $conn = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
