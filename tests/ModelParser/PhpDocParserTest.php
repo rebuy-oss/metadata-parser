@@ -182,7 +182,7 @@ class PhpDocParserTest extends TestCase
             },
             PropertyTypeClass::class,
             true,
-            'stdClass|null',
+            'null|stdClass',
             false,
         ];
     }
