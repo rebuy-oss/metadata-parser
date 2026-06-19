@@ -88,8 +88,12 @@ final readonly class JMSTypeParser
             if (1 === \count($typeInfo['params'])) {
                 $subType = $this->parseType($typeInfo['params'][0], $reflection, true);
 
+                $type = null !== $traversableClass
+                    ? Type::collection(Type::object($traversableClass), value: $subType->getTypeInfo(), key: Type::arrayKey())
+                    : Type::list($subType->getTypeInfo());
+
                 return new PropertyTypeIterable(
-                    Type::list($subType->getTypeInfo()),
+                    $type,
                     $nullable,
                     $subType,
                     $traversableClass,
@@ -99,8 +103,12 @@ final readonly class JMSTypeParser
                 $key = Type::builtin($typeInfo['params'][0]['name']);
                 $subType = $this->parseType($typeInfo['params'][1], $reflection, true);
 
+                $type = null !== $traversableClass
+                    ? Type::collection(Type::object($traversableClass), value: $subType->getTypeInfo(), key: $key)
+                    : Type::array($subType->getTypeInfo(), $key);
+
                 return new PropertyTypeIterable(
-                    Type::array($subType->getTypeInfo(), $key),
+                    $type,
                     $nullable,
                     $subType,
                     $traversableClass,

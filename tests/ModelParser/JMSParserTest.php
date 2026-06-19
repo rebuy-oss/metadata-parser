@@ -169,7 +169,7 @@ class JMSParserTest extends TestCase
             },
             PropertyTypeIterable::class,
             true,
-            'list<string>|null',
+            'Doctrine\Common\Collections\ArrayCollection<int|string, string>|null',
         ];
 
         yield [
@@ -179,7 +179,17 @@ class JMSParserTest extends TestCase
             },
             PropertyTypeIterable::class,
             true,
-            'list<string>|null',
+            'Doctrine\Common\Collections\ArrayCollection<int|string, string>|null',
+        ];
+
+        yield [
+            new class {
+                #[JMS\Type('ArrayCollection<int, string>')]
+                private $property;
+            },
+            PropertyTypeIterable::class,
+            true,
+            'Doctrine\Common\Collections\ArrayCollection<int, string>|null',
         ];
 
         yield [
@@ -189,7 +199,7 @@ class JMSParserTest extends TestCase
             },
             PropertyTypeIterable::class,
             true,
-            'array<string, int>|null',
+            'Doctrine\Common\Collections\ArrayCollection<string, int>|null',
         ];
     }
 
