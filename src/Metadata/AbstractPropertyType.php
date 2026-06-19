@@ -21,7 +21,7 @@ abstract class AbstractPropertyType implements PropertyType
      */
     protected function __construct(
         protected readonly Type $typeInfo,
-        protected readonly bool $nullable,
+        protected bool $nullable,
     ) {
     }
 
@@ -33,6 +33,14 @@ abstract class AbstractPropertyType implements PropertyType
     public function isNullable(): bool
     {
         return $this->nullable;
+    }
+
+    public function asNullable(bool $nullable = true): self
+    {
+        $self = clone $this;
+        $self->nullable = $nullable;
+
+        return $self;
     }
 
     /**
