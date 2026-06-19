@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liip\MetadataParser\ModelParser;
 
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\ClassMetadata as ORMClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
@@ -105,8 +106,9 @@ class DoctrineMetadataParser implements ModelParserInterface
                     if (!$doctrineMetadata->isSingleValuedAssociation($propertyName)) {
                         $otherTypename = \sprintf('ArrayCollection<%s>', $otherTypename);
 
-                        if ($doctrineMetadata instanceof ClassMetadataInfo) {
-                            $associationMapping = $doctrineMetadata->associationMappings[$propertyName];
+                        $metadataClass = class_exists(ORMClassMetadata::class) ? ORMClassMetadata::class : ClassMetadataInfo::class;
+                        if (is_a($doctrineMetadata, $metadataClass, true)) {
+                            $associationMapping = $doctrineMetadata->getAssociationMappings()[$propertyName];
                             $indexBy = $associationMapping['indexBy'] ?? null;
 
                             if (null !== $indexBy && $otherMetadata->hasField($associationMapping['indexBy'])) {
