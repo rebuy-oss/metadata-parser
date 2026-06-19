@@ -112,7 +112,9 @@ class DoctrineMetadataParser implements ModelParserInterface
                     if (!$doctrineMetadata->isSingleValuedAssociation($propertyName)) {
                         $otherTypename = \sprintf('ArrayCollection<%s>', $otherTypename);
 
+                        /* @phpstan-ignore class.notFound */
                         if ($doctrineMetadata instanceof ClassMetadataInfo) {
+                            /* @phpstan-ignore class.notFound */
                             $associationMapping = $doctrineMetadata->associationMappings[$propertyName];
                             $indexBy = $associationMapping['indexBy'] ?? null;
 
