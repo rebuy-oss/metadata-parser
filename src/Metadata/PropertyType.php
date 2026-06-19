@@ -20,6 +20,8 @@ interface PropertyType extends \Stringable
 
     /**
      * Creates a new instance with the given nullability
+     *
+     * @return self<T>
      */
     public function asNullable(bool $nullable = true): self;
 

@@ -19,7 +19,7 @@ class DoctrineMetadataParser implements ModelParserInterface
     /**
      * Map of doctrine 2 field types to JMS\Serializer types, taken from {@link \JMS\Serializer\Metadata\Driver\AbstractDoctrineTypeDriver} (update if needed)
      */
-    public const DEFAULT_FIELD_TYPE_MAP = [
+    public const array DEFAULT_FIELD_TYPE_MAP = [
         'string' => 'string',
         'ascii_string' => 'string',
         'text' => 'string',
@@ -53,6 +53,9 @@ class DoctrineMetadataParser implements ModelParserInterface
         'simple_array' => 'array<string>',
     ];
 
+    /**
+     * @param array<string, string> $fieldMapping
+     */
     public function __construct(
         private readonly ManagerRegistry $registry,
         private readonly JMSTypeParser $typeParser = new JMSTypeParser(),
@@ -60,6 +63,9 @@ class DoctrineMetadataParser implements ModelParserInterface
     ) {
     }
 
+    /**
+     * @param array<string, string> $fieldMapping
+     */
     public function withFieldMapping(array $fieldMapping): self
     {
         return new self($this->registry, $this->typeParser, $fieldMapping);
@@ -124,6 +130,11 @@ class DoctrineMetadataParser implements ModelParserInterface
         }
     }
 
+    /**
+     * @param class-string $className
+     *
+     * @return ClassMetadata<object>|null
+     */
     protected function tryGetDoctrineClassMetadata(string $className): ?ClassMetadata
     {
         $manager = $this->registry->getManagerForClass($className);
