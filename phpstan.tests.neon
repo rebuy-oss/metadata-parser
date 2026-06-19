@@ -8,3 +8,10 @@ parameters:
         - tests/ModelParser/Model/ClassUsingUnionTyping.php
         # looks like phpstan php parser has not implemented union types yet
         - tests/ModelParser/Fixtures/IntersectionTypeDeclarationModel.php
+    ignoreErrors:
+        # The second parameter or this class was only added in version 3.x from the doctrine/orm dependency, so we have
+        # to ignore the error in case 2.x is installed.
+        -
+            message: '#Class Doctrine\\ORM\\Mapping\\Driver\\AttributeDriver constructor invoked with 2 parameters, 1 required.#'
+            path: tests/ModelParser/DoctrineMetadataParserTest.php
+            reportUnmatched: false
