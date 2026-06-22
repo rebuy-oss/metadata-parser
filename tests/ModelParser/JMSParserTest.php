@@ -169,7 +169,7 @@ class JMSParserTest extends TestCase
             },
             PropertyTypeIterable::class,
             true,
-            'Doctrine\Common\Collections\ArrayCollection<int|string, string>|null',
+            'Doctrine\Common\Collections\ArrayCollection<string>|null',
         ];
 
         yield [
@@ -179,7 +179,7 @@ class JMSParserTest extends TestCase
             },
             PropertyTypeIterable::class,
             true,
-            'Doctrine\Common\Collections\ArrayCollection<int|string, string>|null',
+            'Doctrine\Common\Collections\ArrayCollection<string>|null',
         ];
 
         yield [
@@ -216,6 +216,43 @@ class JMSParserTest extends TestCase
         $property = $props[0]->getVariations()[0];
         $this->assertPropertyVariation('property', false, false, $property);
         $this->assertPropertyType($propertyTypeClass, $type, $nullable, $property->getType());
+    }
+
+    #[DataProvider('provideListHashmapDistinctionCases')]
+    public function testListHashmapDistinction(object $c, bool $expectedHashmap): void
+    {
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $property = $classMetadata->getPropertyCollections()[0]->getVariations()[0];
+        $type = $property->getType();
+
+        $this->assertInstanceOf(PropertyTypeIterable::class, $type);
+        $this->assertSame($expectedHashmap, $type->isHashmap());
+    }
+
+    public static function provideListHashmapDistinctionCases(): iterable
+    {
+        // Single-param collections are lists; an explicit key type makes them hashmaps.
+        yield 'plain array list' => [new class {
+            #[JMS\Type('array<string>')]
+            private $property;
+        }, false];
+
+        yield 'plain array hashmap' => [new class {
+            #[JMS\Type('array<int, string>')]
+            private $property;
+        }, true];
+
+        yield 'collection list' => [new class {
+            #[JMS\Type('ArrayCollection<string>')]
+            private $property;
+        }, false];
+
+        yield 'collection hashmap' => [new class {
+            #[JMS\Type('ArrayCollection<string, int>')]
+            private $property;
+        }, true];
     }
 
     public function testNestedProperty(): void

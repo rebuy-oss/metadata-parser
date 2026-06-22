@@ -88,8 +88,10 @@ final readonly class JMSTypeParser
             if (1 === \count($typeInfo['params'])) {
                 $subType = $this->parseType($typeInfo['params'][0], $reflection, true);
 
+                // A single-variable generic (value only, no key) marks this as a list; the
+                // two-variable case below carries an explicit key and marks a hashmap.
                 $type = null !== $traversableClass
-                    ? Type::collection(Type::object($traversableClass), value: $subType->getTypeInfo(), key: Type::arrayKey())
+                    ? Type::collection(Type::generic(Type::object($traversableClass), $subType->getTypeInfo()))
                     : Type::list($subType->getTypeInfo());
 
                 return new PropertyTypeIterable(

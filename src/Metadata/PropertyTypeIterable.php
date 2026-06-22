@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\Metadata;
 
-use Symfony\Component\TypeInfo\Type;
 use Symfony\Component\TypeInfo\Type\CollectionType;
+use Symfony\Component\TypeInfo\Type\GenericType;
+use Symfony\Component\TypeInfo\Type\ObjectType;
 
 /**
  * This property type can be merged with PropertyTypeClass<T>, provided that T is, inherits from, or is a parent class of {@see PropertyTypeIterable::traversableClass}
@@ -35,6 +36,12 @@ final class PropertyTypeIterable extends AbstractPropertyType
 
     public function isHashmap(): bool
     {
+        $wrapped = $this->typeInfo->getWrappedType();
+
+        if ($wrapped instanceof GenericType && $wrapped->getWrappedType() instanceof ObjectType) {
+            return 2 === \count($wrapped->getVariableTypes());
+        }
+
         return !$this->typeInfo->isList();
     }
 
