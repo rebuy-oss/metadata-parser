@@ -68,7 +68,7 @@ final readonly class JMSTypeParser
         if (0 === \count($typeInfo['params']) && self::TYPE_ENUM !== $typeInfo['name']) {
             if (self::TYPE_ARRAY === $typeInfo['name']) {
                 $subType = new PropertyTypeUnknown(false);
-                $typeInfo = Type::list(Type::mixed());
+                $typeInfo = Type::collection(Type::generic(Type::builtin(TypeIdentifier::ARRAY), Type::mixed()));
 
                 return new PropertyTypeIterable($typeInfo, $nullable, $subType);
             }

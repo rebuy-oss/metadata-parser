@@ -45,14 +45,14 @@ class PhpTypeParserTest extends TestCase
         yield [$reflClass->getProperty('stdClassOrNull'), 'null|stdClass'];
         yield [$reflClass->getProperty('dateTime'), 'DateTime'];
         yield [$reflClass->getProperty('dateTimeImmutable'), 'DateTimeImmutable'];
-        yield [$reflClass->getProperty('stringArray'), 'array<int|string, string>'];
-        yield [$reflClass->getProperty('stringTripleArray'), 'array<int|string, array<int|string, array<int|string, string>>>'];
+        yield [$reflClass->getProperty('stringArray'), 'array<string>'];
+        yield [$reflClass->getProperty('stringTripleArray'), 'array<array<array<string>>>'];
         yield [$reflClass->getProperty('stringMap'), 'array<string, string>'];
         yield [$reflClass->getProperty('deepStringMap'), 'array<string, array<string, array<string, string>>>'];
-        yield [$reflClass->getProperty('nestedStringArray'), 'array<int|string, array<string, array<int|string, string>>>'];
-        yield [$reflClass->getProperty('stdClassArrayOrNull'), 'array<int|string, stdClass>|null'];
-        yield [$reflClass->getProperty('stringCollectionOrNull'), 'array<int|string, string>|null'];
-        yield [$reflClass->getProperty('stdClassMap'), 'array<string, array<int|string, stdClass>>'];
+        yield [$reflClass->getProperty('nestedStringArray'), 'array<array<string, array<string>>>'];
+        yield [$reflClass->getProperty('stdClassArrayOrNull'), 'array<stdClass>|null'];
+        yield [$reflClass->getProperty('stringCollectionOrNull'), 'array<string>|null'];
+        yield [$reflClass->getProperty('stdClassMap'), 'array<string, array<stdClass>>'];
         yield [$reflClass->getProperty('stringList'), 'list<string>'];
         yield [$reflClass->getProperty('stringMap'), 'array<string, string>'];
         yield [$reflClass->getProperty('intMap'), 'array<string, int>'];
@@ -62,8 +62,8 @@ class PhpTypeParserTest extends TestCase
     {
         $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);
 
-        yield [$reflClass->getProperty('stringCollection'), 'array<int|string, string>', Collection::class];
-        yield [$reflClass->getProperty('stringArrayCollection'), 'array<int|string, string>', ArrayCollection::class];
+        yield [$reflClass->getProperty('stringCollection'), 'array<string>', Collection::class];
+        yield [$reflClass->getProperty('stringArrayCollection'), 'array<string>', ArrayCollection::class];
         yield [$reflClass->getProperty('hashmapCollection'), 'Doctrine\Common\Collections\ArrayCollection<string, int>', ArrayCollection::class];
     }
 
@@ -110,9 +110,9 @@ class PhpTypeParserTest extends TestCase
         yield [$reflClass->getProperty('sameNamespace'), ReflectionAbstractModel::class];
         yield [$reflClass->getProperty('aliasDifferentNamespace'), RecursionContextTest::class];
         yield [$reflClass->getProperty('aliasSameNamespace'), BaseModel::class];
-        yield [$reflClass->getProperty('arrayNested'), 'array<int|string, '.BaseModel::class.'>'];
+        yield [$reflClass->getProperty('arrayNested'), 'array<'.BaseModel::class.'>'];
         yield [$reflClass->getProperty('stringNestedMap'), 'array<string, '.BaseModel::class.'>'];
-        yield [$reflClass->getProperty('nestedCollection'), 'array<int|string, '.BaseModel::class.'>'];
+        yield [$reflClass->getProperty('nestedCollection'), 'array<'.BaseModel::class.'>'];
     }
 
     #[DataProvider('provideNamespaceResolutionCases')]

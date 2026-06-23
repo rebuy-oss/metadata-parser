@@ -13,6 +13,7 @@ use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 #[Small]
 class PropertyTypeIterableTest extends TestCase
@@ -51,6 +52,56 @@ class PropertyTypeIterableTest extends TestCase
 
         $this->expectException(\UnexpectedValueException::class);
         $list->merge(new PropertyTypeClass(Type::object(Collection::class), true));
+    }
+
+    public function testIsHashMapForGenericsWithoutKey(): void
+    {
+        $subType = new PropertyTypePrimitive(Type::builtin('int'), false);
+        $type = new PropertyTypeIterable(
+            Type::collection(Type::generic(Type::object(ArrayCollection::class), $subType->getTypeInfo())),
+            false,
+            $subType,
+        );
+
+        $result = $type->isHashmap();
+
+        $this->assertFalse($result);
+    }
+
+    public function testIsHashMapForGenericsWithKey(): void
+    {
+        $subType = new PropertyTypePrimitive(Type::builtin('int'), false);
+        $type = new PropertyTypeIterable(
+            Type::collection(Type::generic(Type::object(ArrayCollection::class), Type::int(), $subType->getTypeInfo())),
+            false,
+            $subType,
+        );
+
+        $this->assertTrue($type->isHashmap());
+    }
+
+    public function testIsHashMapForList(): void
+    {
+        $subType = new PropertyTypePrimitive(Type::builtin('int'), false);
+        $type = new PropertyTypeIterable(
+            Type::list($subType->getTypeInfo()),
+            false,
+            $subType,
+        );
+
+        $this->assertFalse($type->isHashmap());
+    }
+
+    public function testIsHashMapForArray(): void
+    {
+        $subType = new PropertyTypePrimitive(Type::builtin('int'), false);
+        $type = new PropertyTypeIterable(
+            Type::collection(Type::generic(Type::builtin(TypeIdentifier::ARRAY), $subType->getTypeInfo())),
+            false,
+            $subType,
+        );
+
+        $this->assertFalse($type->isHashmap());
     }
 
     public function testMergeInterfaceCollectionListWithClassCollection(): void

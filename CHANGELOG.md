@@ -15,6 +15,8 @@
   required, it can still be installed and used by passing the `Reader` to the `JMSParser`.
 * Directly create types and pass them to the `PropertyType*` classes instead of creating them inside the class
 * Add rector-php analysis
+* Fix collection/array type presentation. With this change a type like `array<int>` will be kept as is, instead of
+  adding a default key to it (resulting in `array<int|string, int>`).
 
 # Version 2.x
 

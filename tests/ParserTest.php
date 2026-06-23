@@ -136,7 +136,7 @@ class ParserTest extends TestCase
         $this->assertPropertyCollection('property', 1, $props[0]);
         $property = $props[0]->getVariations()[0];
         $this->assertProperty('property', false, false, $property);
-        $this->assertPropertyType($property->getType(), PropertyTypeIterable::class, 'array<int|string, '.Nested::class.'>', false);
+        $this->assertPropertyType($property->getType(), PropertyTypeIterable::class, 'array<'.Nested::class.'>', false);
         $this->assertPropertyType($property->getType()->getSubType(), PropertyTypeClass::class, Nested::class, false);
 
         // Second class

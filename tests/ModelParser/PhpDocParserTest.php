@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Liip\MetadataParser\ModelParser;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Liip\MetadataParser\Exception\InvalidTypeException;
 use Liip\MetadataParser\Exception\ParseException;
 use Liip\MetadataParser\Metadata\PropertyType;
@@ -257,7 +258,7 @@ class PhpDocParserTest extends TestCase
         $this->assertPropertyCollection('property', 1, $props[0]);
         $property = $props[0]->getVariations()[0];
         $this->assertProperty('property', true, false, $property);
-        $this->assertPropertyType(PropertyTypeIterable::class, 'array<int|string, string>', false, $property->getType());
+        $this->assertPropertyType(PropertyTypeIterable::class, 'array<string>', false, $property->getType());
     }
 
     public function testInheritedProperty(): void
@@ -315,6 +316,66 @@ class PhpDocParserTest extends TestCase
         $property = $props[0]->getVariations()[0];
         $this->assertProperty('property1', false, false, $property);
         $this->assertPropertyType(PropertyTypeIterable::class, 'list<string>', false, $property->getType());
+    }
+
+    public function testCollection(): void
+    {
+        $c = new class {
+            /**
+             * @var ArrayCollection<string>
+             */
+            private array $property1;
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $props = $classMetadata->getPropertyCollections();
+        $this->assertCount(1, $props, 'Number of properties should match');
+
+        $this->assertPropertyCollection('property1', 1, $props[0]);
+        $property = $props[0]->getVariations()[0];
+        $this->assertProperty('property1', false, false, $property);
+        $this->assertPropertyType(PropertyTypeIterable::class, ArrayCollection::class.'<string>', false, $property->getType());
+        $this->assertFalse($property->getType()->isHashmap());
+    }
+
+    public function testCollectionListIsNotHashmap(): void
+    {
+        $c = new class {
+            /**
+             * @var ArrayCollection<string>
+             */
+            private $property;
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $type = $classMetadata->getPropertyCollections()[0]->getVariations()[0]->getType();
+        $this->assertInstanceOf(PropertyTypeIterable::class, $type);
+        $this->assertTrue($type->isTraversable());
+        // A single-param collection is a list, even though symfony injects an int|string key.
+        $this->assertFalse($type->isHashmap());
+    }
+
+    public function testCollectionHashmap(): void
+    {
+        $c = new class {
+            /**
+             * @var ArrayCollection<string, string>
+             */
+            private $property;
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $type = $classMetadata->getPropertyCollections()[0]->getVariations()[0]->getType();
+        $this->assertInstanceOf(PropertyTypeIterable::class, $type);
+        $this->assertTrue($type->isTraversable());
+        // An explicit key type makes it a hashmap.
+        $this->assertTrue($type->isHashmap());
     }
 
     public function testNestedProperty(): void

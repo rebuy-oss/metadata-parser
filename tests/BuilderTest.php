@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace Tests\Liip\MetadataParser;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\UnionDiscriminator;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
 use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeEnum;
+use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
 use Liip\MetadataParser\Metadata\PropertyTypeUnion;
 use Liip\MetadataParser\ModelParser\JMSParser;
@@ -90,6 +94,44 @@ class BuilderTest extends TestCase
         $this->assertCount(1, $props, 'Number of properties should match');
 
         $this->assertProperty('myProperty', 'myProperty', true, false, $props[0]);
+    }
+
+    public function testCollectionDocblockCompatibility(): void
+    {
+        $c = new class {
+            /**
+             * @var ArrayCollection<string>
+             */
+            #[Type('ArrayCollection<string>')]
+            public Collection $myProperty;
+        };
+
+        $classMetadata = $this->builder->build($c::class);
+
+        $props = $classMetadata->getProperties();
+        $this->assertCount(1, $props, 'Number of properties should match');
+
+        $this->assertProperty('myProperty', 'my_property', true, false, $props[0]);
+        $this->assertPropertyType($props[0]->getType(), PropertyTypeIterable::class, 'Doctrine\Common\Collections\ArrayCollection<string>', false);
+    }
+
+    public function testArrayDocblockCompatibility(): void
+    {
+        $c = new class {
+            /**
+             * @var string[]
+             */
+            #[Type('array<string>')]
+            public array $myProperty;
+        };
+
+        $classMetadata = $this->builder->build($c::class);
+
+        $props = $classMetadata->getProperties();
+        $this->assertCount(1, $props, 'Number of properties should match');
+
+        $this->assertProperty('myProperty', 'my_property', true, false, $props[0]);
+        $this->assertPropertyType($props[0]->getType(), PropertyTypeIterable::class, 'array<string>', false);
     }
 
     public function testDiscriminatorClassMetadataList(): void

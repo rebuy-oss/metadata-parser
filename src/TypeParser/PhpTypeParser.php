@@ -7,21 +7,31 @@ namespace Liip\MetadataParser\TypeParser;
 use Liip\MetadataParser\Exception\InvalidTypeException;
 use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
+use Liip\MetadataParser\TypeResolver\LiipStringTypeResolver;
+use PHPStan\PhpDocParser\Parser\PhpDocParser;
 use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\TypeContext\TypeContextFactory;
+use Symfony\Component\TypeInfo\TypeResolver\PhpDocAwareReflectionTypeResolver;
+use Symfony\Component\TypeInfo\TypeResolver\ReflectionParameterTypeResolver;
+use Symfony\Component\TypeInfo\TypeResolver\ReflectionPropertyTypeResolver;
+use Symfony\Component\TypeInfo\TypeResolver\ReflectionReturnTypeResolver;
+use Symfony\Component\TypeInfo\TypeResolver\ReflectionTypeResolver;
+use Symfony\Component\TypeInfo\TypeResolver\StringTypeResolver;
 use Symfony\Component\TypeInfo\TypeResolver\TypeResolver;
+use Symfony\Component\TypeInfo\TypeResolver\TypeResolverInterface;
 
 /**
  * @internal
  */
 final readonly class PhpTypeParser
 {
-    private TypeResolver $stringTypeResolver;
+    private TypeResolverInterface $stringTypeResolver;
 
     private TypeWrapperFactory $wrapperFactory;
 
-    public function __construct(?TypeResolver $typeResolver = null, ?TypeWrapperFactory $wrapperFactory = null)
+    public function __construct(?TypeResolverInterface $typeResolver = null, ?TypeWrapperFactory $wrapperFactory = null)
     {
-        $this->stringTypeResolver = $typeResolver ?? TypeResolver::create();
+        $this->stringTypeResolver = $typeResolver ?? $this->createTypeResolver();
         $this->wrapperFactory = $wrapperFactory ?? new TypeWrapperFactory();
     }
 
@@ -69,5 +79,39 @@ final readonly class PhpTypeParser
         }
 
         return $this->wrapperFactory->fromType($type);
+    }
+
+    private function createTypeResolver(): TypeResolverInterface
+    {
+        if (!class_exists(PhpDocParser::class)) {
+            return TypeResolver::create();
+        }
+
+        $stringTypeResolver = new StringTypeResolver();
+        $typeContextFactory = new TypeContextFactory($stringTypeResolver);
+        $liipStringTypeResolver = new LiipStringTypeResolver($stringTypeResolver);
+        $reflectionTypeResolver = new ReflectionTypeResolver();
+
+        $resolvers = [
+            \ReflectionType::class => $reflectionTypeResolver,
+            \ReflectionParameter::class => new PhpDocAwareReflectionTypeResolver(
+                new ReflectionParameterTypeResolver($reflectionTypeResolver, $typeContextFactory),
+                $liipStringTypeResolver,
+                $typeContextFactory,
+            ),
+            \ReflectionProperty::class => new PhpDocAwareReflectionTypeResolver(
+                new ReflectionPropertyTypeResolver($reflectionTypeResolver, $typeContextFactory),
+                $liipStringTypeResolver,
+                $typeContextFactory,
+            ),
+            \ReflectionFunctionAbstract::class => new PhpDocAwareReflectionTypeResolver(
+                new ReflectionReturnTypeResolver($reflectionTypeResolver, $typeContextFactory),
+                $liipStringTypeResolver,
+                $typeContextFactory,
+            ),
+            'string' => $liipStringTypeResolver,
+        ];
+
+        return TypeResolver::create($resolvers);
     }
 }
