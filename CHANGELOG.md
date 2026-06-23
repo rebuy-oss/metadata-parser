@@ -17,6 +17,7 @@
 * Add rector-php analysis
 * Fix collection/array type presentation. With this change a type like `array<int>` will be kept as is, instead of
   adding a default key to it (resulting in `array<int|string, int>`).
+* Add support for `list` type from JMS
 
 # Version 2.x
 

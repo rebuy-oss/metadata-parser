@@ -17,10 +17,13 @@ use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
 use Liip\MetadataParser\Metadata\SerializationMode;
 use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\Type\BuiltinType;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 final readonly class JMSTypeParser
 {
     private const string TYPE_ARRAY = 'array';
+    private const string TYPE_LIST = 'list';
     private const string TYPE_ENUM = 'enum';
     private const string TYPE_ARRAY_COLLECTION = 'ArrayCollection';
     private const string TYPE_GENERATOR = 'Generator';
@@ -68,7 +71,15 @@ final readonly class JMSTypeParser
         if (0 === \count($typeInfo['params']) && self::TYPE_ENUM !== $typeInfo['name']) {
             if (self::TYPE_ARRAY === $typeInfo['name']) {
                 $subType = new PropertyTypeUnknown(false);
-                $typeInfo = Type::collection(Type::generic(Type::builtin(TypeIdentifier::ARRAY), Type::mixed()));
+                $mainType = new BuiltinType(TypeIdentifier::ARRAY);
+                $typeInfo = Type::collection(Type::generic($mainType, Type::mixed()));
+
+                return new PropertyTypeIterable($typeInfo, $nullable, $subType);
+            }
+
+            if (self::TYPE_LIST === $typeInfo['name']) {
+                $subType = new PropertyTypeUnknown(false);
+                $typeInfo = Type::list(Type::mixed());
 
                 return new PropertyTypeIterable($typeInfo, $nullable, $subType);
             }
@@ -90,9 +101,10 @@ final readonly class JMSTypeParser
 
                 // A single-variable generic (value only, no key) marks this as a list; the
                 // two-variable case below carries an explicit key and marks a hashmap.
+                $mainType = new BuiltinType(TypeIdentifier::ARRAY);
                 $type = null !== $traversableClass
                     ? Type::collection(Type::generic(Type::object($traversableClass), $subType->getTypeInfo()))
-                    : Type::list($subType->getTypeInfo());
+                    : Type::collection(Type::generic($mainType, $subType->getTypeInfo()));
 
                 return new PropertyTypeIterable(
                     $type,
@@ -118,6 +130,13 @@ final readonly class JMSTypeParser
             }
 
             throw new InvalidTypeException(\sprintf('JMS property type array can\'t have more than 2 parameters (%s)', var_export($typeInfo, true)));
+        }
+
+        if (self::TYPE_LIST === $typeInfo['name']) {
+            $subType = $this->parseType($typeInfo['params'][0], $reflection, true);
+            $type = Type::list($subType->getTypeInfo());
+
+            return new PropertyTypeIterable($type, $nullable, $subType);
         }
 
         if (PropertyTypeDateTime::isTypeDateTime($typeInfo['name'])) {

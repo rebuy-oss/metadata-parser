@@ -846,7 +846,7 @@ class JMSParserTest extends TestCase
 
         $this->assertPropertyCollection('foo', 1, $props[0]);
         $property = $props[0]->getVariations()[0];
-        $this->assertPropertyType(PropertyTypeIterable::class, 'array<int|string, string>', false, $property->getType());
+        $this->assertPropertyType(PropertyTypeIterable::class, 'array<string>', false, $property->getType());
     }
 
     public function testVirtualPropertyWithConflictingReturnDocBlock(): void
