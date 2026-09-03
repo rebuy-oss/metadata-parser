@@ -15,7 +15,7 @@ use Liip\MetadataParser\TypeParser\PhpTypeParser;
 
 final class ReflectionParser implements ModelParserInterface
 {
-    private const SUPPORTED_UNION_TYPES = [
+    private const SUPPORTED_UNION_SCALAR_TYPES = [
         'int',
         'float',
         'double',
@@ -115,7 +115,11 @@ final class ReflectionParser implements ModelParserInterface
     {
         $supportedTypes = [];
         foreach ($reflectionUnionType->getTypes() as $type) {
-            if (\in_array($type->getName(), self::SUPPORTED_UNION_TYPES, true)) {
+            if (!$type instanceof \ReflectionNamedType) {
+                continue;
+            }
+
+            if (!$type->isBuiltin() || \in_array($type->getName(), self::SUPPORTED_UNION_SCALAR_TYPES, true)) {
                 $supportedTypes[] = $type;
             }
         }
