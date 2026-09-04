@@ -24,6 +24,8 @@ use Tests\Liip\MetadataParser\ModelParser\Fixtures\IntersectionTypeDeclarationMo
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\TypeDeclarationModel;
 use Tests\Liip\MetadataParser\ModelParser\Fixtures\UnionTypeDeclarationModel;
+use Tests\Liip\MetadataParser\ModelParser\Model\Course;
+use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 use Tests\Liip\MetadataParser\ModelParser\Model\ReflectionBaseModel;
 
 /**
@@ -134,7 +136,8 @@ class ReflectionParserTest extends TestCase
         $this->assertPropertyCollection('property1', 1, $props[0]);
         $property1 = $props[0]->getVariations()[0];
         $this->assertProperty('property1', false, false, $property1);
-        $this->assertPropertyType($property1->getType(), PropertyTypeUnknown::class, 'mixed', true);
+        $this->assertPropertyType($property1->getType(), PropertyTypeUnion::class, Course::class.'|'.Nested::class, false);
+        $this->assertCount(0, $property1->getType()->getTypeMap());
 
         $this->assertPropertyCollection('property2', 1, $props[1]);
         $property2 = $props[1]->getVariations()[0];

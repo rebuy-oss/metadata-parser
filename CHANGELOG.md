@@ -13,6 +13,10 @@
 * Drop support for PHP 8.1
 * Add support for psalm/phpstan types in docblocks (e.g. `list<string>` or `array<string, int>`)
 
+# 2.2.4
+
+* Add class union types in reflection parser in order to support serialization without using a `UnionDiscrimnator` attribute.
+
 # 2.2.3
 
 * Make sure the `DoctrineMetadataParser` can handle metadata from version `2.x` and `3.x` of the package `doctrine/orm`

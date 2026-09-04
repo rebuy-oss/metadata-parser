@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Liip\MetadataParser\ModelParser\Fixtures;
 
-use Liip\MetadataParser\ModelParser\ReflectionParser;
-use Tests\Liip\MetadataParser\ModelParser\ReflectionParserTest;
+use Tests\Liip\MetadataParser\ModelParser\Model\Course;
+use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
 
 class UnionTypeDeclarationModel
 {
-    protected ReflectionParserTest|ReflectionParser $property1;
+    protected Course|Nested $property1;
 
     public int|string|array|false|null $property2;
 }
