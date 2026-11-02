@@ -2,6 +2,10 @@
 
 # Version 2.x
 
+# 2.5.0
+
+* Support JMS `SkipWhenEmpty` on properties. `PropertyMetadata::isSkipWhenEmpty()` exposes the flag.
+
 # 2.4.0
 
 * Features which landed in this release got backported to `2.2.2`

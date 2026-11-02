@@ -44,6 +44,8 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable
      */
     private $maxDepth;
 
+    private bool $skipWhenEmpty = false;
+
     /**
      * Hashmap of custom information about this property.
      *
@@ -139,6 +141,7 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable
             'is_public' => $this->public,
             'is_read_only' => $this->readOnly,
             'max_depth' => $this->maxDepth,
+            'skip_when_empty' => $this->skipWhenEmpty,
         ];
 
         if (\count($this->groups) > 0) {
@@ -209,5 +212,15 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable
     protected function setMaxDepth(?int $maxDepth): void
     {
         $this->maxDepth = $maxDepth;
+    }
+
+    public function isSkipWhenEmpty(): bool
+    {
+        return $this->skipWhenEmpty;
+    }
+
+    protected function setSkipWhenEmpty(bool $skipWhenEmpty): void
+    {
+        $this->skipWhenEmpty = $skipWhenEmpty;
     }
 }
