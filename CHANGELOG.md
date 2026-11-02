@@ -2,6 +2,10 @@
 
 # Version 2.x
 
+# 2.2.5
+
+* Support JMS `SkipWhenEmpty` on properties. `PropertyMetadata::isSkipWhenEmpty()` exposes the flag.
+
 # 2.2.4
 
 * Add class union types in reflection parser in order to support serialization without using a `UnionDiscrimnator` attribute.

@@ -97,6 +97,11 @@ final class PropertyVariationMetadata extends AbstractPropertyMetadata
         parent::setMaxDepth($maxDepth);
     }
 
+    public function setSkipWhenEmpty(bool $skipWhenEmpty): void
+    {
+        parent::setSkipWhenEmpty($skipWhenEmpty);
+    }
+
     /**
      * The value can be anything that the consumer understands.
      *
