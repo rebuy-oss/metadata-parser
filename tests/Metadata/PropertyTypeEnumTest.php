@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Liip\MetadataParser\Metadata;
 
+use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeEnum;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
+use Liip\MetadataParser\Metadata\SerializationMode;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\TypeInfo\Type;
@@ -15,6 +17,19 @@ use Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum;
 #[Small]
 class PropertyTypeEnumTest extends TestCase
 {
+    public function testMergeWithClassOfSameEnum(): void
+    {
+        $enum = new PropertyTypeEnum(Type::enum(SuitEnum::class), true, SerializationMode::Name);
+        $class = new PropertyTypeClass(Type::object(SuitEnum::class), true);
+
+        foreach ([$enum->merge($class), $class->merge($enum)] as $merged) {
+            $this->assertInstanceOf(PropertyTypeEnum::class, $merged);
+            $this->assertSame(SuitEnum::class, $merged->getClassName());
+            $this->assertSame('string', $merged->getBackingType());
+            $this->assertSame(SerializationMode::Name, $merged->getSerializationMode());
+        }
+    }
+
     public function testToStringBackedEnum(): void
     {
         $type = new PropertyTypeEnum(Type::enum(SuitEnum::class), false);

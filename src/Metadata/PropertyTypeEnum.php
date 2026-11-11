@@ -60,6 +60,10 @@ final class PropertyTypeEnum extends AbstractPropertyType
             return new self($this->typeInfo, $nullable, $this->serializationMode);
         }
 
+        if ($other instanceof PropertyTypeClass && $this->getClassName() === $other->getClassName()) {
+            return new self($this->typeInfo, $nullable, $this->serializationMode);
+        }
+
         if (!$other instanceof self) {
             throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same or unknown', self::class, $other::class));
         }
