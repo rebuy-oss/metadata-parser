@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Liip\MetadataParser\Metadata;
 
+use Liip\MetadataParser\Metadata\DateTimeOptions;
 use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeDateTime;
@@ -147,6 +148,43 @@ class PropertyTypeTest extends TestCase
         $merged = $array->merge($hashmap);
         $this->assertInstanceOf(PropertyTypeIterable::class, $merged);
         $this->assertTrue($merged->isHashmap());
+    }
+
+    public function testMergeDateTimeWithDateTimeImmutableSubclass(): void
+    {
+        $subclass = new class extends \DateTimeImmutable {};
+        $dateTime = new PropertyTypeDateTime(Type::object(\DateTimeImmutable::class), true, new DateTimeOptions('Y-m-d', null, null));
+        $class = new PropertyTypeClass(Type::object($subclass::class), true);
+
+        /** @var PropertyTypeDateTime $merged */
+        $merged = $dateTime->merge($class);
+        $this->assertInstanceOf(PropertyTypeDateTime::class, $merged);
+        $this->assertSame($subclass::class, $merged->getClassName());
+        $this->assertTrue($merged->isImmutable());
+        $this->assertSame('Y-m-d', $merged->getFormat());
+    }
+
+    public function testMergeDateTimeWithDateTimeSubclass(): void
+    {
+        $subclass = new class extends \DateTime {};
+        $dateTime = new PropertyTypeDateTime(Type::object(\DateTime::class), true);
+        $class = new PropertyTypeClass(Type::object($subclass::class), true);
+
+        /** @var PropertyTypeDateTime $merged */
+        $merged = $dateTime->merge($class);
+        $this->assertInstanceOf(PropertyTypeDateTime::class, $merged);
+        $this->assertSame($subclass::class, $merged->getClassName());
+        $this->assertFalse($merged->isImmutable());
+    }
+
+    public function testMergeDateTimeWithDateTimeImmutableSubclassFails(): void
+    {
+        $subclass = new class extends \DateTimeImmutable {};
+        $dateTime = new PropertyTypeDateTime(Type::object(\DateTime::class), true);
+        $class = new PropertyTypeClass(Type::object($subclass::class), true);
+
+        $this->expectException(\UnexpectedValueException::class);
+        $dateTime->merge($class);
     }
 
     public function testMergeInvalidTypes(): void

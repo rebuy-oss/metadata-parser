@@ -26,7 +26,7 @@ final class PropertyTypeDateTime extends PropertyTypeClass
         bool $nullable,
         private readonly ?DateTimeOptions $dateTimeOptions = null,
     ) {
-        if (!self::isTypeDateTime($type->getClassName())) {
+        if (!is_a($type->getClassName(), \DateTimeInterface::class, true)) {
             throw new \UnexpectedValueException(\sprintf('Given type "%s" is not date time class or interface', $type->getClassName()));
         }
 
@@ -35,7 +35,7 @@ final class PropertyTypeDateTime extends PropertyTypeClass
 
     public function isImmutable(): bool
     {
-        return \DateTimeImmutable::class === $this->getClassName();
+        return is_a($this->getClassName(), \DateTimeImmutable::class, true);
     }
 
     public function getFormat(): ?string
@@ -64,7 +64,12 @@ final class PropertyTypeDateTime extends PropertyTypeClass
             return new self($this->typeInfo, $nullable, $this->dateTimeOptions);
         }
         if (PropertyTypeClass::class === $other::class && is_a($other->getClassName(), \DateTimeInterface::class, true)) {
-            return new self(Type::object($other->getClassName()), $nullable, $this->dateTimeOptions);
+            $merged = new self(Type::object($other->getClassName()), $nullable, $this->dateTimeOptions);
+            if ($this->isImmutable() !== $merged->isImmutable()) {
+                throw new \UnexpectedValueException("Can't merge type '{$this}' with '{$other}', they must be equal");
+            }
+
+            return $merged;
         }
         if (!$other instanceof self) {
             throw new \UnexpectedValueException("Can't merge type '{$this}' with '{$other}', they must be the same or unknown");
