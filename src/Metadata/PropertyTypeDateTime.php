@@ -8,9 +8,9 @@ use Symfony\Component\TypeInfo\Type;
 use Symfony\Component\TypeInfo\Type\ObjectType;
 
 /**
- * @extends PropertyTypeClass<ObjectType<\DateTimeInterface>>
+ * @extends AbstractPropertyType<ObjectType<\DateTimeInterface>, bool>
  */
-final class PropertyTypeDateTime extends PropertyTypeClass
+final class PropertyTypeDateTime extends AbstractPropertyType
 {
     private const array DATE_TIME_TYPES = [
         \DateTime::class,
@@ -31,6 +31,14 @@ final class PropertyTypeDateTime extends PropertyTypeClass
         }
 
         parent::__construct($type, $nullable);
+    }
+
+    /**
+     * @return class-string<\DateTimeInterface>
+     */
+    public function getClassName(): string
+    {
+        return $this->typeInfo->getClassName();
     }
 
     public function isImmutable(): bool
@@ -63,7 +71,7 @@ final class PropertyTypeDateTime extends PropertyTypeClass
         if ($other instanceof PropertyTypeUnknown) {
             return new self($this->typeInfo, $nullable, $this->dateTimeOptions);
         }
-        if (PropertyTypeClass::class === $other::class && is_a($other->getClassName(), \DateTimeInterface::class, true)) {
+        if ($other instanceof PropertyTypeClass && is_a($other->getClassName(), \DateTimeInterface::class, true)) {
             return new self(Type::object($other->getClassName()), $other->isNullable())->merge($this);
         }
         if (!$other instanceof self) {

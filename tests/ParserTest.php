@@ -19,6 +19,7 @@ use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\MetadataParser\Parser;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
+use Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum;
 use Tests\Liip\MetadataParser\ModelParser\Model\Car;
 use Tests\Liip\MetadataParser\ModelParser\Model\ClassWithVehicleProperty;
 use Tests\Liip\MetadataParser\ModelParser\Model\Moped;
@@ -43,6 +44,22 @@ class ParserTest extends TestCase
     {
         $this->expectException(ParseException::class);
         $this->parser->parse('__invalid__');
+    }
+
+    public function testDateTimeAndEnumAreNotParsedAsModels(): void
+    {
+        $c = new class {
+            public \DateTime $dateTime;
+
+            public \DateTimeImmutable $dateTimeImmutable;
+
+            public SuitEnum $suit;
+        };
+
+        $classMetadataList = $this->parser->parse($c::class);
+
+        $this->assertCount(1, $classMetadataList, 'Number of class metadata should match');
+        $this->assertSame($c::class, $classMetadataList[0]->getClassName());
     }
 
     public function testSimple(): void
