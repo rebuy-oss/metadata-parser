@@ -526,17 +526,15 @@ final readonly class JMSParser implements ModelParserInterface
 
         $attributes = $this->buildAttributes($attributes);
 
-        if (null !== $this->annotationReader) {
-            $annotations = match (true) {
-                $reflection instanceof \ReflectionClass => $this->annotationReader->getClassAnnotations($reflection),
-                $reflection instanceof \ReflectionMethod => $this->annotationReader->getMethodAnnotations($reflection),
-                $reflection instanceof \ReflectionProperty => $this->annotationReader->getPropertyAnnotations($reflection),
-            };
-
-            $attributes = array_merge($attributes, $annotations);
+        if ([] !== $attributes || null === $this->annotationReader) {
+            return $attributes;
         }
 
-        return $attributes;
+        return match (true) {
+            $reflection instanceof \ReflectionClass => $this->annotationReader->getClassAnnotations($reflection),
+            $reflection instanceof \ReflectionMethod => $this->annotationReader->getMethodAnnotations($reflection),
+            $reflection instanceof \ReflectionProperty => $this->annotationReader->getPropertyAnnotations($reflection),
+        };
     }
 
     /**
