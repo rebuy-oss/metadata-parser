@@ -138,6 +138,17 @@ class PropertyTypeTest extends TestCase
         $hashmap->merge($array);
     }
 
+    public function testUpgradeToHashmapWithUnknownSubType(): void
+    {
+        $array = self::list('bool', true);
+        $hashmap = new PropertyTypeIterable(Type::dict(), true, new PropertyTypeUnknown(false));
+
+        /** @var PropertyTypeIterable $merged */
+        $merged = $array->merge($hashmap);
+        $this->assertInstanceOf(PropertyTypeIterable::class, $merged);
+        $this->assertTrue($merged->isHashmap());
+    }
+
     public function testMergeInvalidTypes(): void
     {
         $types = $this->getDifferentTypes();
