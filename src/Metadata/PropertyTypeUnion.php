@@ -39,6 +39,16 @@ final class PropertyTypeUnion extends AbstractPropertyType
     }
 
     /**
+     * @param PropertyType<*>[] $types
+     */
+    public static function fromTypes(array $types, bool $nullable): self
+    {
+        $typeInfos = array_map(static fn (PropertyType $type): Type => $type->getTypeInfo(), $types);
+
+        return new self(Type::union(...$typeInfos), $nullable, $types);
+    }
+
+    /**
      * @return PropertyType<*>[]
      */
     public function getTypes(): array
@@ -119,12 +129,9 @@ final class PropertyTypeUnion extends AbstractPropertyType
             $mergedTypes[$type->__toString()] = $type;
         }
 
-        $mergedTypes = array_values($mergedTypes);
-        $typeInfos = array_map(static fn (PropertyType $type): Type => $type->getTypeInfo(), $mergedTypes);
-        $unionType = Type::union(...$typeInfos);
         $nullable = $this->isNullable() && $other->isNullable();
 
-        $mergedPropertyType = new self($unionType, $nullable, $mergedTypes);
+        $mergedPropertyType = self::fromTypes(array_values($mergedTypes), $nullable);
 
         $mergedTypeMap = [...$this->getTypeMap(), ...$other->getTypeMap()];
         $mergedPropertyType->setTypeMap($mergedTypeMap);

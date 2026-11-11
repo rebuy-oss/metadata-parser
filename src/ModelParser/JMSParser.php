@@ -299,10 +299,7 @@ final readonly class JMSParser implements ModelParserInterface
                         $types[] = $this->jmsTypeParser->parse($value, $reflection, true);
                     }
 
-                    $typeInfos = array_map(static fn (PropertyType $t): SymfonyType => $t->getTypeInfo(), $types);
-                    $unionType = SymfonyType::union(...$typeInfos);
-
-                    $type = new PropertyTypeUnion($unionType, $isNullable, $types);
+                    $type = PropertyTypeUnion::fromTypes($types, $isNullable);
                     $type->setFieldName($attribute->field);
                     $type->setTypeMap($attribute->map);
 
