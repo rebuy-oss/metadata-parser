@@ -64,23 +64,24 @@ final class PropertyTypeDateTime extends PropertyTypeClass
             return new self($this->typeInfo, $nullable, $this->dateTimeOptions);
         }
         if (PropertyTypeClass::class === $other::class && is_a($other->getClassName(), \DateTimeInterface::class, true)) {
-            $merged = new self(Type::object($other->getClassName()), $nullable, $this->dateTimeOptions);
-            if ($this->isImmutable() !== $merged->isImmutable()) {
-                throw new \UnexpectedValueException("Can't merge type '{$this}' with '{$other}', they must be equal");
-            }
-
-            return $merged;
+            return new self(Type::object($other->getClassName()), $other->isNullable())->merge($this);
         }
         if (!$other instanceof self) {
             throw new \UnexpectedValueException("Can't merge type '{$this}' with '{$other}', they must be the same or unknown");
         }
-        if ($this->isImmutable() !== $other->isImmutable()) {
+        if (!$this->isInterface() && !$other->isInterface() && $this->isImmutable() !== $other->isImmutable()) {
             throw new \UnexpectedValueException("Can't merge type '{$this}' with '{$other}', they must be equal");
         }
 
         $options = $this->dateTimeOptions ?: $other->dateTimeOptions;
+        $typeInfo = $this->isInterface() ? $other->typeInfo : $this->typeInfo;
 
-        return new self($this->typeInfo, $nullable, $options);
+        return new self($typeInfo, $nullable, $options);
+    }
+
+    private function isInterface(): bool
+    {
+        return \DateTimeInterface::class === $this->getClassName();
     }
 
     /**

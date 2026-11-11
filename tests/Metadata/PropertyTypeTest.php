@@ -177,6 +177,40 @@ class PropertyTypeTest extends TestCase
         $this->assertFalse($merged->isImmutable());
     }
 
+    public static function provideDateTimeInterfaceMergeCases(): iterable
+    {
+        yield [\DateTime::class, false];
+        yield [\DateTimeImmutable::class, true];
+        yield [(new class extends \DateTimeImmutable {})::class, true];
+    }
+
+    #[DataProvider('provideDateTimeInterfaceMergeCases')]
+    public function testMergeDateTimeInterfaceWithClass(string $className, bool $expectedImmutable): void
+    {
+        $interface = new PropertyTypeDateTime(Type::object(\DateTimeInterface::class), true);
+        $class = new PropertyTypeClass(Type::object($className), true);
+
+        /** @var PropertyTypeDateTime $merged */
+        $merged = $interface->merge($class);
+        $this->assertInstanceOf(PropertyTypeDateTime::class, $merged);
+        $this->assertSame($className, $merged->getClassName());
+        $this->assertSame($expectedImmutable, $merged->isImmutable());
+    }
+
+    #[DataProvider('provideDateTimeInterfaceMergeCases')]
+    public function testMergeDateTimeInterfaceWithDateTime(string $className, bool $expectedImmutable): void
+    {
+        $interface = new PropertyTypeDateTime(Type::object(\DateTimeInterface::class), true);
+        $dateTime = new PropertyTypeDateTime(Type::object($className), true, new DateTimeOptions('Y-m-d', null, null));
+
+        foreach ([$interface->merge($dateTime), $dateTime->merge($interface)] as $merged) {
+            $this->assertInstanceOf(PropertyTypeDateTime::class, $merged);
+            $this->assertSame($className, $merged->getClassName());
+            $this->assertSame($expectedImmutable, $merged->isImmutable());
+            $this->assertSame('Y-m-d', $merged->getFormat());
+        }
+    }
+
     public function testMergeDateTimeWithDateTimeImmutableSubclassFails(): void
     {
         $subclass = new class extends \DateTimeImmutable {};
