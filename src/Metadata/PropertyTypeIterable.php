@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\Metadata;
 
+use Symfony\Component\TypeInfo\Type\BuiltinType;
 use Symfony\Component\TypeInfo\Type\CollectionType;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 /**
  * This property type can be merged with PropertyTypeClass<T>, provided that T is, inherits from, or is a parent class of {@see PropertyTypeIterable::traversableClass}
@@ -34,7 +36,11 @@ final class PropertyTypeIterable extends AbstractPropertyType
 
     public function isHashmap(): bool
     {
-        return !$this->typeInfo->isList();
+        $keyType = $this->typeInfo->getCollectionKeyType();
+
+        return !$this->typeInfo->isList()
+            && $keyType instanceof BuiltinType
+            && \in_array($keyType->getTypeIdentifier(), [TypeIdentifier::STRING, TypeIdentifier::INT], true);
     }
 
     /**
