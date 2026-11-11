@@ -114,7 +114,12 @@ final class PropertyTypeUnion extends AbstractPropertyType
             throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same', self::class, $other::class));
         }
 
-        $mergedTypes = [...$this->getTypes(), ...$other->getTypes()];
+        $mergedTypes = [];
+        foreach ([...$this->getTypes(), ...$other->getTypes()] as $type) {
+            $mergedTypes[$type->__toString()] = $type;
+        }
+
+        $mergedTypes = array_values($mergedTypes);
         $typeInfos = array_map(static fn (PropertyType $type): Type => $type->getTypeInfo(), $mergedTypes);
         $unionType = Type::union(...$typeInfos);
         $nullable = $this->isNullable() && $other->isNullable();

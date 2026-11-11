@@ -18,6 +18,7 @@ use JMS\Serializer\Annotation\ReadOnlyProperty;
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\SerializerAttribute;
 use JMS\Serializer\Annotation\Since;
+use JMS\Serializer\Annotation\SkipWhenEmpty;
 use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\UnionDiscriminator;
 use JMS\Serializer\Annotation\Until;
@@ -284,6 +285,11 @@ final readonly class JMSParser implements ModelParserInterface
                 case $attribute instanceof MaxDepth:
                     $property->setMaxDepth($attribute->depth);
                     break;
+
+                case $attribute instanceof SkipWhenEmpty:
+                    $property->setSkipWhenEmpty(true);
+                    break;
+
                 case class_exists(UnionDiscriminator::class) && $attribute instanceof UnionDiscriminator:
                     $types = [];
                     $isNullable = $this->isNullable($reflection);

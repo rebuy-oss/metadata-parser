@@ -1240,6 +1240,37 @@ class JMSParserTest extends TestCase
         $this->assertPropertyVariation('property', false, true, $props[0]->getVariations()[0]);
     }
 
+    public function testSkipWhenEmpty(): void
+    {
+        $c = new class {
+            #[JMS\SkipWhenEmpty]
+            #[JMS\Type('array<string>')]
+            public array $list = [];
+
+            #[JMS\SkipWhenEmpty]
+            #[JMS\Type('string')]
+            public ?string $nullable = null;
+
+            #[JMS\Type('array<string>')]
+            public array $notSkipped = [];
+        };
+
+        $classMetadata = new RawClassMetadata(\get_class($c));
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $props = $classMetadata->getPropertyCollections();
+        $this->assertCount(3, $props, 'Number of properties should match');
+
+        $this->assertPropertyCollection('list', 1, $props[0]);
+        $this->assertTrue($props[0]->getVariations()[0]->isSkipWhenEmpty());
+
+        $this->assertPropertyCollection('nullable', 1, $props[1]);
+        $this->assertTrue($props[1]->getVariations()[0]->isSkipWhenEmpty());
+
+        $this->assertPropertyCollection('not_skipped', 1, $props[2]);
+        $this->assertFalse($props[2]->getVariations()[0]->isSkipWhenEmpty());
+    }
+
     public function testAttributes(): void
     {
         $c = new class {

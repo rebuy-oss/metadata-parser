@@ -18,6 +18,10 @@
 
 # Version 2.x
 
+# 2.5.0
+
+* Support JMS `SkipWhenEmpty` on properties. `PropertyMetadata::isSkipWhenEmpty()` exposes the flag.
+
 # 2.4.0
 
 * Features which landed in this release got backported to `2.2.2`
@@ -28,6 +32,14 @@
 
 * Drop support for PHP 8.1
 * Add support for psalm/phpstan types in docblocks (e.g. `list<string>` or `array<string, int>`)
+
+# 2.2.5
+
+* Support JMS `SkipWhenEmpty` on properties. `PropertyMetadata::isSkipWhenEmpty()` exposes the flag.
+
+# 2.2.4
+
+* Add class union types in reflection parser in order to support serialization without using a `UnionDiscrimnator` attribute.
 
 # 2.2.3
 

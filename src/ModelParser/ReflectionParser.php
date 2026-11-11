@@ -16,7 +16,7 @@ use Symfony\Component\TypeInfo\Type;
 
 final readonly class ReflectionParser implements ModelParserInterface
 {
-    private const array SUPPORTED_UNION_TYPES = [
+    private const array SUPPORTED_UNION_SCALAR_TYPES = [
         'int',
         'float',
         'double',
@@ -114,7 +114,11 @@ final readonly class ReflectionParser implements ModelParserInterface
     {
         $supportedTypes = [];
         foreach ($reflectionUnionType->getTypes() as $type) {
-            if (\in_array($type->getName(), self::SUPPORTED_UNION_TYPES, true)) {
+            if (!$type instanceof \ReflectionNamedType) {
+                continue;
+            }
+
+            if (!$type->isBuiltin() || \in_array($type->getName(), self::SUPPORTED_UNION_SCALAR_TYPES, true)) {
                 $supportedTypes[] = $type;
             }
         }

@@ -29,6 +29,7 @@ final class PropertyMetadata extends AbstractPropertyMetadata
         ?PropertyAccessor $accessor = null,
         array $customInformation = [],
         ?int $maxDepth = null,
+        bool $skipWhenEmpty = false,
     ) {
         parent::__construct($name, $readOnly, $public);
         $this->type = $type ?: new PropertyTypeUnknown(true);
@@ -42,6 +43,7 @@ final class PropertyMetadata extends AbstractPropertyMetadata
         }
 
         $this->setMaxDepth($maxDepth);
+        $this->setSkipWhenEmpty($skipWhenEmpty);
     }
 
     public function __toString(): string
@@ -61,7 +63,8 @@ final class PropertyMetadata extends AbstractPropertyMetadata
             $property->getGroups(),
             $property->getAccessor(),
             $property->getAllCustomInformation(),
-            $property->getMaxDepth()
+            $property->getMaxDepth(),
+            $property->isSkipWhenEmpty(),
         );
     }
 

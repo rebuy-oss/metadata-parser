@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Tests\Liip\MetadataParser;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use JMS\Serializer\Annotation\MaxDepth;
 use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\SkipWhenEmpty;
+use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\UnionDiscriminator;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
@@ -90,6 +93,30 @@ class BuilderTest extends TestCase
         $this->assertCount(1, $props, 'Number of properties should match');
 
         $this->assertProperty('myProperty', 'myProperty', true, false, $props[0]);
+    }
+
+    public function testSkipWhenEmpty(): void
+    {
+        $c = new class {
+            /**
+             * @var list<string>
+             */
+            #[SkipWhenEmpty]
+            #[Type('array<string>')]
+            #[MaxDepth(2)]
+            public array $list = [];
+
+            public ?string $notSkipped = null;
+        };
+
+        $classMetadata = $this->builder->build(\get_class($c));
+
+        $props = $classMetadata->getProperties();
+        $this->assertCount(2, $props, 'Number of properties should match');
+        $this->assertTrue($props[0]->isSkipWhenEmpty());
+        $this->assertSame(2, $props[0]->getMaxDepth());
+        $this->assertTrue($props[0]->jsonSerialize()['skip_when_empty']);
+        $this->assertFalse($props[1]->isSkipWhenEmpty());
     }
 
     public function testDiscriminatorClassMetadataList(): void
