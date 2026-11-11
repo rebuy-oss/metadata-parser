@@ -109,7 +109,7 @@ class BuilderTest extends TestCase
             public ?string $notSkipped = null;
         };
 
-        $classMetadata = $this->builder->build(\get_class($c));
+        $classMetadata = $this->builder->build($c::class);
 
         $props = $classMetadata->getProperties();
         $this->assertCount(2, $props, 'Number of properties should match');

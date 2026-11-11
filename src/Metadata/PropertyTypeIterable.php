@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\Metadata;
 
-use Symfony\Component\TypeInfo\Type;
 use Symfony\Component\TypeInfo\Type\CollectionType;
 
 /**

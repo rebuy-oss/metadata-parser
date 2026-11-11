@@ -103,7 +103,7 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
 
     public function hasConstructorParameter(string $name): bool
     {
-        return array_any($this->constructorParameters, static fn ($parameter): bool => $parameter->getName() === $name);
+        return array_any($this->constructorParameters, static fn (ParameterMetadata $parameter): bool => $parameter->getName() === $name);
     }
 
     public function getConstructorParameter(string $name): ParameterMetadata

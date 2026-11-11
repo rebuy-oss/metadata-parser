@@ -170,9 +170,7 @@ final readonly class JMSParser implements ModelParserInterface
                     $init = \count($attribute->custom);
                     foreach ($classMetadata->getPropertyCollections() as $property) {
                         $position = $property->getPosition($attribute->custom);
-                        if (null === $position) {
-                            $position = $init++;
-                        }
+                        $position ??= $init++;
                         $order[$property->getSerializedName()] = $position;
                     }
 
@@ -438,7 +436,7 @@ final readonly class JMSParser implements ModelParserInterface
      */
     private function isVirtualProperty(array $attributes): bool
     {
-        return array_any($attributes, static fn ($attribute): bool => $attribute instanceof VirtualProperty);
+        return array_any($attributes, static fn (object $attribute): bool => $attribute instanceof VirtualProperty);
     }
 
     /**
@@ -446,7 +444,7 @@ final readonly class JMSParser implements ModelParserInterface
      */
     private function isPostDeserializeMethod(array $attributes): bool
     {
-        return array_any($attributes, static fn ($attribute): bool => $attribute instanceof PostDeserialize);
+        return array_any($attributes, static fn (object $attribute): bool => $attribute instanceof PostDeserialize);
     }
 
     /**

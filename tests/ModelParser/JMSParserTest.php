@@ -1255,7 +1255,7 @@ class JMSParserTest extends TestCase
             public array $notSkipped = [];
         };
 
-        $classMetadata = new RawClassMetadata(\get_class($c));
+        $classMetadata = new RawClassMetadata($c::class);
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
 
         $props = $classMetadata->getPropertyCollections();
