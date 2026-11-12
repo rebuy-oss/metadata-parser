@@ -28,6 +28,11 @@ final readonly class JMSTypeParser
     private const string TYPE_ITERATOR = 'Iterator';
     private const string TYPE_DATETIME_INTERFACE = 'DateTimeInterface';
 
+    private const array ARRAY_KEY_CASTS = [
+        'bool' => 'int',
+        'float' => 'int',
+    ];
+
     private Parser $jmsTypeParser;
 
     public function __construct()
@@ -96,7 +101,8 @@ final readonly class JMSTypeParser
                 );
             }
             if (2 === \count($typeInfo['params'])) {
-                $key = Type::builtin($typeInfo['params'][0]['name']);
+                $keyName = PropertyTypePrimitive::normalize($typeInfo['params'][0]['name']);
+                $key = Type::builtin(self::ARRAY_KEY_CASTS[$keyName] ?? $keyName);
                 $subType = $this->parseType($typeInfo['params'][1], $reflection, true);
 
                 return new PropertyTypeIterable(

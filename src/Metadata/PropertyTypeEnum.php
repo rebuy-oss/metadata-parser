@@ -8,9 +8,9 @@ use Symfony\Component\TypeInfo\Type\BackedEnumType;
 use Symfony\Component\TypeInfo\Type\EnumType;
 
 /**
- * @extends PropertyTypeClass<EnumType|BackedEnumType>
+ * @extends AbstractPropertyType<EnumType|BackedEnumType, bool>
  */
-final class PropertyTypeEnum extends PropertyTypeClass
+final class PropertyTypeEnum extends AbstractPropertyType
 {
     /**
      * @param EnumType<*>|BackedEnumType<*, *> $type
@@ -21,6 +21,11 @@ final class PropertyTypeEnum extends PropertyTypeClass
         private readonly ?SerializationMode $serializationMode = null,
     ) {
         parent::__construct($type, $nullable);
+    }
+
+    public function getClassName(): string
+    {
+        return $this->typeInfo->getClassName();
     }
 
     public function getBackingType(): ?string
@@ -52,6 +57,10 @@ final class PropertyTypeEnum extends PropertyTypeClass
         $nullable = $this->isNullable() && $other->isNullable();
 
         if ($other instanceof PropertyTypeUnknown) {
+            return new self($this->typeInfo, $nullable, $this->serializationMode);
+        }
+
+        if ($other instanceof PropertyTypeClass && $this->getClassName() === $other->getClassName()) {
             return new self($this->typeInfo, $nullable, $this->serializationMode);
         }
 

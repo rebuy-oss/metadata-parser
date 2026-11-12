@@ -8,9 +8,9 @@ use Symfony\Component\TypeInfo\Type;
 use Symfony\Component\TypeInfo\Type\ObjectType;
 
 /**
- * @extends PropertyTypeClass<ObjectType<\DateTimeInterface>>
+ * @extends AbstractPropertyType<ObjectType<\DateTimeInterface>, bool>
  */
-final class PropertyTypeDateTime extends PropertyTypeClass
+final class PropertyTypeDateTime extends AbstractPropertyType
 {
     private const array DATE_TIME_TYPES = [
         \DateTime::class,
@@ -26,16 +26,24 @@ final class PropertyTypeDateTime extends PropertyTypeClass
         bool $nullable,
         private readonly ?DateTimeOptions $dateTimeOptions = null,
     ) {
-        if (!self::isTypeDateTime($type->getClassName())) {
+        if (!is_a($type->getClassName(), \DateTimeInterface::class, true)) {
             throw new \UnexpectedValueException(\sprintf('Given type "%s" is not date time class or interface', $type->getClassName()));
         }
 
         parent::__construct($type, $nullable);
     }
 
+    /**
+     * @return class-string<\DateTimeInterface>
+     */
+    public function getClassName(): string
+    {
+        return $this->typeInfo->getClassName();
+    }
+
     public function isImmutable(): bool
     {
-        return \DateTimeImmutable::class === $this->getClassName();
+        return is_a($this->getClassName(), \DateTimeImmutable::class, true);
     }
 
     public function getFormat(): ?string
@@ -63,19 +71,25 @@ final class PropertyTypeDateTime extends PropertyTypeClass
         if ($other instanceof PropertyTypeUnknown) {
             return new self($this->typeInfo, $nullable, $this->dateTimeOptions);
         }
-        if (PropertyTypeClass::class === $other::class && is_a($other->getClassName(), \DateTimeInterface::class, true)) {
-            return new self(Type::object($other->getClassName()), $nullable, $this->dateTimeOptions);
+        if ($other instanceof PropertyTypeClass && is_a($other->getClassName(), \DateTimeInterface::class, true)) {
+            return new self(Type::object($other->getClassName()), $other->isNullable())->merge($this);
         }
         if (!$other instanceof self) {
             throw new \UnexpectedValueException("Can't merge type '{$this}' with '{$other}', they must be the same or unknown");
         }
-        if ($this->isImmutable() !== $other->isImmutable()) {
+        if (!$this->isInterface() && !$other->isInterface() && $this->isImmutable() !== $other->isImmutable()) {
             throw new \UnexpectedValueException("Can't merge type '{$this}' with '{$other}', they must be equal");
         }
 
         $options = $this->dateTimeOptions ?: $other->dateTimeOptions;
+        $typeInfo = $this->isInterface() ? $other->typeInfo : $this->typeInfo;
 
-        return new self($this->typeInfo, $nullable, $options);
+        return new self($typeInfo, $nullable, $options);
+    }
+
+    private function isInterface(): bool
+    {
+        return \DateTimeInterface::class === $this->getClassName();
     }
 
     /**

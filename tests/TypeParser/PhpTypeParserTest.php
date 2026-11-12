@@ -209,6 +209,24 @@ class PhpTypeParserTest extends TestCase
         $this->assertFalse($type->isNullable());
     }
 
+    public function testPhpDocArrayIsNotHashmap(): void
+    {
+        $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);
+        $type = $this->parser->parseAnnotationType($reflClass->getProperty('stringArray'));
+
+        $this->assertInstanceOf(PropertyTypeIterable::class, $type);
+        $this->assertFalse($type->isHashmap());
+    }
+
+    public function testPhpDocArrayIsHashmap(): void
+    {
+        $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);
+        $type = $this->parser->parseAnnotationType($reflClass->getProperty('stringMap'));
+
+        $this->assertInstanceOf(PropertyTypeIterable::class, $type);
+        $this->assertTrue($type->isHashmap());
+    }
+
     public function testNullableUnitEnumAnnotationType(): void
     {
         $reflClass = new \ReflectionClass(ClassWithPhpDocs::class);

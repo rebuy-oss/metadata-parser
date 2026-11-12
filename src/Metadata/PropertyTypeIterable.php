@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Liip\MetadataParser\Metadata;
 
+use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\Type\BuiltinType;
 use Symfony\Component\TypeInfo\Type\CollectionType;
+use Symfony\Component\TypeInfo\Type\GenericType;
+use Symfony\Component\TypeInfo\TypeIdentifier;
 
 /**
  * This property type can be merged with PropertyTypeClass<T>, provided that T is, inherits from, or is a parent class of {@see PropertyTypeIterable::traversableClass}
@@ -34,7 +38,11 @@ final class PropertyTypeIterable extends AbstractPropertyType
 
     public function isHashmap(): bool
     {
-        return !$this->typeInfo->isList();
+        $keyType = $this->typeInfo->getCollectionKeyType();
+
+        return !$this->typeInfo->isList()
+            && $keyType instanceof BuiltinType
+            && \in_array($keyType->getTypeIdentifier(), [TypeIdentifier::STRING, TypeIdentifier::INT], true);
     }
 
     /**
@@ -113,14 +121,30 @@ final class PropertyTypeIterable extends AbstractPropertyType
         $keyHolder = $this->isHashmap() ? $this : $other;
 
         if ($other->getSubType() instanceof PropertyTypeUnknown) {
-            return new self($this->typeInfo, $nullable, $this->getSubType(), $commonClass);
+            $subType = $this->getSubType();
+        } elseif ($this->getSubType() instanceof PropertyTypeUnknown) {
+            $subType = $other->getSubType();
+        } else {
+            $subType = $this->getSubType()->merge($other->getSubType());
         }
 
-        if ($this->getSubType() instanceof PropertyTypeUnknown) {
-            return new self($other->typeInfo, $nullable, $other->getSubType(), $commonClass);
+        return new self(self::withSubType($keyHolder->typeInfo, $subType), $nullable, $subType, $commonClass);
+    }
+
+    /**
+     * @param CollectionType<*> $keySource
+     * @param PropertyType<*> $subType
+     *
+     * @return CollectionType<*>
+     */
+    private static function withSubType(CollectionType $keySource, PropertyType $subType): CollectionType
+    {
+        $wrapped = $keySource->getWrappedType();
+        if ($wrapped instanceof GenericType) {
+            $wrapped = $wrapped->getWrappedType();
         }
 
-        return new self($keyHolder->typeInfo, $nullable, $this->getSubType()->merge($other->getSubType()), $commonClass);
+        return Type::collection($wrapped, $subType->getTypeInfo(), $keySource->getCollectionKeyType(), $keySource->isList());
     }
 
     /**

@@ -68,6 +68,9 @@ class PropertyTypeClass extends AbstractPropertyType
         if (is_a($this->getClassName(), \DateTimeInterface::class, true) && ($other instanceof PropertyTypeDateTime)) {
             return $other->merge($this);
         }
+        if ($other instanceof PropertyTypeEnum) {
+            return $other->merge($this);
+        }
         if (!$other instanceof self) {
             throw new \UnexpectedValueException(\sprintf('Can\'t merge type %s with %s, they must be the same or unknown', self::class, $other::class));
         }

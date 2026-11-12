@@ -299,10 +299,7 @@ final readonly class JMSParser implements ModelParserInterface
                         $types[] = $this->jmsTypeParser->parse($value, $reflection, true);
                     }
 
-                    $typeInfos = array_map(static fn (PropertyType $t): SymfonyType => $t->getTypeInfo(), $types);
-                    $unionType = SymfonyType::union(...$typeInfos);
-
-                    $type = new PropertyTypeUnion($unionType, $isNullable, $types);
+                    $type = PropertyTypeUnion::fromTypes($types, $isNullable);
                     $type->setFieldName($attribute->field);
                     $type->setTypeMap($attribute->map);
 
@@ -526,17 +523,15 @@ final readonly class JMSParser implements ModelParserInterface
 
         $attributes = $this->buildAttributes($attributes);
 
-        if (null !== $this->annotationReader) {
-            $annotations = match (true) {
-                $reflection instanceof \ReflectionClass => $this->annotationReader->getClassAnnotations($reflection),
-                $reflection instanceof \ReflectionMethod => $this->annotationReader->getMethodAnnotations($reflection),
-                $reflection instanceof \ReflectionProperty => $this->annotationReader->getPropertyAnnotations($reflection),
-            };
-
-            $attributes = array_merge($attributes, $annotations);
+        if ([] !== $attributes || null === $this->annotationReader) {
+            return $attributes;
         }
 
-        return $attributes;
+        return match (true) {
+            $reflection instanceof \ReflectionClass => $this->annotationReader->getClassAnnotations($reflection),
+            $reflection instanceof \ReflectionMethod => $this->annotationReader->getMethodAnnotations($reflection),
+            $reflection instanceof \ReflectionProperty => $this->annotationReader->getPropertyAnnotations($reflection),
+        };
     }
 
     /**

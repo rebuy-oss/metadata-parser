@@ -296,6 +296,26 @@ class JMSParserTest extends TestCase
         $this->assertSame('property', $props[0]->getVariations()[0]->getName(), 'Name of property should match');
     }
 
+    public function testAttributesTakePrecedenceOverAnnotations(): void
+    {
+        $c = new class {
+            /**
+             * @JMS\Groups({"annotation"})
+             */
+            #[JMS\Groups(['attribute'])]
+            private $property;
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+
+        $parser = new JMSParser(new AnnotationReader());
+        $parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $props = $classMetadata->getPropertyCollections();
+        $this->assertCount(1, $props, 'Number of properties should match');
+        $this->assertSame(['attribute'], $props[0]->getVariations()[0]->getGroups());
+    }
+
     public function testIdenticalNamingStrategy(): void
     {
         $c = new class {
