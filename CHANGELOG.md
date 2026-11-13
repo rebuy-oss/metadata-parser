@@ -19,6 +19,8 @@
 * Keep the discriminator metadata in `ClassMetadata::withoutProperties()`
 * Support the JMS types `list` and `iterable` (e.g. `list<string>` or `iterable<string, int>`)
 * Support JMS `AccessorOrder` with the orders `undefined` and `alphabetical`
+* Support JMS `ExclusionPolicy(ALL)`. Like in JMS, only properties with `Expose` and virtual properties are kept, and
+  the policy only applies to the properties of the class that declares it
 
 # Version 2.x
 

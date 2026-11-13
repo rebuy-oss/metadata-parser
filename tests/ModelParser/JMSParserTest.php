@@ -35,6 +35,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\ClassUsingUnionTyping;
 use Tests\Liip\MetadataParser\ModelParser\Model\DiscriminatorAuthor;
 use Tests\Liip\MetadataParser\ModelParser\Model\DiscriminatorComment;
 use Tests\Liip\MetadataParser\ModelParser\Model\DiscriminatorWithFieldProperty;
+use Tests\Liip\MetadataParser\ModelParser\Model\ExclusionPolicyAllParent;
 use Tests\Liip\MetadataParser\ModelParser\Model\Ferry;
 use Tests\Liip\MetadataParser\ModelParser\Model\Moped;
 use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
@@ -787,17 +788,71 @@ class JMSParserTest extends TestCase
         $this->assertPropertyCollection('property', 1, $props[0]);
     }
 
-    public function testExclusionPolicyUnsupported(): void
+    public function testExclusionPolicyAll(): void
     {
         $c = new #[JMS\ExclusionPolicy(policy: 'ALL')] class {
-            private $property;
+            #[JMS\Expose]
+            private $exposed;
+
+            #[JMS\Expose(if: 'foo')]
+            private $exposedIf;
+
+            private $hidden;
+
+            #[JMS\VirtualProperty]
+            public function getVirtual(): string
+            {
+                return 'virtual';
+            }
         };
 
         $classMetadata = new RawClassMetadata($c::class);
-
-        $this->expectException(ParseException::class);
-        $this->expectExceptionMessage('ExclusionPolicy');
+        $classMetadata->addPropertyVariation('hidden', new PropertyVariationMetadata('hidden', false, true));
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $props = $classMetadata->getPropertyCollections();
+        $this->assertCount(3, $props, 'Number of properties should match');
+
+        $this->assertPropertyCollection('exposed', 1, $props[0]);
+        $this->assertPropertyCollection('exposed_if', 1, $props[1]);
+        $this->assertSame('!(foo)', $props[1]->getVariations()[0]->getExcludeIf());
+        $this->assertPropertyCollection('virtual', 1, $props[2]);
+    }
+
+    public function testExclusionPolicyAllOnlyAffectsDeclaringClass(): void
+    {
+        $c = new class extends ExclusionPolicyAllParent {
+            private $childProperty;
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $props = $classMetadata->getPropertyCollections();
+        $this->assertCount(2, $props, 'Number of properties should match');
+
+        $this->assertPropertyCollection('parent_exposed', 1, $props[0]);
+        $this->assertPropertyCollection('child_property', 1, $props[1]);
+    }
+
+    public function testExclusionPolicyAllOnChildKeepsParentProperties(): void
+    {
+        $c = new #[JMS\ExclusionPolicy(policy: 'ALL')] class extends BaseModel {
+            #[JMS\Expose]
+            private $childExposed;
+
+            private $childHidden;
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $props = $classMetadata->getPropertyCollections();
+        $this->assertCount(3, $props, 'Number of properties should match');
+
+        $this->assertPropertyCollection('parent_property1', 1, $props[0]);
+        $this->assertPropertyCollection('parent_property2', 1, $props[1]);
+        $this->assertPropertyCollection('child_exposed', 1, $props[2]);
     }
 
     public function testMethodWithoutDocBlock(): void
