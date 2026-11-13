@@ -110,6 +110,38 @@ class JMSTypeParserTest extends TestCase
             'array<string, array<array<string, bool>>>',
             'array<string, list<array<string, bool>>>|null',
         ];
+
+        yield [
+            'list',
+            'list<mixed>|null',
+            true,
+        ];
+
+        yield [
+            'list<string>',
+            'list<string>|null',
+        ];
+
+        yield [
+            'list<list<int>>',
+            'list<list<int>>|null',
+        ];
+
+        yield [
+            'iterable',
+            'list<mixed>|null',
+            true,
+        ];
+
+        yield [
+            'iterable<string>',
+            'list<string>|null',
+        ];
+
+        yield [
+            'iterable<string, int>',
+            'array<string, int>|null',
+        ];
     }
 
     #[DataProvider('provideTypeCases')]

@@ -56,6 +56,8 @@ use Symfony\Component\TypeInfo\Type as SymfonyType;
  */
 final readonly class JMSParser implements ModelParserInterface
 {
+    private const string ACCESS_ORDER_UNDEFINED = 'undefined';
+    private const string ACCESS_ORDER_ALPHABETICAL = 'alphabetical';
     private const string ACCESS_ORDER_CUSTOM = 'custom';
 
     private PhpTypeParser $phpTypeParser;
@@ -162,6 +164,16 @@ final readonly class JMSParser implements ModelParserInterface
             ['attribute' => $attribute, 'className' => $className] = $values;
             switch (true) {
                 case $attribute instanceof AccessorOrder:
+                    if (self::ACCESS_ORDER_UNDEFINED === $attribute->order) {
+                        break;
+                    }
+
+                    if (self::ACCESS_ORDER_ALPHABETICAL === $attribute->order) {
+                        // JMS sorts by the PHP name, not by the serialized name
+                        $classMetadata->sortProperties(static fn (PropertyCollection $propA, PropertyCollection $propB): int => strcmp($propA->getVariations()[0]->getName(), $propB->getVariations()[0]->getName()));
+                        break;
+                    }
+
                     if (self::ACCESS_ORDER_CUSTOM !== $attribute->order) {
                         throw ParseException::unsupportedClassAttribute((string) $classMetadata, 'AccessorOrder::'.$attribute->order);
                     }

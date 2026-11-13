@@ -20,7 +20,7 @@ use Symfony\Component\TypeInfo\Type;
 
 final readonly class JMSTypeParser
 {
-    private const string TYPE_ARRAY = 'array';
+    private const array ARRAY_TYPES = ['array', 'list', 'iterable'];
     private const string TYPE_ENUM = 'enum';
     private const string TYPE_ARRAY_COLLECTION = 'ArrayCollection';
     private const string TYPE_GENERATOR = 'Generator';
@@ -71,7 +71,7 @@ final readonly class JMSTypeParser
         $nullable = !$isSubType;
 
         if (0 === \count($typeInfo['params']) && self::TYPE_ENUM !== $typeInfo['name']) {
-            if (self::TYPE_ARRAY === $typeInfo['name']) {
+            if (\in_array($typeInfo['name'], self::ARRAY_TYPES, true)) {
                 $subType = new PropertyTypeUnknown(false);
                 $typeInfo = Type::list(Type::mixed());
 
@@ -89,7 +89,7 @@ final readonly class JMSTypeParser
         }
 
         $traversableClass = $this->getTraversableClass($typeInfo['name']);
-        if (self::TYPE_ARRAY === $typeInfo['name'] || $traversableClass) {
+        if (\in_array($typeInfo['name'], self::ARRAY_TYPES, true) || $traversableClass) {
             if (1 === \count($typeInfo['params'])) {
                 $subType = $this->parseType($typeInfo['params'][0], $reflection, true);
 
