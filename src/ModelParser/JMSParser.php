@@ -11,6 +11,7 @@ use JMS\Serializer\Annotation\AccessorOrder;
 use JMS\Serializer\Annotation\Discriminator;
 use JMS\Serializer\Annotation\Exclude;
 use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Groups;
 use JMS\Serializer\Annotation\MaxDepth;
 use JMS\Serializer\Annotation\PostDeserialize;
@@ -183,6 +184,13 @@ final readonly class JMSParser implements ModelParserInterface
                     }
                     break;
 
+                case $attribute instanceof Exclude:
+                    if (null === $attribute->if) {
+                        throw ParseException::unsupportedClassAttribute((string) $classMetadata, 'Exclude');
+                    }
+                    $classMetadata->setExcludeIf($attribute->if);
+                    break;
+
                 case $attribute instanceof XmlRoot:
                     // skip these attributes, we don't do xml
                     break;
@@ -255,9 +263,17 @@ final readonly class JMSParser implements ModelParserInterface
 
                 case $attribute instanceof Exclude:
                     if (null !== $attribute->if) {
-                        throw ParseException::unsupportedPropertyAttribute((string) $classMetadata, (string) $property, 'Exclude::if');
+                        $property->setExcludeIf($attribute->if);
+                        break;
                     }
                     $classMetadata->removePropertyVariation((string) $property);
+                    break;
+
+                case $attribute instanceof Expose:
+                    // Only the exclusion policy NONE is supported, so a plain Expose has no effect.
+                    if (null !== $attribute->if) {
+                        $property->setExcludeIf('!('.$attribute->if.')');
+                    }
                     break;
 
                 case $attribute instanceof Groups:

@@ -29,6 +29,7 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
      * @param PropertyMetadata[]  $properties
      * @param ParameterMetadata[] $constructorParameters
      * @param string[]            $postDeserializeMethods Method names to call on the class after it has been deserialized.
+     * @param string|null         $excludeIf              Symfony expression language expression. The class is excluded when it evaluates to true.
      */
     public function __construct(
         private readonly string $className,
@@ -36,6 +37,7 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
         array $constructorParameters = [],
         private readonly array $postDeserializeMethods = [],
         private readonly ?ClassDiscriminatorMetadata $discriminatorMetadata = null,
+        private readonly ?string $excludeIf = null,
     ) {
         \assert(array_reduce(
             $constructorParameters,
@@ -65,7 +67,8 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
             $properties,
             $rawClassMetadata->getConstructorParameters(),
             $rawClassMetadata->getPostDeserializeMethods(),
-            $rawClassMetadata->getDiscriminatorMetadata()
+            $rawClassMetadata->getDiscriminatorMetadata(),
+            $rawClassMetadata->getExcludeIf(),
         );
     }
 
@@ -122,6 +125,11 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
         return $this->discriminatorMetadata;
     }
 
+    public function getExcludeIf(): ?string
+    {
+        return $this->excludeIf;
+    }
+
     /**
      * Returns a copy of the class metadata with the specified properties removed.
      *
@@ -142,6 +150,7 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
             $this->constructorParameters,
             $this->postDeserializeMethods,
             $this->discriminatorMetadata,
+            $this->excludeIf,
         );
     }
 
@@ -155,6 +164,7 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
             'properties' => $this->properties,
             'post_deserialize_method' => $this->postDeserializeMethods,
             'constructor_parameters' => $this->constructorParameters,
+            'exclude_if' => $this->excludeIf,
         ]);
     }
 

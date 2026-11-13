@@ -102,6 +102,11 @@ final class PropertyVariationMetadata extends AbstractPropertyMetadata
         parent::setSkipWhenEmpty($skipWhenEmpty);
     }
 
+    public function setExcludeIf(?string $excludeIf): void
+    {
+        parent::setExcludeIf($excludeIf);
+    }
+
     /**
      * The value can be anything that the consumer understands.
      *

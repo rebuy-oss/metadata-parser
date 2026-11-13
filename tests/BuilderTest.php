@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Liip\MetadataParser;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\MaxDepth;
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\SkipWhenEmpty;
@@ -117,6 +119,32 @@ class BuilderTest extends TestCase
         $this->assertSame(2, $props[0]->getMaxDepth());
         $this->assertTrue($props[0]->jsonSerialize()['skip_when_empty']);
         $this->assertFalse($props[1]->isSkipWhenEmpty());
+    }
+
+    public function testExcludeIf(): void
+    {
+        $c = new #[Exclude(if: 'object.hidden')] class {
+            #[Exclude(if: 'context.getVersion()')]
+            public ?string $excluded = null;
+
+            #[Expose(if: 'object.visible')]
+            public ?string $exposed = null;
+
+            public ?string $plain = null;
+        };
+
+        $classMetadata = $this->builder->build($c::class);
+
+        $this->assertSame('object.hidden', $classMetadata->getExcludeIf());
+        $this->assertSame('object.hidden', $classMetadata->jsonSerialize()['exclude_if']);
+
+        $props = $classMetadata->getProperties();
+        $this->assertCount(3, $props, 'Number of properties should match');
+        $this->assertSame('context.getVersion()', $props[0]->getExcludeIf());
+        $this->assertSame('context.getVersion()', $props[0]->jsonSerialize()['exclude_if']);
+        $this->assertSame('!(object.visible)', $props[1]->getExcludeIf());
+        $this->assertNull($props[2]->getExcludeIf());
+        $this->assertArrayNotHasKey('exclude_if', $props[2]->jsonSerialize());
     }
 
     public function testDiscriminatorClassMetadataList(): void

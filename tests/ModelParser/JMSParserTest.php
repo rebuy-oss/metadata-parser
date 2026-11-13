@@ -491,7 +491,49 @@ class JMSParserTest extends TestCase
             #[JMS\Exclude(if: 'foo')]
             private $property1;
 
+            #[JMS\Expose(if: 'bar')]
             private $property2;
+
+            #[JMS\Expose]
+            private $property3;
+
+            #[JMS\VirtualProperty]
+            #[JMS\Exclude(if: 'baz')]
+            public function getVirtual(): string
+            {
+                return '';
+            }
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $props = $classMetadata->getPropertyCollections();
+        $this->assertCount(4, $props, 'Number of properties should match');
+
+        $this->assertSame('foo', $props[0]->getVariations()[0]->getExcludeIf());
+        $this->assertSame('!(bar)', $props[1]->getVariations()[0]->getExcludeIf());
+        $this->assertNull($props[2]->getVariations()[0]->getExcludeIf());
+        $this->assertSame('baz', $props[3]->getVariations()[0]->getExcludeIf());
+        $this->assertNull($classMetadata->getExcludeIf());
+    }
+
+    public function testConditionalClassExclude(): void
+    {
+        $c = new #[JMS\Exclude(if: 'foo')] class {
+            private $property;
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $this->assertSame('foo', $classMetadata->getExcludeIf());
+    }
+
+    public function testUnconditionalClassExclude(): void
+    {
+        $c = new #[JMS\Exclude] class {
+            private $property;
         };
 
         $classMetadata = new RawClassMetadata($c::class);
