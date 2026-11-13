@@ -15,6 +15,8 @@
   required, it can still be installed and used by passing the `Reader` to the `JMSParser`.
 * Directly create types and pass them to the `PropertyType*` classes instead of creating them inside the class
 * Add rector-php analysis
+* Support JMS `Exclude(if: ...)` and `Expose(if: ...)`
+* Keep the discriminator metadata in `ClassMetadata::withoutProperties()`
 
 # Version 2.x
 

@@ -38,6 +38,8 @@ final class RawClassMetadata implements \JsonSerializable, \Stringable
 
     private ?ClassDiscriminatorMetadata $discriminatorMetadata = null;
 
+    private ?string $excludeIf = null;
+
     public function __construct(
         /**
          * @var class-string
@@ -296,6 +298,16 @@ final class RawClassMetadata implements \JsonSerializable, \Stringable
     public function getDiscriminatorMetadata(): ?ClassDiscriminatorMetadata
     {
         return $this->discriminatorMetadata;
+    }
+
+    public function setExcludeIf(?string $excludeIf): void
+    {
+        $this->excludeIf = $excludeIf;
+    }
+
+    public function getExcludeIf(): ?string
+    {
+        return $this->excludeIf;
     }
 
     /**

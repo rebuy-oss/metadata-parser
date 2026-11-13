@@ -22,6 +22,8 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable, \Stringabl
 
     private bool $skipWhenEmpty = false;
 
+    private ?string $excludeIf = null;
+
     /**
      * Hashmap of custom information about this property.
      *
@@ -129,6 +131,9 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable, \Stringabl
         if ($this->versionRange->isDefined()) {
             $data['version'] = $this->versionRange;
         }
+        if (null !== $this->excludeIf) {
+            $data['exclude_if'] = $this->excludeIf;
+        }
         if (\count($this->customInformation)) {
             $data['custom_information'] = array_map(
                 static function ($information) {
@@ -201,5 +206,18 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable, \Stringabl
     protected function setSkipWhenEmpty(bool $skipWhenEmpty): void
     {
         $this->skipWhenEmpty = $skipWhenEmpty;
+    }
+
+    /**
+     * Symfony expression language expression. The property is excluded when it evaluates to true.
+     */
+    public function getExcludeIf(): ?string
+    {
+        return $this->excludeIf;
+    }
+
+    protected function setExcludeIf(?string $excludeIf): void
+    {
+        $this->excludeIf = $excludeIf;
     }
 }
