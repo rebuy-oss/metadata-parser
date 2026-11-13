@@ -17,6 +17,7 @@
 * Add rector-php analysis
 * Support JMS `Exclude(if: ...)` and `Expose(if: ...)`
 * Keep the discriminator metadata in `ClassMetadata::withoutProperties()`
+* Support the JMS types `list` and `iterable` (e.g. `list<string>` or `iterable<string, int>`)
 
 # Version 2.x
 
