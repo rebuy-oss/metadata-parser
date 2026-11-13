@@ -717,6 +717,49 @@ class JMSParserTest extends TestCase
         $this->assertPropertyCollection('pro_perty5', 1, $props[4]);
     }
 
+    public function testOrderAlphabetical(): void
+    {
+        $c = new #[JMS\AccessorOrder(order: 'alphabetical')] class {
+            private $zeta;
+
+            #[JMS\SerializedName('a_name')]
+            private $beta;
+
+            private $Gamma;
+
+            private $alpha;
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $props = $classMetadata->getPropertyCollections();
+        $this->assertCount(4, $props, 'Number of properties should match');
+
+        $this->assertPropertyCollection('_gamma', 1, $props[0]);
+        $this->assertPropertyCollection('alpha', 1, $props[1]);
+        $this->assertPropertyCollection('a_name', 1, $props[2]);
+        $this->assertPropertyCollection('zeta', 1, $props[3]);
+    }
+
+    public function testOrderUndefined(): void
+    {
+        $c = new #[JMS\AccessorOrder(order: 'undefined')] class {
+            private $zeta;
+
+            private $alpha;
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $props = $classMetadata->getPropertyCollections();
+        $this->assertCount(2, $props, 'Number of properties should match');
+
+        $this->assertPropertyCollection('zeta', 1, $props[0]);
+        $this->assertPropertyCollection('alpha', 1, $props[1]);
+    }
+
     public function testOrderUnsupported(): void
     {
         $c = new #[JMS\AccessorOrder(order: 'foo')] class {
