@@ -103,9 +103,42 @@ final readonly class JMSParser implements ModelParserInterface
                 throw ParseException::propertyError((string) $classMetadata, $reflProperty->getName(), $e);
             }
 
+            if ($this->isHiddenByExclusionPolicy($reflProperty, $attributes)) {
+                $classMetadata->removePropertyVariation($reflProperty->getName());
+                continue;
+            }
+
             $property = $this->getProperty($classMetadata, $reflProperty, $attributes, $propertyNamingStrategy);
             $this->parsePropertyAttributes($classMetadata, $reflProperty, $property, $attributes);
         }
+    }
+
+    /**
+     * JMS only applies the exclusion policy of the class that declares the property, a parent's or child's policy has no effect.
+     *
+     * @param object[] $attributes
+     */
+    private function isHiddenByExclusionPolicy(\ReflectionProperty $reflProperty, array $attributes): bool
+    {
+        $isExposed = array_any(
+            $attributes,
+            static fn (object $attribute): bool => $attribute instanceof Expose
+        );
+
+        if ($isExposed) {
+            return false;
+        }
+
+        try {
+            $classAttributes = $this->getClassAnnotations($reflProperty->getDeclaringClass());
+        } catch (AnnotationException $e) {
+            throw ParseException::classError($reflProperty->getDeclaringClass()->getName(), $e);
+        }
+
+        return array_any(
+            $classAttributes,
+            static fn (object $attribute): bool => $attribute instanceof ExclusionPolicy && ExclusionPolicy::ALL === $attribute->policy,
+        );
     }
 
     /**
@@ -191,9 +224,7 @@ final readonly class JMSParser implements ModelParserInterface
                     break;
 
                 case $attribute instanceof ExclusionPolicy:
-                    if (ExclusionPolicy::NONE !== $attribute->policy) {
-                        throw ParseException::unsupportedClassAttribute((string) $classMetadata, 'ExclusionPolicy::'.$attribute->policy);
-                    }
+                    // handled per property, see isHiddenByExclusionPolicy()
                     break;
 
                 case $attribute instanceof Exclude:
@@ -282,7 +313,7 @@ final readonly class JMSParser implements ModelParserInterface
                     break;
 
                 case $attribute instanceof Expose:
-                    // Only the exclusion policy NONE is supported, so a plain Expose has no effect.
+                    // a plain Expose is handled in isHiddenByExclusionPolicy()
                     if (null !== $attribute->if) {
                         $property->setExcludeIf('!('.$attribute->if.')');
                     }
