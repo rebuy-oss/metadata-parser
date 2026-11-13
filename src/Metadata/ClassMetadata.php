@@ -140,7 +140,8 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
             $this->className,
             $properties,
             $this->constructorParameters,
-            $this->postDeserializeMethods
+            $this->postDeserializeMethods,
+            $this->discriminatorMetadata,
         );
     }
 
