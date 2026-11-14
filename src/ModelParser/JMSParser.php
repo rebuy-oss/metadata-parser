@@ -13,6 +13,7 @@ use JMS\Serializer\Annotation\Exclude;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Inline;
 use JMS\Serializer\Annotation\MaxDepth;
 use JMS\Serializer\Annotation\PostDeserialize;
 use JMS\Serializer\Annotation\ReadOnlyProperty;
@@ -345,6 +346,10 @@ final readonly class JMSParser implements ModelParserInterface
 
                 case $attribute instanceof SkipWhenEmpty:
                     $property->setSkipWhenEmpty(true);
+                    break;
+
+                case $attribute instanceof Inline:
+                    $property->setInline(true);
                     break;
 
                 case class_exists(UnionDiscriminator::class) && $attribute instanceof UnionDiscriminator:

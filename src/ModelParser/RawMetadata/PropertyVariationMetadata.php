@@ -107,6 +107,11 @@ final class PropertyVariationMetadata extends AbstractPropertyMetadata
         parent::setExcludeIf($excludeIf);
     }
 
+    public function setInline(bool $inline): void
+    {
+        parent::setInline($inline);
+    }
+
     /**
      * The value can be anything that the consumer understands.
      *

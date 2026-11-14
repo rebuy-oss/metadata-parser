@@ -31,6 +31,7 @@ final class PropertyMetadata extends AbstractPropertyMetadata
         ?int $maxDepth = null,
         bool $skipWhenEmpty = false,
         ?string $excludeIf = null,
+        bool $inline = false,
     ) {
         parent::__construct($name, $readOnly, $public);
         $this->type = $type ?: new PropertyTypeUnknown(true);
@@ -46,6 +47,7 @@ final class PropertyMetadata extends AbstractPropertyMetadata
         $this->setMaxDepth($maxDepth);
         $this->setSkipWhenEmpty($skipWhenEmpty);
         $this->setExcludeIf($excludeIf);
+        $this->setInline($inline);
     }
 
     public function __toString(): string
@@ -68,6 +70,7 @@ final class PropertyMetadata extends AbstractPropertyMetadata
             $property->getMaxDepth(),
             $property->isSkipWhenEmpty(),
             $property->getExcludeIf(),
+            $property->isInline(),
         );
     }
 

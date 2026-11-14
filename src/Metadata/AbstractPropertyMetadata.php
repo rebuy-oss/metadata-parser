@@ -24,6 +24,8 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable, \Stringabl
 
     private ?string $excludeIf = null;
 
+    private bool $inline = false;
+
     /**
      * Hashmap of custom information about this property.
      *
@@ -120,6 +122,7 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable, \Stringabl
             'is_read_only' => $this->readOnly,
             'max_depth' => $this->maxDepth,
             'skip_when_empty' => $this->skipWhenEmpty,
+            'inline' => $this->inline,
         ];
 
         if (\count($this->groups) > 0) {
@@ -219,5 +222,15 @@ abstract class AbstractPropertyMetadata implements \JsonSerializable, \Stringabl
     protected function setExcludeIf(?string $excludeIf): void
     {
         $this->excludeIf = $excludeIf;
+    }
+
+    public function isInline(): bool
+    {
+        return $this->inline;
+    }
+
+    protected function setInline(bool $inline): void
+    {
+        $this->inline = $inline;
     }
 }

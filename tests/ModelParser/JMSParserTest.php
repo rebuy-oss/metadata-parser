@@ -679,7 +679,7 @@ class JMSParserTest extends TestCase
     {
         $c = new class {
             #[JMS\Type('string')]
-            #[JMS\Inline]
+            #[JMS\XmlElement]
             private ?string $property = null;
         };
 
@@ -1429,6 +1429,41 @@ class JMSParserTest extends TestCase
 
         $this->assertPropertyCollection('not_skipped', 1, $props[2]);
         $this->assertFalse($props[2]->getVariations()[0]->isSkipWhenEmpty());
+    }
+
+    public function testInline(): void
+    {
+        $c = new class {
+            #[JMS\Inline]
+            #[JMS\Type(Nested::class)]
+            public ?Nested $nested = null;
+
+            #[JMS\Type('string')]
+            public ?string $notInline = null;
+
+            #[JMS\VirtualProperty]
+            #[JMS\Inline]
+            #[JMS\Type('array<string, string>')]
+            public function getVirtual(): array
+            {
+                return [];
+            }
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $props = $classMetadata->getPropertyCollections();
+        $this->assertCount(3, $props, 'Number of properties should match');
+
+        $this->assertPropertyCollection('nested', 1, $props[0]);
+        $this->assertTrue($props[0]->getVariations()[0]->isInline());
+
+        $this->assertPropertyCollection('not_inline', 1, $props[1]);
+        $this->assertFalse($props[1]->getVariations()[0]->isInline());
+
+        $this->assertPropertyCollection('virtual', 1, $props[2]);
+        $this->assertTrue($props[2]->getVariations()[0]->isInline());
     }
 
     public function testAttributes(): void
