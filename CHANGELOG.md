@@ -21,6 +21,7 @@
 * Support JMS `AccessorOrder` with the orders `undefined` and `alphabetical`
 * Support JMS `ExclusionPolicy(ALL)`. Like in JMS, only properties with `Expose` and virtual properties are kept, and
   the policy only applies to the properties of the class that declares it
+* Support JMS `Inline` on properties and virtual properties. `PropertyMetadata::isInline()` exposes the flag.
 
 # Version 2.x
 

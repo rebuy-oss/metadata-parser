@@ -7,6 +7,7 @@ namespace Tests\Liip\MetadataParser;
 use Doctrine\Common\Annotations\AnnotationReader;
 use JMS\Serializer\Annotation\Exclude;
 use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation\Inline;
 use JMS\Serializer\Annotation\MaxDepth;
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\SkipWhenEmpty;
@@ -119,6 +120,25 @@ class BuilderTest extends TestCase
         $this->assertSame(2, $props[0]->getMaxDepth());
         $this->assertTrue($props[0]->jsonSerialize()['skip_when_empty']);
         $this->assertFalse($props[1]->isSkipWhenEmpty());
+    }
+
+    public function testInline(): void
+    {
+        $c = new class {
+            #[Inline]
+            #[Type(Nested::class)]
+            public ?Nested $nested = null;
+
+            public ?string $notInline = null;
+        };
+
+        $classMetadata = $this->builder->build($c::class);
+
+        $props = $classMetadata->getProperties();
+        $this->assertCount(2, $props, 'Number of properties should match');
+        $this->assertTrue($props[0]->isInline());
+        $this->assertTrue($props[0]->jsonSerialize()['inline']);
+        $this->assertFalse($props[1]->isInline());
     }
 
     public function testExcludeIf(): void
