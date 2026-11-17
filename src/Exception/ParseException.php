@@ -15,6 +15,7 @@ final class ParseException extends SchemaException
     private const string UNSUPPORTED_CLASS_ATTRIBUTE = 'Class "%s" has an unsupported attribute "%s"';
     private const string UNSUPPORTED_PROPERTY_ATTRIBUTE = 'Property "%s::%s" has an unsupported attribute "%s"';
     private const string NON_PUBLIC_METHOD = 'Method "%s::%s" is not public and therefore cannot be included';
+    private const string INLINE_SCALAR_PROPERTY = 'Property "%s::%s" is inline but has the scalar type "%s". This will result in the property not being (de-)serialized at all';
 
     private const string PROPERTY_ALREADY_EXISTS = 'Property "%s" is already defined for "%s", cannot add it twice';
     private const string CLASS_NOT_PARSED = 'Class "%s" of property "%s::%s" was not parsed, something went wrong';
@@ -82,6 +83,11 @@ final class ParseException extends SchemaException
     public static function nonPublicMethod(string $className, string $methodName): self
     {
         return new self(\sprintf(self::NON_PUBLIC_METHOD, $className, $methodName));
+    }
+
+    public static function inlineScalarProperty(string $className, string $propertyName, string $type): self
+    {
+        return new self(\sprintf(self::INLINE_SCALAR_PROPERTY, $className, $propertyName, $type));
     }
 
     public static function propertyAlreadyExists(string $propertyName, string $className): self

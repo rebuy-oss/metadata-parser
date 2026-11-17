@@ -36,6 +36,8 @@ use Liip\MetadataParser\Exception\InvalidTypeException;
 use Liip\MetadataParser\Exception\ParseException;
 use Liip\MetadataParser\Metadata\PropertyAccessor;
 use Liip\MetadataParser\Metadata\PropertyType;
+use Liip\MetadataParser\Metadata\PropertyTypeDateTime;
+use Liip\MetadataParser\Metadata\PropertyTypeEnum;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
 use Liip\MetadataParser\Metadata\PropertyTypeUnion;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
@@ -398,6 +400,20 @@ final readonly class JMSParser implements ModelParserInterface
                     }
                     break;
             }
+        }
+
+        $this->validateProperty($classMetadata, $property);
+    }
+
+    private function validateProperty(RawClassMetadata $classMetadata, PropertyVariationMetadata $property): void
+    {
+        if (!$property->isInline()) {
+            return;
+        }
+
+        $type = $property->getType();
+        if ($type instanceof PropertyTypePrimitive || $type instanceof PropertyTypeDateTime || $type instanceof PropertyTypeEnum) {
+            throw ParseException::inlineScalarProperty((string) $classMetadata, (string) $property, (string) $type);
         }
     }
 
