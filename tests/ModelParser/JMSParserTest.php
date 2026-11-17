@@ -26,6 +26,7 @@ use Liip\MetadataParser\ModelParser\RawMetadata\RawClassMetadata;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
+use Tests\Liip\MetadataParser\ModelParser\Fixtures\SuitEnum;
 use Tests\Liip\MetadataParser\ModelParser\Model\BaseModel;
 use Tests\Liip\MetadataParser\ModelParser\Model\Boat;
 use Tests\Liip\MetadataParser\ModelParser\Model\CabinCruiser;
@@ -1464,6 +1465,43 @@ class JMSParserTest extends TestCase
 
         $this->assertPropertyCollection('virtual', 1, $props[2]);
         $this->assertTrue($props[2]->getVariations()[0]->isInline());
+    }
+
+    public static function provideInlineScalarThrowsCases(): iterable
+    {
+        yield 'primitive' => [new class {
+            #[JMS\Inline]
+            #[JMS\Type('string')]
+            public ?string $property = null;
+        }];
+
+        yield 'primitive with type before inline' => [new class {
+            #[JMS\Type('int')]
+            #[JMS\Inline]
+            public ?int $property = null;
+        }];
+
+        yield 'date time' => [new class {
+            #[JMS\Inline]
+            #[JMS\Type('DateTime')]
+            public ?\DateTime $property = null;
+        }];
+
+        yield 'enum' => [new class {
+            #[JMS\Inline]
+            #[JMS\Type('enum<'.SuitEnum::class.'>')]
+            public ?SuitEnum $property = null;
+        }];
+    }
+
+    #[DataProvider('provideInlineScalarThrowsCases')]
+    public function testInlineScalarThrows(object $c): void
+    {
+        $classMetadata = new RawClassMetadata($c::class);
+
+        $this->expectException(ParseException::class);
+        $this->expectExceptionMessage('is inline but has the scalar type');
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
     }
 
     public function testAttributes(): void

@@ -22,6 +22,8 @@
 * Support JMS `ExclusionPolicy(ALL)`. Like in JMS, only properties with `Expose` and virtual properties are kept, and
   the policy only applies to the properties of the class that declares it
 * Support JMS `Inline` on properties and virtual properties. `PropertyMetadata::isInline()` exposes the flag.
+* Throw a `ParseException` for JMS `Inline` on properties with a scalar type (primitive, `DateTime` or enum), because
+  JMS does not serialize them
 
 # Version 2.x
 
