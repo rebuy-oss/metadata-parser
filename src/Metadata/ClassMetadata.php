@@ -29,6 +29,8 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
      * @param PropertyMetadata[]  $properties
      * @param ParameterMetadata[] $constructorParameters
      * @param string[]            $postDeserializeMethods Method names to call on the class after it has been deserialized.
+     * @param string[]            $preSerializeMethods    Method names to call on the class before it is serialized.
+     * @param string[]            $postSerializeMethods   Method names to call on the class after it has been serialized.
      * @param string|null         $excludeIf              Symfony expression language expression. The class is excluded when it evaluates to true.
      */
     public function __construct(
@@ -36,6 +38,8 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
         array $properties,
         array $constructorParameters = [],
         private readonly array $postDeserializeMethods = [],
+        private readonly array $preSerializeMethods = [],
+        private readonly array $postSerializeMethods = [],
         private readonly ?ClassDiscriminatorMetadata $discriminatorMetadata = null,
         private readonly ?string $excludeIf = null,
     ) {
@@ -67,6 +71,8 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
             $properties,
             $rawClassMetadata->getConstructorParameters(),
             $rawClassMetadata->getPostDeserializeMethods(),
+            $rawClassMetadata->getPreSerializeMethods(),
+            $rawClassMetadata->getPostSerializeMethods(),
             $rawClassMetadata->getDiscriminatorMetadata(),
             $rawClassMetadata->getExcludeIf(),
         );
@@ -94,6 +100,22 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
     public function getPostDeserializeMethods(): array
     {
         return $this->postDeserializeMethods;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPreSerializeMethods(): array
+    {
+        return $this->preSerializeMethods;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPostSerializeMethods(): array
+    {
+        return $this->postSerializeMethods;
     }
 
     /**
@@ -149,6 +171,8 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
             $properties,
             $this->constructorParameters,
             $this->postDeserializeMethods,
+            $this->preSerializeMethods,
+            $this->postSerializeMethods,
             $this->discriminatorMetadata,
             $this->excludeIf,
         );
@@ -163,6 +187,8 @@ final class ClassMetadata implements \JsonSerializable, \Stringable
             'class_name' => $this->className,
             'properties' => $this->properties,
             'post_deserialize_method' => $this->postDeserializeMethods,
+            'pre_serialize_method' => $this->preSerializeMethods,
+            'post_serialize_method' => $this->postSerializeMethods,
             'constructor_parameters' => $this->constructorParameters,
             'exclude_if' => $this->excludeIf,
         ]);

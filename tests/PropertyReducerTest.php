@@ -40,6 +40,20 @@ class PropertyReducerTest extends TestCase
         $this->assertSame(['method1', 'method2'], $reduced->getPostDeserializeMethods());
     }
 
+    public function testReduceKeepsSerializeMethods(): void
+    {
+        $rawClassMetadata = new RawClassMetadata('Foo');
+        $rawClassMetadata->addPreSerializeMethod('pre1');
+        $rawClassMetadata->addPreSerializeMethod('pre2');
+        $rawClassMetadata->addPostSerializeMethod('post1');
+        $rawClassMetadata->addPostSerializeMethod('post2');
+
+        $reduced = PropertyReducer::reduce($rawClassMetadata);
+
+        $this->assertSame(['pre1', 'pre2'], $reduced->getPreSerializeMethods());
+        $this->assertSame(['post1', 'post2'], $reduced->getPostSerializeMethods());
+    }
+
     public function testReduceKeepsConstructorParameters(): void
     {
         $rawClassMetadata = new RawClassMetadata('Foo');

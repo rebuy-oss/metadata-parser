@@ -16,6 +16,8 @@ use JMS\Serializer\Annotation\Groups;
 use JMS\Serializer\Annotation\Inline;
 use JMS\Serializer\Annotation\MaxDepth;
 use JMS\Serializer\Annotation\PostDeserialize;
+use JMS\Serializer\Annotation\PostSerialize;
+use JMS\Serializer\Annotation\PreSerialize;
 use JMS\Serializer\Annotation\ReadOnlyProperty;
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\SerializerAttribute;
@@ -176,13 +178,33 @@ final readonly class JMSParser implements ModelParserInterface
                 $this->parsePropertyAttributes($classMetadata, $reflMethod, $property, $attributes);
             }
 
-            if ($this->isPostDeserializeMethod($attributes)) {
-                if (!$reflMethod->isPublic()) {
-                    throw ParseException::nonPublicMethod((string) $classMetadata, $reflMethod->getName());
-                }
+            $this->parseSerializationAttributes($classMetadata, $reflMethod, $attributes);
+        }
+    }
 
-                $classMetadata->addPostDeserializeMethod($reflMethod->getName());
-            }
+    /**
+     * @param object[] $attributes
+     */
+    private function parseSerializationAttributes(RawClassMetadata $classMetadata, \ReflectionMethod $reflMethod, array $attributes): void
+    {
+        if (!$this->hasAnyAttribute($attributes, PostDeserialize::class, PreSerialize::class, PostSerialize::class)) {
+            return;
+        }
+
+        if (!$reflMethod->isPublic()) {
+            throw ParseException::nonPublicMethod((string) $classMetadata, $reflMethod->getName());
+        }
+
+        if ($this->hasAnyAttribute($attributes, PostDeserialize::class)) {
+            $classMetadata->addPostDeserializeMethod($reflMethod->getName());
+        }
+
+        if ($this->hasAnyAttribute($attributes, PreSerialize::class)) {
+            $classMetadata->addPreSerializeMethod($reflMethod->getName());
+        }
+
+        if ($this->hasAnyAttribute($attributes, PostSerialize::class)) {
+            $classMetadata->addPostSerializeMethod($reflMethod->getName());
         }
     }
 
@@ -517,11 +539,15 @@ final readonly class JMSParser implements ModelParserInterface
     }
 
     /**
-     * @param object[] $attributes
+     * @param object[]     $attributes
+     * @param class-string ...$attributeClasses
      */
-    private function isPostDeserializeMethod(array $attributes): bool
+    private function hasAnyAttribute(array $attributes, string ...$attributeClasses): bool
     {
-        return array_any($attributes, static fn (object $attribute): bool => $attribute instanceof PostDeserialize);
+        return array_any(
+            $attributes,
+            static fn (object $attribute): bool => array_any($attributeClasses, static fn (string $attributeClass): bool => $attribute instanceof $attributeClass),
+        );
     }
 
     /**
