@@ -32,6 +32,16 @@ final class RawClassMetadata implements \JsonSerializable, \Stringable
     private array $postDeserializeMethods = [];
 
     /**
+     * @var string[]
+     */
+    private array $preSerializeMethods = [];
+
+    /**
+     * @var string[]
+     */
+    private array $postSerializeMethods = [];
+
+    /**
      * @var ParameterMetadata[]
      */
     private array $constructorParameters = [];
@@ -226,6 +236,10 @@ final class RawClassMetadata implements \JsonSerializable, \Stringable
 
     public function addPostDeserializeMethod(string $method): void
     {
+        if (\in_array($method, $this->postDeserializeMethods, true)) {
+            return;
+        }
+
         $this->postDeserializeMethods[] = $method;
     }
 
@@ -235,6 +249,40 @@ final class RawClassMetadata implements \JsonSerializable, \Stringable
     public function getPostDeserializeMethods(): array
     {
         return $this->postDeserializeMethods;
+    }
+
+    public function addPreSerializeMethod(string $method): void
+    {
+        if (\in_array($method, $this->preSerializeMethods, true)) {
+            return;
+        }
+
+        $this->preSerializeMethods[] = $method;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPreSerializeMethods(): array
+    {
+        return $this->preSerializeMethods;
+    }
+
+    public function addPostSerializeMethod(string $method): void
+    {
+        if (\in_array($method, $this->postSerializeMethods, true)) {
+            return;
+        }
+
+        $this->postSerializeMethods[] = $method;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPostSerializeMethods(): array
+    {
+        return $this->postSerializeMethods;
     }
 
     public function addConstructorParameter(ParameterMetadata $parameter): void
@@ -319,6 +367,8 @@ final class RawClassMetadata implements \JsonSerializable, \Stringable
             'class_name' => $this->className,
             'properties' => $this->properties,
             'post_deserialize_method' => $this->postDeserializeMethods,
+            'pre_serialize_method' => $this->preSerializeMethods,
+            'post_serialize_method' => $this->postSerializeMethods,
             'constructor_parameters' => $this->constructorParameters,
         ]);
     }

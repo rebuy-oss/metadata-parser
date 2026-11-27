@@ -24,6 +24,8 @@
 * Support JMS `Inline` on properties and virtual properties. `PropertyMetadata::isInline()` exposes the flag.
 * Throw a `ParseException` for JMS `Inline` on properties with a scalar type (primitive, `DateTime` or enum), because
   JMS does not serialize them
+* Support JMS `PreSerialize` and `PostSerialize`
+* Fix duplicate `PostDeserialize` methods when the method is declared in a parent class
 
 # Version 2.x
 

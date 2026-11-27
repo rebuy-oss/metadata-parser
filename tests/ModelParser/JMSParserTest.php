@@ -40,6 +40,7 @@ use Tests\Liip\MetadataParser\ModelParser\Model\ExclusionPolicyAllParent;
 use Tests\Liip\MetadataParser\ModelParser\Model\Ferry;
 use Tests\Liip\MetadataParser\ModelParser\Model\Moped;
 use Tests\Liip\MetadataParser\ModelParser\Model\Nested;
+use Tests\Liip\MetadataParser\ModelParser\Model\SerializationEventsParent;
 use Tests\Liip\MetadataParser\ModelParser\Model\Vehicle;
 
 #[Small]
@@ -1382,6 +1383,105 @@ class JMSParserTest extends TestCase
         $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
 
         $this->assertSame(['foo', 'bar'], $classMetadata->getPostDeserializeMethods());
+    }
+
+    public function testPreSerializeMethods(): void
+    {
+        $c = new class {
+            #[JMS\PreSerialize]
+            public function foo(): void
+            {
+            }
+
+            #[JMS\PreSerialize]
+            public function bar(): void
+            {
+            }
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $this->assertSame(['foo', 'bar'], $classMetadata->getPreSerializeMethods());
+    }
+
+    public function testPostSerializeMethods(): void
+    {
+        $c = new class {
+            #[JMS\PostSerialize]
+            public function foo(): void
+            {
+            }
+
+            #[JMS\PostSerialize]
+            public function bar(): void
+            {
+            }
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $this->assertSame(['foo', 'bar'], $classMetadata->getPostSerializeMethods());
+    }
+
+    public function testNonPublicPreSerializeMethod(): void
+    {
+        $c = new class {
+            #[JMS\PreSerialize]
+            private function foo(): void
+            {
+            }
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+
+        $this->expectException(ParseException::class);
+        $this->expectExceptionMessage('foo');
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+    }
+
+    public function testNonPublicPostSerializeMethod(): void
+    {
+        $c = new class {
+            #[JMS\PostSerialize]
+            private function foo(): void
+            {
+            }
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+
+        $this->expectException(ParseException::class);
+        $this->expectExceptionMessage('foo');
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+    }
+
+    public function testInheritedPrePostMethodsAreAddedOnce(): void
+    {
+        $c = new class extends SerializationEventsParent {
+            #[JMS\PostDeserialize]
+            public function childPostDeserialize(): void
+            {
+            }
+
+            #[JMS\PreSerialize]
+            public function childPreSerialize(): void
+            {
+            }
+
+            #[JMS\PostSerialize]
+            public function childPostSerialize(): void
+            {
+            }
+        };
+
+        $classMetadata = new RawClassMetadata($c::class);
+        $this->parser->parse($classMetadata, new SnakeCasePropertyNamingStrategy());
+
+        $this->assertSame(['parentPostDeserialize', 'childPostDeserialize'], $classMetadata->getPostDeserializeMethods());
+        $this->assertSame(['parentPreSerialize', 'childPreSerialize'], $classMetadata->getPreSerializeMethods());
+        $this->assertSame(['parentPostSerialize', 'childPostSerialize'], $classMetadata->getPostSerializeMethods());
     }
 
     public function testReadOnlyProperty(): void
